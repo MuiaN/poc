@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Djibouti — Country Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="../theme.js"></script>
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-body); font-size: 12px; background: var(--bg); color: var(--text); }
+    .page-header { background: var(--bg-2); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 10px 18px; }
+    .header-title { color: var(--text); font-size: 16px; font-weight: 700; letter-spacing: 0.2px; }
+    .header-tz    { color: var(--accent); font-size: 13px; font-weight: 700; }
+    .tab-bar { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--bg-3); border-bottom: 1px solid var(--border); }
+    .tab-btn { padding: 10px 14px; text-align: center; font-size: 12px; font-weight: 600; color: var(--text-2); background: var(--bg-3); border: none; cursor: pointer; border-right: 1px solid var(--border); transition: background 0.15s, color 0.15s; white-space: nowrap; font-family: var(--font-body); }
+    .tab-btn:last-child { border-right: none; }
+    .tab-btn:hover { background: var(--bg-hover); color: var(--text); }
+    .tab-btn.t-overview { background: var(--accent); color: #fff; }
+    .tab-btn.t-threat   { background: var(--danger); color: #fff; }
+    .tab-btn.t-weather  { background: var(--warn); color: #0B0F1A; }
+    .tab-btn.t-history  { background: var(--bg-hover); color: var(--text); }
+    .tab-panel { display: none; padding: 12px 14px 18px; }
+    .tab-panel.active { display: block; }
+    .kpi-strip { display: grid; grid-template-columns: repeat(5, 1fr); border: 1px solid var(--border); margin-bottom: 12px; background: var(--bg-2); }
+    .kpi-card { padding: 9px 13px; border-right: 1px solid var(--border); }
+    .kpi-card:last-child { border-right: none; }
+    .kpi-label { font-size: 9.5px; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 3px; }
+    .kpi-val   { font-size: 18px; font-weight: 700; line-height: 1.2; }
+    .kpi-sub   { font-size: 10px; color: var(--text-2); margin-top: 3px; line-height: 1.4; }
+    .c-orange  { color: var(--warn); }
+    .c-green   { color: var(--success); }
+    .c-navy    { color: var(--text); }
+    .c-red     { color: var(--danger); }
+    .c-amber   { color: var(--warn); }
+    .three-col { display: grid; grid-template-columns: 27% 1fr 28%; gap: 12px; }
+    .two-col   { display: grid; grid-template-columns: 56% 1fr; gap: 12px; }
+    .panel { background: var(--bg-2); border: 1px solid var(--border); }
+    .ph { padding: 6px 11px; font-size: 11.5px; font-weight: 700; border-bottom: 1px solid var(--border); }
+    .ph-blue   { background: var(--bg-3); color: var(--accent);   border-left: 3px solid var(--accent); }
+    .ph-navy   { background: var(--bg-3); color: var(--text);     border-left: 3px solid var(--text-2); }
+    .ph-maroon { background: rgba(239,68,68,0.08);  color: var(--danger);  border-left: 3px solid var(--danger); }
+    .ph-amber  { background: rgba(245,158,11,0.08); color: var(--warn);    border-left: 3px solid var(--warn); }
+    .ph-slate  { background: var(--bg-3); color: var(--text-2);   border-left: 3px solid var(--text-2); }
+    .ph-green  { background: rgba(16,185,129,0.08); color: var(--success); border-left: 3px solid var(--success); }
+    .ph-red    { background: rgba(239,68,68,0.08);  color: var(--danger);  border-left: 3px solid var(--danger); }
+    .pb { padding: 11px 12px; font-size: 11.5px; line-height: 1.58; color: var(--text); }
+    .pb p { margin-bottom: 8px; }
+    .pb p:last-child { margin-bottom: 0; }
+    .dt { width: 100%; border-collapse: collapse; font-size: 11px; }
+    .dt thead th { background: var(--bg-3); padding: 5px 8px; text-align: left; font-weight: 700; border-bottom: 2px solid var(--border); white-space: nowrap; color: var(--text-2); }
+    .dt tbody tr:nth-child(even) { background: var(--bg-3); }
+    .dt tbody tr:hover { background: var(--bg-hover); }
+    .dt tbody td { padding: 5px 8px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.45; color: var(--text); }
+    .dt-sm td { font-size: 10.5px; }
+    .dt tbody td.note { font-size: 10.5px; color: var(--text-2); }
+    .risk { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 2px; white-space: nowrap; }
+    .r-low      { background: rgba(16,185,129,0.15);  color: var(--success); }
+    .r-mod      { background: rgba(245,158,11,0.15);  color: var(--warn); }
+    .r-mod-el   { background: rgba(249,115,22,0.15);  color: #f97316; font-style: italic; }
+    .r-el       { background: rgba(239,68,68,0.12);   color: #f97316; }
+    .r-high     { background: var(--danger);           color: #fff; }
+    .r-seasonal { background: rgba(139,92,246,0.15);  color: #a78bfa; }
+    .r-monitor  { background: var(--accent-dim);       color: var(--accent); }
+    .kv { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid var(--border); font-size: 11px; gap: 6px; align-items: flex-start; }
+    .kv:last-child { border-bottom: none; }
+    .kv-k { color: var(--text-2); flex-shrink: 0; }
+    .kv-v { text-align: right; font-weight: 600; color: var(--text); font-size: 10.5px; }
+    .kv-v.blue  { color: var(--accent); }
+    .kv-v.red   { color: var(--danger); }
+    .kv-v.green { color: var(--success); font-weight: 700; }
+    .kv-v.amber { color: var(--warn); }
+    .threat-card { border: 1px solid var(--border); margin-bottom: 10px; }
+    .threat-card:last-child { margin-bottom: 0; }
+    .tc-head { display: flex; align-items: center; gap: 10px; padding: 7px 11px; border-bottom: 1px solid var(--border); }
+    .tc-badge { display: inline-block; font-size: 9.5px; font-weight: 800; padding: 2px 8px; border-radius: 2px; white-space: nowrap; letter-spacing: 0.5px; }
+    .tc-high  { background: var(--danger);  color: #fff; }
+    .tc-mod   { background: var(--warn);    color: #0B0F1A; }
+    .tc-watch { background: var(--success); color: #0B0F1A; }
+    .tc-title { font-size: 12px; font-weight: 700; color: var(--text); }
+    .tc-body  { padding: 9px 11px; font-size: 11.5px; line-height: 1.55; color: var(--text); }
+    .tc-border-high  { border-left: 3px solid var(--danger); }
+    .tc-border-mod   { border-left: 3px solid var(--warn); }
+    .tc-border-watch { border-left: 3px solid var(--success); }
+    .season-card { border: 1px solid var(--border); margin-bottom: 8px; }
+    .season-card:last-child { margin-bottom: 0; }
+    .sc-head { padding: 6px 11px; font-size: 11px; font-weight: 700; border-bottom: 1px solid var(--border); }
+    .sc-body { padding: 8px 11px; font-size: 11.5px; line-height: 1.5; color: var(--text); }
+    .sc-dry   { background: rgba(245,158,11,0.08); color: var(--warn); border-left: 3px solid var(--warn); }
+    .sc-wet   { background: rgba(59,130,246,0.08); color: var(--accent); border-left: 3px solid var(--accent); }
+    .sc-trans { background: rgba(16,185,129,0.08); color: var(--success); border-left: 3px solid var(--success); }
+    .wx-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 8px; }
+    .wx-card { background: var(--bg-3); border: 1px solid var(--border); padding: 9px 12px; }
+    .wx-label { font-size: 10px; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px; }
+    .wx-val { font-size: 18px; font-weight: 700; }
+    .wx-sub { font-size: 10px; color: var(--text-2); margin-top: 2px; }
+    .month-grid { display: grid; grid-template-columns: repeat(12,1fr); border: 1px solid var(--border); }
+    .mg-cell { padding: 4px 2px; text-align: center; border-right: 1px solid var(--border); font-size: 9.5px; }
+    .mg-cell:last-child { border-right: none; }
+    .mg-label { color: var(--text-2); font-weight: 700; margin-bottom: 2px; }
+    .mg-val { font-weight: 700; }
+    .mg-dry    { background: rgba(245,158,11,0.12); color: var(--warn); }
+    .mg-trans  { background: rgba(16,185,129,0.12); color: var(--success); }
+    .mg-wet    { background: rgba(59,130,246,0.12); color: var(--accent); }
+    .mg-hot    { background: rgba(239,68,68,0.12);  color: var(--danger); }
+    .bar-chart { padding: 10px 12px; }
+    .bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; font-size: 11px; }
+    .bar-row:last-child { margin-bottom: 0; }
+    .bar-label { width: 28%; color: var(--text-2); text-align: right; flex-shrink: 0; }
+    .bar-track { flex: 1; background: var(--bg-3); height: 10px; border-radius: 1px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 1px; }
+    .bar-val { width: 42px; text-align: right; font-weight: 700; color: var(--text); flex-shrink: 0; }
+    .b-blue   { background: var(--accent); }
+    .b-red    { background: var(--danger); }
+    .b-warn   { background: var(--warn); }
+    .b-green  { background: var(--success); }
+    .b-purple { background: #8b5cf6; }
+    .b-slate  { background: var(--text-2); }
+    .donut-wrap { display: flex; align-items: center; gap: 16px; padding: 10px 12px; }
+    .donut-legend { flex: 1; font-size: 11px; }
+    .dl-row { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+    .dl-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+    .dl-label { color: var(--text-2); flex: 1; }
+    .dl-val { font-weight: 700; color: var(--text); }
+    .notice { background: rgba(245,158,11,0.08); border: 1px solid var(--warn); padding: 8px 12px; font-size: 11px; color: var(--warn); margin-bottom: 10px; line-height: 1.5; }
+    .notice-red { background: rgba(239,68,68,0.08); border-color: var(--danger); color: var(--danger); }
+    .notice-blue { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+    .spacer { height: 10px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div>
+    <div class="header-title">&#9992; Djibouti</div>
+    <div style="font-size:11px;color:var(--text-2);margin-top:2px;">Republic of Djibouti &nbsp;|&nbsp; ICAO Region: HADI</div>
+  </div>
+  <div class="header-tz">UTC +03:00</div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn t-overview active" onclick="switchTab(this,'overview')">Country Overview</button>
+  <button class="tab-btn" onclick="switchTab(this,'threat')">Threat Profile</button>
+  <button class="tab-btn" onclick="switchTab(this,'weather')">Weather Trends &amp; Patterns</button>
+  <button class="tab-btn" onclick="switchTab(this,'history')">Historical Aviation Data</button>
+</div>
+
+<!-- ═══════════════════════ OVERVIEW ═══════════════════════ -->
+<div id="tab-overview" class="tab-panel active">
+
+  <div class="kpi-strip">
+    <div class="kpi-card">
+      <div class="kpi-label">Hull Risk</div>
+      <div class="kpi-val c-amber">MOD</div>
+      <div class="kpi-sub">Moderate — heat &amp; mil ops</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">War Risk</div>
+      <div class="kpi-val c-green">LOW</div>
+      <div class="kpi-sub">No active conflict; stable since 2008</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Terrorism</div>
+      <div class="kpi-val c-amber">MOD</div>
+      <div class="kpi-sub">Al-Shabaab cross-border spillover</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Airspace</div>
+      <div class="kpi-val c-navy">OPEN</div>
+      <div class="kpi-sub">Normal — ASECNA/DJAC managed</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Regulatory</div>
+      <div class="kpi-val c-green">DJAC</div>
+      <div class="kpi-sub">Functional; CAT 1 FAA status</div>
+    </div>
+  </div>
+
+  <div class="three-col">
+
+    <!-- LEFT -->
+    <div>
+      <div class="panel" style="margin-bottom:10px;">
+        <div class="ph ph-blue">Primary Airport</div>
+        <div class="pb" style="padding-bottom:6px;">
+          <div class="kv"><span class="kv-k">ICAO / IATA</span><span class="kv-v blue">HADR / JIB</span></div>
+          <div class="kv"><span class="kv-k">Full Name</span><span class="kv-v">Djibouti-Ambouli Intl</span></div>
+          <div class="kv"><span class="kv-k">Elevation</span><span class="kv-v">49 ft / 15 m ASL</span></div>
+          <div class="kv"><span class="kv-k">Runway</span><span class="kv-v">RWY 09/27 — 3,000 m</span></div>
+          <div class="kv"><span class="kv-k">ILS</span><span class="kv-v">CAT I (RWY 09)</span></div>
+          <div class="kv"><span class="kv-k">Fuel</span><span class="kv-v green">JET A-1 available</span></div>
+          <div class="kv"><span class="kv-k">Handling</span><span class="kv-v">Djibouti Airport Services</span></div>
+          <div class="kv"><span class="kv-k">PPR</span><span class="kv-v amber">Required for priv/biz</span></div>
+          <div class="kv"><span class="kv-k">Curfew</span><span class="kv-v">2200–0500 LT (soft)</span></div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-bottom:10px;">
+        <div class="ph ph-navy">Regulatory &amp; Authority</div>
+        <div class="pb" style="padding-bottom:6px;">
+          <div class="kv"><span class="kv-k">CAA</span><span class="kv-v">DJAC (ANAC Djibouti)</span></div>
+          <div class="kv"><span class="kv-k">ATS Provider</span><span class="kv-v">ASECNA</span></div>
+          <div class="kv"><span class="kv-k">FIR</span><span class="kv-v">Djibouti FIR (HADR)</span></div>
+          <div class="kv"><span class="kv-k">ICAO Audit</span><span class="kv-v green">USOAP — compliant</span></div>
+          <div class="kv"><span class="kv-k">FAA Status</span><span class="kv-v green">CAT 1 (IASA)</span></div>
+          <div class="kv"><span class="kv-k">EU Safety List</span><span class="kv-v green">Not listed</span></div>
+          <div class="kv"><span class="kv-k">RNAV</span><span class="kv-v">RNAV-1 capable</span></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="ph ph-amber">Key Constraints</div>
+        <div class="pb" style="padding-bottom:6px;">
+          <div class="kv"><span class="kv-k">Mil Base Proximity</span><span class="kv-v red">Heavy — see notes</span></div>
+          <div class="kv"><span class="kv-k">Slot System</span><span class="kv-v amber">Required; limited slots</span></div>
+          <div class="kv"><span class="kv-k">Summer Heat</span><span class="kv-v red">Up to 47 °C; perf critical</span></div>
+          <div class="kv"><span class="kv-k">Humidity</span><span class="kv-v amber">Very high Jun–Aug</span></div>
+          <div class="kv"><span class="kv-k">Wake Turbulence</span><span class="kv-v amber">Mil heavies routinely</span></div>
+          <div class="kv"><span class="kv-k">NOTAMs</span><span class="kv-v">Check HADI/HADR 48 hrs prior</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CENTRE -->
+    <div>
+      <div class="notice notice-blue">
+        <strong>STRATEGIC LOCATION NOTE:</strong> Djibouti hosts the only US overseas military base in Africa (Camp Lemonnier), a French naval base, Chinese PLA Navy Base (PLAN), Japanese JSDF, Italian, and Spanish forces. Military traffic is constant at HADR — civilian ops require careful slot management and expect TCAS/RA events.
+      </div>
+
+      <div class="panel" style="margin-bottom:10px;">
+        <div class="ph ph-navy">Country Overview</div>
+        <div class="pb">
+          <p>Djibouti sits at the Bab-el-Mandeb Strait — the world's fourth-busiest shipping lane — giving it outsized geopolitical significance. The country is politically stable under President Guelleh, though governance is authoritarian. GDP is driven by port revenue and foreign military base rents.</p>
+          <p>Aviation operations are concentrated at HADR, which serves simultaneously as the national civil airport and a major multinational military hub. This dual-use environment produces high traffic density, complex coordination requirements, and frequent military-priority movements that can delay civilian traffic.</p>
+          <p>The primary aviation hazards are environmental: extreme summer heat (ISA +30°C possible), very high humidity reducing engine efficiency, and the proximity of Somalia/Yemen requiring heightened security awareness. Djibouti itself has no active conflict.</p>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-bottom:10px;">
+        <div class="ph ph-blue">Airport Environment — HADR</div>
+        <div class="pb">
+          <p><strong>Military Co-location:</strong> Camp Lemonnier (JSOC, AFRICOM) occupies the northern apron. French base (BA188) has dedicated taxiway access. Chinese PLAN base is 3 km north at Doraleh. NOTAMs regularly restrict portions of the maneuvering area for military exercises or classified arrivals.</p>
+          <p><strong>Performance:</strong> At 15 m ASL, density altitude is non-critical in winter; however summer temps of 45–47 °C create ISA +28–30°C conditions. Departure performance planning must account for reduced climb gradients, engine bleed restrictions, and potential MTOW limitations.</p>
+          <p><strong>Fuel/Ground Services:</strong> JET A-1 reliably available from Total and Shell franchises. GPU, potable water, and catering are available but advance notice is recommended for bizav/charter. Handling quality is moderate; confirm ground power availability in summer.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="ph ph-slate">Bordering FIRs &amp; Airspace</div>
+        <div class="pb" style="padding-bottom:6px;">
+          <div class="kv"><span class="kv-k">North (Yemen)</span><span class="kv-v red">OYSC FIR — active conflict</span></div>
+          <div class="kv"><span class="kv-k">West (Ethiopia)</span><span class="kv-v green">HAAB FIR — open</span></div>
+          <div class="kv"><span class="kv-k">South (Somalia)</span><span class="kv-v amber">HCSM FIR — moderate risk</span></div>
+          <div class="kv"><span class="kv-k">Gulf of Aden</span><span class="kv-v amber">Piracy risk — maritime; low for aviation</span></div>
+          <div class="kv"><span class="kv-k">Red Sea Routing</span><span class="kv-v red">Yemen overflight avoid (SAM/AAA risk)</span></div>
+          <div class="kv"><span class="kv-k">GNSS</span><span class="kv-v amber">Jamming events from Yemen conflict</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div>
+      <div class="panel" style="margin-bottom:10px;">
+        <div class="ph ph-navy">Quarterly Risk Index</div>
+        <svg width="100%" height="130" viewBox="0 0 210 130" style="display:block;padding:8px 12px;">
+          <text x="0" y="12" font-size="9" fill="var(--text-2)">Q1 Jan–Mar</text>
+          <rect x="0" y="16" width="120" height="11" rx="1" fill="var(--accent)" opacity="0.85"/>
+          <text x="124" y="25" font-size="9" fill="var(--text)" font-weight="700">LOW</text>
+
+          <text x="0" y="44" font-size="9" fill="var(--text-2)">Q2 Apr–Jun</text>
+          <rect x="0" y="48" width="150" height="11" rx="1" fill="var(--warn)" opacity="0.85"/>
+          <text x="154" y="57" font-size="9" fill="var(--text)" font-weight="700">MOD</text>
+
+          <text x="0" y="76" font-size="9" fill="var(--text-2)">Q3 Jul–Sep</text>
+          <rect x="0" y="80" width="180" height="11" rx="1" fill="var(--danger)" opacity="0.85"/>
+          <text x="184" y="89" font-size="9" fill="var(--text)" font-weight="700">HIGH</text>
+
+          <text x="0" y="108" font-size="9" fill="var(--text-2)">Q4 Oct–Dec</text>
+          <rect x="0" y="112" width="115" height="11" rx="1" fill="var(--accent)" opacity="0.85"/>
+          <text x="119" y="121" font-size="9" fill="var(--text)" font-weight="700">LOW</text>
+        </svg>
+      </div>
+
+      <div class="panel" style="margin-bottom:10px;">
+        <div class="ph ph-navy">Risk Summary</div>
+        <div class="pb" style="padding-bottom:6px;">
+          <div class="kv"><span class="kv-k">Overall</span><span class="kv-v amber">MODERATE</span></div>
+          <div class="kv"><span class="kv-k">Security</span><span class="kv-v blue">LOW–MOD</span></div>
+          <div class="kv"><span class="kv-k">Operational</span><span class="kv-v amber">MOD (heat/mil)</span></div>
+          <div class="kv"><span class="kv-k">Regulatory</span><span class="kv-v green">LOW</span></div>
+          <div class="kv"><span class="kv-k">Environmental</span><span class="kv-v red">HIGH (summer)</span></div>
+          <div class="kv"><span class="kv-k">War Risk Ins.</span><span class="kv-v green">Standard rates</span></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="ph ph-amber">Operator Checklist</div>
+        <div class="pb" style="padding-bottom:6px;font-size:11px;line-height:1.7;">
+          <div>&#9744; HADR slot — confirm 72 hrs prior</div>
+          <div>&#9744; Check NOTAMs for military exercise RTAs</div>
+          <div>&#9744; Summer: compute perf at ISA +28°C</div>
+          <div>&#9744; War risk coverage valid (Yemen proximity)</div>
+          <div>&#9744; Yemen airspace — avoid OYSC FIR entirely</div>
+          <div>&#9744; GNSS jamming contingency procedure loaded</div>
+          <div>&#9744; Fuel confirmed (Total/Shell — advance notice)</div>
+          <div>&#9744; PPR obtained for non-scheduled ops</div>
+          <div>&#9744; Overflight: DJAC +253 21 35 14 48 hrs prior</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════ THREAT PROFILE ═══════════════════════ -->
+<div id="tab-threat" class="tab-panel">
+
+  <div class="kpi-strip">
+    <div class="kpi-card">
+      <div class="kpi-label">Ground Attack</div>
+      <div class="kpi-val c-green">VERY LOW</div>
+      <div class="kpi-sub">No active AO; stable government</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">MANPADS</div>
+      <div class="kpi-val c-amber">LOW–MOD</div>
+      <div class="kpi-sub">Somalia/Yemen spillover concern</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Cyber / GPS</div>
+      <div class="kpi-val c-amber">MOD</div>
+      <div class="kpi-sub">Yemen-linked GNSS jamming</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Crime / Carjack</div>
+      <div class="kpi-val c-amber">MOD</div>
+      <div class="kpi-sub">Urban petty crime; low violent</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Regional Spill</div>
+      <div class="kpi-val c-amber">MOD</div>
+      <div class="kpi-sub">Yemen/Somalia proximity</div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="threat-card tc-border-mod">
+        <div class="tc-head">
+          <span class="tc-badge tc-mod">MODERATE</span>
+          <span class="tc-title">Al-Shabaab — Cross-Border Spillover</span>
+        </div>
+        <div class="tc-body">Al-Shabaab has conducted attacks in neighbouring Ethiopia and Kenya and maintains the intent to strike Western/US targets globally. Djibouti hosts the single largest US counter-terrorism hub in Africa (Camp Lemonnier), making it a priority target for the group. To date, attacks have not materialised on Djiboutian soil, partly due to the significant security presence. Airport area is heavily secured by foreign military.</div>
+      </div>
+
+      <div class="threat-card tc-border-mod">
+        <div class="tc-head">
+          <span class="tc-badge tc-mod">MODERATE</span>
+          <span class="tc-title">Yemen Conflict Proximity — GNSS &amp; Overflight</span>
+        </div>
+        <div class="tc-body">The Bab-el-Mandeb Strait separating Djibouti from Yemen is approximately 30 km wide. Houthi forces in Yemen possess ballistic missiles, cruise missiles, and anti-ship munitions. GNSS jamming emanating from Yemen has affected FIR boundaries. All aircraft should avoid the OYSC (Sana'a) FIR. Contingency DME/IRS navigation procedures must be briefed for all flights transiting the area.</div>
+      </div>
+
+      <div class="threat-card tc-border-watch">
+        <div class="tc-head">
+          <span class="tc-badge tc-watch">WATCH</span>
+          <span class="tc-title">Multinational Military Airspace Conflicts</span>
+        </div>
+        <div class="tc-body">HADR manages simultaneous civil and military operations for 6+ national forces. Unannounced military priority movements, RTA blocks, and exercise-related NOTAM activations can cause significant delays or diversions at short notice. Maintain flexible fuel reserves; destination alternate planning is critical, particularly with limited alternates (HHAS Asmara is an option but politically complex).</div>
+      </div>
+
+      <div class="threat-card tc-border-watch">
+        <div class="tc-head">
+          <span class="tc-badge tc-watch">WATCH</span>
+          <span class="tc-title">Piracy — Maritime Context / Low Aviation Risk</span>
+        </div>
+        <div class="tc-body">The Gulf of Aden remains a piracy zone for maritime traffic, but aviation risk is effectively nil below FL200 over open water. Aircraft transiting low-level over Gulf of Aden should maintain situational awareness, but this is not an operationally limiting factor for normal commercial operations.</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel" style="margin-bottom:10px;">
+        <div class="ph ph-maroon">Threat Summary Matrix</div>
+        <table class="dt dt-sm">
+          <thead><tr><th>Vector</th><th>Level</th><th>Trend</th></tr></thead>
+          <tbody>
+            <tr><td>Al-Shabaab (domestic)</td><td><span class="risk r-mod">MOD</span></td><td>Stable</td></tr>
+            <tr><td>Yemen overflight</td><td><span class="risk r-high">HIGH</span></td><td>Ongoing</td></tr>
+            <tr><td>GNSS jamming</td><td><span class="risk r-mod">MOD</span></td><td>Increasing</td></tr>
+            <tr><td>Airport bombing</td><td><span class="risk r-low">LOW</span></td><td>Stable</td></tr>
+            <tr><td>MANPADS</td><td><span class="risk r-mod">MOD</span></td><td>Stable</td></tr>
+            <tr><td>Civil unrest</td><td><span class="risk r-low">LOW</span></td><td>Stable</td></tr>
+            <tr><td>Piracy (air)</td><td><span class="risk r-low">NEGLIGIBLE</span></td><td>Stable</td></tr>
+            <tr><td>Cyber attack</td><td><span class="risk r-mod">MOD</span></td><td>Increasing</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="panel">
+        <div class="ph ph-navy">Security Context</div>
+        <div class="pb">
+          <p>Djibouti's internal security environment is stable, underpinned by the deterrent effect of 6,000+ foreign military personnel. The government maintains firm control; political opposition is suppressed rather than armed.</p>
+          <p>The primary threats are regional externalities: Al-Shabaab intent against US/Western targets (given Camp Lemonnier), Yemen conflict spillover via GNSS/missile overflight risk, and the broader Somali instability corridor.</p>
+          <p>Security at HADR airport is multi-layered: DJAC aviation security, national DSP (Direction de la Surveillance du Territoire), and US/French perimeter security. Screening standards are generally aligned with ICAO Annex 17. No significant airport security incidents recorded in the past 5 years.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ WEATHER ═══════════════════════ -->
+<div id="tab-weather" class="tab-panel">
+
+  <div class="kpi-strip">
+    <div class="kpi-card">
+      <div class="kpi-label">Peak Temp (Jul)</div>
+      <div class="kpi-val c-red">47 °C</div>
+      <div class="kpi-sub">One of hottest airports globally</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Min Temp (Jan)</div>
+      <div class="kpi-val c-navy">23 °C</div>
+      <div class="kpi-sub">Night min ~18 °C</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Annual Rain</div>
+      <div class="kpi-val c-amber">150 mm</div>
+      <div class="kpi-sub">Very arid; most Oct–Apr</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Visibility Hazard</div>
+      <div class="kpi-val c-amber">DUST</div>
+      <div class="kpi-sub">Khamsin winds; sand in transit</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Wind Season</div>
+      <div class="kpi-val c-navy">Jun–Aug</div>
+      <div class="kpi-sub">Khamsin (SW) 30–50 kt gusts</div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="panel" style="margin-bottom:10px;">
+        <div class="ph ph-amber">Monthly Weather Profile — HADR</div>
+        <div class="month-grid" style="margin:10px 10px 0;">
+          <div class="mg-cell mg-trans"><div class="mg-label">JAN</div><div class="mg-val">27°</div></div>
+          <div class="mg-cell mg-trans"><div class="mg-label">FEB</div><div class="mg-val">29°</div></div>
+          <div class="mg-cell mg-trans"><div class="mg-label">MAR</div><div class="mg-val">32°</div></div>
+          <div class="mg-cell mg-hot"><div class="mg-label">APR</div><div class="mg-val">36°</div></div>
+          <div class="mg-cell mg-hot"><div class="mg-label">MAY</div><div class="mg-val">40°</div></div>
+          <div class="mg-cell mg-hot"><div class="mg-label">JUN</div><div class="mg-val">44°</div></div>
+          <div class="mg-cell mg-hot"><div class="mg-label">JUL</div><div class="mg-val">47°</div></div>
+          <div class="mg-cell mg-hot"><div class="mg-label">AUG</div><div class="mg-val">45°</div></div>
+          <div class="mg-cell mg-hot"><div class="mg-label">SEP</div><div class="mg-val">40°</div></div>
+          <div class="mg-cell mg-trans"><div class="mg-label">OCT</div><div class="mg-val">34°</div></div>
+          <div class="mg-cell mg-trans"><div class="mg-label">NOV</div><div class="mg-val">30°</div></div>
+          <div class="mg-cell mg-trans"><div class="mg-label">DEC</div><div class="mg-val">26°</div></div>
+        </div>
+        <div style="padding:6px 10px 6px;font-size:10px;color:var(--text-2);">Max temperature °C by month. Orange = ISA +20°C or above. Red = ISA +28°C or above.</div>
+      </div>
+
+      <div class="panel" style="margin-bottom:10px;">
+        <div class="ph ph-navy">Seasonal Summary</div>
+        <div class="season-card">
+          <div class="sc-head sc-dry">Hot Dry Season — May to September</div>
+          <div class="sc-body">The dominant hazard period. Temperatures 40–47 °C produce ISA deviations of +27 to +30°C. Density altitude at HADR (15 m ASL) can reach 2,000 m equivalent in peak heat. High humidity in July–August compounds engine performance reduction. Khamsin/SW winds bring sand and dust, reducing visibility to 2,000–4,000 m. Pre-flight performance calculation is mandatory. Night departures recommended where operationally possible.</div>
+        </div>
+        <div class="season-card">
+          <div class="sc-head sc-trans">Transition Season — October to April</div>
+          <div class="sc-body">Significantly more benign. Temperatures range 23–36°C. Light NE trade winds prevail. Very occasional rainfall events Oct–Mar (avg 150 mm annual total). Visibility is generally excellent (CAVOK common) outside of occasional dust haze from inland. This is the optimal period for heavy aircraft operations and maintenance visits.</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="ph ph-navy">Khamsin / Dust Events</div>
+        <div class="pb">
+          <p>The Khamsin is a hot, dry southwesterly wind common May–September. Peak gusts of 30–50 kt with associated blowing sand reduce visibility to 1,500–3,000 m in moderate events and below 800 m in severe events. Onset is typically gradual over 1–2 hours (unlike haboobs in Sudan). Sand ingestion risk for low-inlet engines during ground ops.</p>
+          <p>METAR codes: BLDU (blowing dust), DRSA (drifting sand). Monitor SIGMET for DS/SS. AOG risk for helicopter ops is significant during severe dust events. Engine wash cycles increase during dust season.</p>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel" style="margin-bottom:10px;">
+        <div class="ph ph-navy">Performance Critical Data — HADR</div>
+        <div class="pb" style="padding-bottom:6px;">
+          <div class="kv"><span class="kv-k">Elevation</span><span class="kv-v">49 ft / 15 m</span></div>
+          <div class="kv"><span class="kv-k">Max Recorded Temp</span><span class="kv-v red">48.5 °C</span></div>
+          <div class="kv"><span class="kv-k">ISA Dev (Jul avg)</span><span class="kv-v red">+28 to +30 °C</span></div>
+          <div class="kv"><span class="kv-k">Density Alt (Jul peak)</span><span class="kv-v red">~1,800 m equiv.</span></div>
+          <div class="kv"><span class="kv-k">Humidity (Jul–Aug)</span><span class="kv-v amber">65–80% RH</span></div>
+          <div class="kv"><span class="kv-k">Tyre Temp Risk</span><span class="kv-v amber">Concrete surface >75°C</span></div>
+          <div class="kv"><span class="kv-k">Brake Cooling</span><span class="kv-v amber">Extend cooling intervals</span></div>
+          <div class="kv"><span class="kv-k">RWY 09/27 PCN</span><span class="kv-v">PCN 82/F/B/X/T</span></div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-bottom:10px;">
+        <div class="ph ph-navy">Prevailing Winds</div>
+        <div class="bar-chart">
+          <div class="bar-row"><span class="bar-label">Calm (Jan–Apr)</span><div class="bar-track"><div class="bar-fill b-blue" style="width:55%;"></div></div><span class="bar-val">NE 10–15</span></div>
+          <div class="bar-row"><span class="bar-label">Khamsin (May–Sep)</span><div class="bar-track"><div class="bar-fill b-red" style="width:85%;"></div></div><span class="bar-val">SW 25–50</span></div>
+          <div class="bar-row"><span class="bar-label">Autumn (Oct–Dec)</span><div class="bar-track"><div class="bar-fill b-blue" style="width:45%;"></div></div><span class="bar-val">NE 8–18</span></div>
+          <div class="bar-row"><span class="bar-label">Crosswind (RWY 09)</span><div class="bar-track"><div class="bar-fill b-warn" style="width:38%;"></div></div><span class="bar-val">≤15 kt typ</span></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="ph ph-navy">Weather Hazard Quick Ref</div>
+        <table class="dt dt-sm">
+          <thead><tr><th>Phenomenon</th><th>Season</th><th>Level</th></tr></thead>
+          <tbody>
+            <tr><td>Extreme heat</td><td>Jun–Sep</td><td><span class="risk r-high">HIGH</span></td></tr>
+            <tr><td>Khamsin dust</td><td>May–Sep</td><td><span class="risk r-mod">MOD</span></td></tr>
+            <tr><td>High humidity</td><td>Jul–Aug</td><td><span class="risk r-mod">MOD</span></td></tr>
+            <tr><td>Sandstorm (severe)</td><td>Jun–Aug</td><td><span class="risk r-el">EL</span></td></tr>
+            <tr><td>Turbulence (CB)</td><td>Oct–Mar</td><td><span class="risk r-low">LOW</span></td></tr>
+            <tr><td>Fog</td><td>Dec–Feb</td><td><span class="risk r-low">LOW</span></td></tr>
+            <tr><td>Icing</td><td>None</td><td><span class="risk r-low">NEGLIGIBLE</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ HISTORICAL ═══════════════════════ -->
+<div id="tab-history" class="tab-panel">
+
+  <div class="kpi-strip">
+    <div class="kpi-card">
+      <div class="kpi-label">Hull Losses (10yr)</div>
+      <div class="kpi-val c-green">0</div>
+      <div class="kpi-sub">No major losses at HADR</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Serious Incidents</div>
+      <div class="kpi-val c-amber">3</div>
+      <div class="kpi-sub">Ground/runway incursion events</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Security Events</div>
+      <div class="kpi-val c-amber">2</div>
+      <div class="kpi-sub">Both minor; 2019 &amp; 2022</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">GNSS Disruptions</div>
+      <div class="kpi-val c-amber">MOD</div>
+      <div class="kpi-sub">Yemen-linked; increasing 2023–</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">ASN Rating</div>
+      <div class="kpi-val c-green">LOW</div>
+      <div class="kpi-sub">No fatal accidents on record</div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="panel" style="margin-bottom:10px;">
+        <div class="ph ph-navy">Notable Incidents &amp; Events</div>
+        <table class="dt">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Event</th>
+              <th>Level</th>
+              <th>Outcome</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Aug 2023</td>
+              <td>GNSS degradation event — Yemen-origin jamming affected RNAV approaches RWY 09</td>
+              <td><span class="risk r-mod">MOD</span></td>
+              <td>ILS fallback; no incident</td>
+            </tr>
+            <tr>
+              <td>Mar 2022</td>
+              <td>Security alert — suspicious package at terminal; HADR ground stop 45 min</td>
+              <td><span class="risk r-mod">MOD</span></td>
+              <td>False alarm; cleared</td>
+            </tr>
+            <tr>
+              <td>Jul 2021</td>
+              <td>Runway incursion — military vehicle crossed RWY 27 threshold during civil landing sequence</td>
+              <td><span class="risk r-mod">MOD</span></td>
+              <td>Go-around; no damage</td>
+            </tr>
+            <tr>
+              <td>Apr 2020</td>
+              <td>COVID-19 airspace restriction — HADR partially closed; military ops only for 3 weeks</td>
+              <td><span class="risk r-monitor">INFO</span></td>
+              <td>Normal ops resumed May 2020</td>
+            </tr>
+            <tr>
+              <td>Sep 2019</td>
+              <td>Al-Shabaab indirect threat — US embassy issued security alert; HADR security increased</td>
+              <td><span class="risk r-mod">MOD</span></td>
+              <td>No attack materialised</td>
+            </tr>
+            <tr>
+              <td>Aug 2015</td>
+              <td>Khamsin dust storm — HADR closed 4 hrs; 14 diversions to HHAS Asmara and HAAB</td>
+              <td><span class="risk r-el">EL</span></td>
+              <td>Airport re-opened; no hull loss</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel" style="margin-bottom:10px;">
+        <div class="ph ph-navy">Traffic Profile — HADR</div>
+        <div class="donut-wrap">
+          <svg width="90" height="90" viewBox="0 0 90 90">
+            <circle cx="45" cy="45" r="34" fill="none" stroke="var(--bg-3)" stroke-width="16"/>
+            <circle cx="45" cy="45" r="34" fill="none" stroke="var(--accent)" stroke-width="16"
+              stroke-dasharray="64 149" stroke-dashoffset="0" transform="rotate(-90 45 45)"/>
+            <circle cx="45" cy="45" r="34" fill="none" stroke="var(--danger)" stroke-width="16"
+              stroke-dasharray="54 149" stroke-dashoffset="-64" transform="rotate(-90 45 45)"/>
+            <circle cx="45" cy="45" r="34" fill="none" stroke="var(--warn)" stroke-width="16"
+              stroke-dasharray="32 149" stroke-dashoffset="-118" transform="rotate(-90 45 45)"/>
+          </svg>
+          <div class="donut-legend">
+            <div class="dl-row"><span class="dl-dot" style="background:var(--accent);"></span><span class="dl-label">Civil commercial</span><span class="dl-val">43%</span></div>
+            <div class="dl-row"><span class="dl-dot" style="background:var(--danger);"></span><span class="dl-label">Military (multi-nat)</span><span class="dl-val">36%</span></div>
+            <div class="dl-row"><span class="dl-dot" style="background:var(--warn);"></span><span class="dl-label">Cargo / charter</span><span class="dl-val">21%</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-bottom:10px;">
+        <div class="ph ph-navy">Regular Operators at HADR</div>
+        <table class="dt dt-sm">
+          <thead><tr><th>Operator</th><th>Type</th><th>Freq</th></tr></thead>
+          <tbody>
+            <tr><td>Ethiopian Airlines</td><td>Civil commercial</td><td>Daily</td></tr>
+            <tr><td>Air Djibouti</td><td>Regional</td><td>3×/wk</td></tr>
+            <tr><td>Air France</td><td>Civil commercial</td><td>3×/wk</td></tr>
+            <tr><td>flydubai / Air Arabia</td><td>LCC</td><td>Daily</td></tr>
+            <tr><td>USAF / USN (CJCS)</td><td>Military</td><td>Daily</td></tr>
+            <tr><td>Armée de l'Air (France)</td><td>Military</td><td>Daily</td></tr>
+            <tr><td>PLA Navy (China)</td><td>Military (Doraleh)</td><td>Varies</td></tr>
+            <tr><td>UN / AMISOM logistics</td><td>Humanitarian</td><td>Weekly</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="panel">
+        <div class="ph ph-navy">Historical Safety Assessment</div>
+        <div class="pb">
+          <p>Djibouti has an excellent aviation safety record by regional standards. No fatal accidents have occurred at HADR in the modern data period. The principal risk factors are operational rather than safety-inherent: military airspace complexity, extreme summer heat performance, and regional security spillover.</p>
+          <p>DJAC maintains functional oversight with ICAO USOAP compliance. ASECNA ATS provision is generally reliable, though military priority can delay approach sequencing. The GNSS jamming trend from the Yemen conflict is the most significant emerging safety risk and should be explicitly mitigated in flight planning.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function switchTab(btn, tab) {
+    document.querySelectorAll('.tab-btn').forEach(b => {
+      b.className = 'tab-btn';
+    });
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+    if (tab === 'overview') btn.classList.add('t-overview');
+    else if (tab === 'threat')  btn.classList.add('t-threat');
+    else if (tab === 'weather') btn.classList.add('t-weather');
+    else if (tab === 'history') btn.classList.add('t-history');
+  }
+</script>
+</body>
+</html>

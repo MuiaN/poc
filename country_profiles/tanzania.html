@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tanzania — Country Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="../theme.js"></script>
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-body); font-size: 12px; background: var(--bg); color: var(--text); }
+
+    /* ── HEADER ─────────────────────────────────── */
+    .page-header {
+      background: var(--bg-2);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 18px;
+    }
+    .header-title { color: var(--text); font-size: 16px; font-weight: 700; letter-spacing: 0.2px; }
+    .header-tz    { color: var(--accent); font-size: 13px; font-weight: 700; }
+
+    /* ── TAB BAR ─────────────────────────────────── */
+    .tab-bar { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--bg-3); border-bottom: 1px solid var(--border); }
+    .tab-btn {
+      padding: 10px 14px; text-align: center; font-size: 12px; font-weight: 600;
+      color: var(--text-2); background: var(--bg-3); border: none; cursor: pointer;
+      border-right: 1px solid var(--border); transition: background 0.15s, color 0.15s;
+      white-space: nowrap; font-family: var(--font-body);
+    }
+    .tab-btn:last-child { border-right: none; }
+    .tab-btn:hover { background: var(--bg-hover); color: var(--text); }
+    .tab-btn.t-overview { background: var(--accent); color: #fff; }
+    .tab-btn.t-threat   { background: var(--danger); color: #fff; }
+    .tab-btn.t-weather  { background: var(--warn); color: #0B0F1A; }
+    .tab-btn.t-history  { background: var(--bg-hover); color: var(--text); }
+
+    /* ── TAB PANELS ──────────────────────────────── */
+    .tab-panel { display: none; padding: 12px 14px 18px; }
+    .tab-panel.active { display: block; }
+
+    /* ── KPI STRIP ───────────────────────────────── */
+    .kpi-strip {
+      display: grid; grid-template-columns: repeat(5, 1fr);
+      border: 1px solid var(--border); margin-bottom: 12px; background: var(--bg-2);
+    }
+    .kpi-card { padding: 9px 13px; border-right: 1px solid var(--border); }
+    .kpi-card:last-child { border-right: none; }
+    .kpi-label { font-size: 9.5px; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 3px; }
+    .kpi-val   { font-size: 18px; font-weight: 700; line-height: 1.2; }
+    .kpi-sub   { font-size: 10px; color: var(--text-2); margin-top: 3px; line-height: 1.4; }
+    .c-orange  { color: var(--warn); }
+    .c-green   { color: var(--success); }
+    .c-navy    { color: var(--text); }
+    .c-red     { color: var(--danger); }
+    .c-amber   { color: var(--warn); }
+
+    /* ── THREE COL ───────────────────────────────── */
+    .three-col { display: grid; grid-template-columns: 27% 1fr 28%; gap: 12px; }
+    .two-col   { display: grid; grid-template-columns: 56% 1fr; gap: 12px; }
+
+    /* ── PANEL ───────────────────────────────────── */
+    .panel { background: var(--bg-2); border: 1px solid var(--border); }
+    .ph { padding: 6px 11px; font-size: 11.5px; font-weight: 700; border-bottom: 1px solid var(--border); }
+    .ph-blue   { background: var(--bg-3); color: var(--accent);   border-left: 3px solid var(--accent); }
+    .ph-navy   { background: var(--bg-3); color: var(--text);     border-left: 3px solid var(--text-2); }
+    .ph-maroon { background: rgba(239,68,68,0.08);  color: var(--danger);  border-left: 3px solid var(--danger); }
+    .ph-amber  { background: rgba(245,158,11,0.08); color: var(--warn);    border-left: 3px solid var(--warn); }
+    .ph-slate  { background: var(--bg-3); color: var(--text-2);   border-left: 3px solid var(--text-2); }
+    .ph-green  { background: rgba(16,185,129,0.08); color: var(--success); border-left: 3px solid var(--success); }
+    .ph-red    { background: rgba(239,68,68,0.08);  color: var(--danger);  border-left: 3px solid var(--danger); }
+    .pb { padding: 11px 12px; font-size: 11.5px; line-height: 1.58; color: var(--text); }
+    .pb p { margin-bottom: 8px; }
+    .pb p:last-child { margin-bottom: 0; }
+
+    /* ── DATA TABLE ──────────────────────────────── */
+    .dt { width: 100%; border-collapse: collapse; font-size: 11px; }
+    .dt thead th {
+      background: var(--bg-3); padding: 5px 8px; text-align: left;
+      font-weight: 700; border-bottom: 2px solid var(--border);
+      white-space: nowrap; color: var(--text-2);
+    }
+    .dt tbody tr:nth-child(even) { background: var(--bg-3); }
+    .dt tbody tr:hover { background: var(--bg-hover); }
+    .dt tbody td { padding: 5px 8px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.45; color: var(--text); }
+    .dt-sm td { font-size: 10.5px; }
+    .dt tbody td.note { font-size: 10.5px; color: var(--text-2); }
+
+    /* ── RISK BADGES ─────────────────────────────── */
+    .risk { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 2px; white-space: nowrap; }
+    .r-low      { background: rgba(16,185,129,0.15);  color: var(--success); }
+    .r-mod      { background: rgba(245,158,11,0.15);  color: var(--warn); }
+    .r-mod-el   { background: rgba(249,115,22,0.15);  color: #f97316; font-style: italic; }
+    .r-el       { background: rgba(239,68,68,0.12);   color: #f97316; }
+    .r-high     { background: var(--danger);           color: #fff; }
+    .r-seasonal { background: rgba(139,92,246,0.15);  color: #a78bfa; }
+    .r-monitor  { background: var(--accent-dim);       color: var(--accent); }
+
+    /* ── KV ROWS ─────────────────────────────────── */
+    .kv { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid var(--border); font-size: 11px; gap: 6px; align-items: flex-start; }
+    .kv:last-child { border-bottom: none; }
+    .kv-k { color: var(--text-2); flex-shrink: 0; }
+    .kv-v { text-align: right; font-weight: 600; color: var(--text); font-size: 10.5px; }
+    .kv-v.blue  { color: var(--accent); }
+    .kv-v.red   { color: var(--danger); }
+    .kv-v.green { color: var(--success); font-weight: 700; }
+    .kv-v.amber { color: var(--warn); }
+
+    /* ── THREAT CARDS ────────────────────────────── */
+    .threat-card { border: 1px solid var(--border); margin-bottom: 10px; }
+    .threat-card:last-child { margin-bottom: 0; }
+    .tc-head { display: flex; align-items: center; gap: 10px; padding: 7px 11px; border-bottom: 1px solid var(--border); }
+    .tc-badge { display: inline-block; font-size: 9.5px; font-weight: 800; padding: 2px 8px; border-radius: 2px; white-space: nowrap; letter-spacing: 0.5px; }
+    .tc-high  { background: var(--danger);  color: #fff; }
+    .tc-mod   { background: var(--warn);    color: #0B0F1A; }
+    .tc-watch { background: var(--success); color: #0B0F1A; }
+    .tc-title { font-size: 12px; font-weight: 700; color: var(--text); }
+    .tc-body  { padding: 9px 11px; font-size: 11px; line-height: 1.55; color: var(--text); }
+    .tc-body p { margin-bottom: 5px; }
+    .tc-body p:last-child { margin-bottom: 0; }
+    .tc-italic { font-style: italic; color: var(--text-2); margin-top: 6px; }
+    .tc-border-high  { border-left: 3px solid var(--danger); }
+    .tc-border-mod   { border-left: 3px solid var(--warn); }
+    .tc-border-watch { border-left: 3px solid var(--success); }
+
+    /* ── SEASONAL CARDS ──────────────────────────── */
+    .season-card { display: flex; border: 1px solid var(--border); background: var(--bg-2); margin-bottom: 8px; }
+    .season-card:last-child { margin-bottom: 0; }
+    .season-label { width: 58px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 8px 6px; font-size: 10px; font-weight: 700; text-align: center; }
+    .s-active { background: var(--warn);   color: #0B0F1A; }
+    .s-dry    { background: var(--accent); color: #fff; }
+    .s-short  { background: #475569;       color: #fff; }
+    .season-label .s-date  { font-size: 11px; font-weight: 800; line-height: 1.3; }
+    .season-label .s-badge { font-size: 8px; background: rgba(255,255,255,0.25); border-radius: 2px; padding: 1px 4px; margin-top: 3px; }
+    .season-body { padding: 9px 11px; font-size: 11px; line-height: 1.5; color: var(--text-2); }
+    .season-name { font-weight: 700; font-size: 11.5px; color: var(--text); margin-bottom: 4px; }
+
+    /* ── WEATHER TABLE ───────────────────────────── */
+    .wx-section { margin-bottom: 10px; }
+    .wx-head { font-size: 10.5px; font-weight: 700; color: var(--text-2); background: var(--bg-3); padding: 4px 10px; }
+    .wx-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 10px; border-bottom: 1px solid var(--border); font-size: 11px; }
+    .wx-row:last-child { border-bottom: none; }
+    .wx-key { color: var(--text-2); }
+    .wx-val { font-weight: 600; color: var(--text); }
+    .wx-val.elevated   { color: var(--danger); }
+    .wx-val.possible   { color: var(--warn); }
+    .wx-val.active     { color: var(--warn); }
+    .wx-val.soft       { color: var(--warn); }
+    .wx-val.normal     { color: var(--success); }
+    .wx-val.full       { color: var(--success); }
+    .wx-val.high       { color: var(--danger); font-weight: 800; }
+    .wx-val.inter      { color: var(--warn); }
+    .wx-val.moderate-c { color: var(--warn); }
+
+    .key-event { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); padding: 8px 11px; margin: 8px 0; font-size: 11px; line-height: 1.5; color: var(--text); }
+    .key-event-title { font-weight: 800; font-size: 11px; color: var(--danger); margin-bottom: 3px; }
+
+    .airport-adv { border: 1px solid var(--border); background: var(--bg-2); margin-bottom: 6px; }
+    .airport-adv:last-child { margin-bottom: 0; }
+    .adv-head { background: var(--bg-3); padding: 5px 10px; font-size: 11px; font-weight: 700; color: var(--text); border-bottom: 1px solid var(--border); }
+    .adv-body { padding: 7px 10px; font-size: 11px; color: var(--text-2); line-height: 1.5; }
+
+    /* ── MONTHLY RISK TABLE ──────────────────────── */
+    .month-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 2px; margin-bottom: 2px; }
+    .mg-cell { text-align: center; font-size: 9px; font-weight: 700; padding: 3px 1px; }
+    .mg-hdr  { background: var(--bg-3); color: var(--text-2); }
+    .mg-1    { background: rgba(16,185,129,0.2);  color: var(--success); }
+    .mg-2    { background: rgba(245,158,11,0.2);  color: var(--warn); }
+    .mg-3    { background: rgba(249,115,22,0.2);  color: #f97316; }
+    .mg-4    { background: rgba(239,68,68,0.15);  color: var(--danger); }
+    .mg-5    { background: var(--danger);          color: #fff; }
+
+    /* ── WEATHER EVENTS ──────────────────────────── */
+    .wx-event { display: flex; align-items: flex-start; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 11px; }
+    .wx-event:last-child { border-bottom: none; }
+    .wx-event-date { flex-shrink: 0; font-size: 10px; color: var(--text-2); width: 68px; }
+    .wx-event-text { color: var(--text); line-height: 1.45; }
+
+    /* ── INCIDENT TABLE ──────────────────────────── */
+    .sev-fatal   { color: var(--danger);  font-weight: 800; }
+    .sev-serious { color: var(--warn);    font-weight: 700; }
+    .sev-minor   { color: var(--accent);  font-weight: 600; }
+    .src-badge { display: inline-block; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 2px; }
+    .src-open  { background: var(--bg-3);         color: var(--text-2); }
+    .src-avh   { background: var(--accent-dim);   color: var(--accent); }
+    .src-asn   { background: var(--success-dim);  color: var(--success); }
+
+    /* ── BIRD STRIKE HOTSPOTS ────────────────────── */
+    .bs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .bs-card { border: 1px solid var(--border); background: var(--bg-2); padding: 9px 11px; }
+    .bs-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; gap: 6px; }
+    .bs-loc  { font-size: 11px; font-weight: 700; color: var(--text); }
+    .bs-species { font-size: 10px; color: var(--text-2); font-style: italic; margin-bottom: 4px; }
+    .bs-note { font-size: 10.5px; color: var(--text-2); line-height: 1.45; }
+    .bs-5    { grid-column: 1 / -1; }
+
+    /* ── CHART CONTAINERS ─────────────────────────── */
+    .chart-title { font-size: 10.5px; font-weight: 700; color: var(--text); margin-bottom: 6px; text-align: center; }
+    .chart-sub   { font-size: 9px; color: var(--text-2); text-align: center; margin-bottom: 4px; }
+    .charts-row  { display: flex; gap: 12px; align-items: flex-start; }
+    .chart-half  { flex: 1; }
+    .log-src { font-size: 10px; font-weight: 600; color: var(--text-2); font-style: italic; margin-bottom: 2px; }
+
+    /* SVG axis / label text (presentation attrs < author CSS) */
+    .pb svg text, .panel svg text { fill: #94A3B8; }
+  </style>
+</head>
+<body>
+
+<!-- ── PAGE HEADER ─────────────────────────────────────────────── -->
+<div class="page-header">
+  <span class="header-title">Tanzania &mdash; Country Profile</span>
+  <span class="header-tz">GMT+3</span>
+</div>
+
+<!-- ── TAB BAR ────────────────────────────────────────────────── -->
+<div class="tab-bar">
+  <button class="tab-btn t-overview" data-tab="overview" onclick="switchTab(this)">Country Overview</button>
+  <button class="tab-btn" data-tab="threat"   onclick="switchTab(this)">Threat Profile</button>
+  <button class="tab-btn" data-tab="weather"  onclick="switchTab(this)">Weather Trends &amp; Patterns</button>
+  <button class="tab-btn" data-tab="history"  onclick="switchTab(this)">Historical Aviation Data</button>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     TAB 1 · COUNTRY OVERVIEW
+════════════════════════════════════════════════════════════ -->
+<div class="tab-panel active" id="panel-overview">
+
+  <!-- KPI Strip -->
+  <div class="kpi-strip">
+    <div class="kpi-card">
+      <div class="kpi-label">Hull risk rating</div>
+      <div class="kpi-val c-green">Low</div>
+      <div class="kpi-sub">Major hubs stable &middot; T2 upgrade ongoing</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">War risk (aviation)</div>
+      <div class="kpi-val c-green">Low</div>
+      <div class="kpi-sub">No active conflict &middot; stable political environment</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Terrorism exposure</div>
+      <div class="kpi-val c-green">Low</div>
+      <div class="kpi-sub">Minimal &mdash; no active aviation-directed threats</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Airspace status</div>
+      <div class="kpi-val c-navy">Normal ops</div>
+      <div class="kpi-sub">HTDC FIR &middot; no restrictions</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Regulatory standing</div>
+      <div class="kpi-val c-navy">Compliant</div>
+      <div class="kpi-sub">TCAA &middot; ICAO compliant &middot; IATA member</div>
+    </div>
+  </div>
+
+  <!-- 3-column body -->
+  <div class="three-col">
+
+    <!-- LEFT: Aviation System Overview -->
+    <div class="panel">
+      <div class="ph ph-blue">Aviation System Overview</div>
+      <div class="pb">
+        <p>Tanzania operates a growing and commercially significant aviation system centred on three international airports. Julius Nyerere International Airport (HTDA) in Dar es Salaam is the primary gateway, located at 1,820m ASL, handling the bulk of international and domestic scheduled traffic. JNIA serves as the hub for Air Tanzania and handles Swissport ground services. A Terminal 2 electrical infrastructure upgrade is ongoing as of 2025&ndash;2026, with temporary service interruptions possible during peak demand periods.</p>
+        <p>Zanzibar International Airport (HTZA) serves the high-value tourism island economy, with significant European and Middle Eastern charter traffic supplementing year-round scheduled operations. Its short runway and proximity to the Indian Ocean create specific crosswind and sea-fog challenges during the northeast monsoon (Dec&ndash;Mar). Airport infrastructure is limited relative to traffic demand and diversion capacity is constrained.</p>
+        <p>Kilimanjaro International Airport (HTKJ) serves northern Tanzania's safari and trekking economy, handling a mix of international charters and scheduled regional services. It operates alongside the tourism-circuit airstrip network in the Serengeti, Ngorongoro, Tarangire, and Lake Manyara areas &mdash; over 30 bush strips of varying surface quality and RFFS capability. These strips represent the primary hull risk exposure in the Tanzania aviation system.</p>
+        <p>Tanzania Civil Aviation Authority (TCAA) is the regulatory body, responsible for oversight of all Part 121 and Part 135 operations. Ground handling at HTDA is predominantly Swissport. The ITCZ bimodal rainfall pattern drives two distinct periods of elevated weather risk annually (Apr&ndash;May and Nov&ndash;Dec), with impact concentrated on safari circuit strips and coastal operations.</p>
+      </div>
+    </div>
+
+    <!-- CENTRE: Hull Risk & War Risk by location -->
+    <div class="panel">
+      <div class="ph ph-navy">Hull Risk &amp; War Risk &ndash; by location</div>
+      <table class="dt">
+        <thead>
+          <tr>
+            <th style="width:24%">Location</th>
+            <th style="width:14%">Hull risk</th>
+            <th style="width:13%">War risk</th>
+            <th>Note</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>HTDA &mdash; Julius Nyerere Intl</td>
+            <td><span class="risk r-low">Low</span></td>
+            <td><span class="risk r-low">Low</span></td>
+            <td class="note">Stable &middot; RFFS CAT 9 &middot; T2 upgrade ongoing &middot; Swissport GH</td>
+          </tr>
+          <tr>
+            <td>HTZA &mdash; Zanzibar Intl</td>
+            <td><span class="risk r-mod">Moderate</span></td>
+            <td><span class="risk r-low">Low</span></td>
+            <td class="note">Short runway &middot; coastal wx &middot; crosswinds Dec&ndash;Mar &middot; limited diversion</td>
+          </tr>
+          <tr>
+            <td>HTKJ &mdash; Kilimanjaro Intl</td>
+            <td><span class="risk r-low">Low</span></td>
+            <td><span class="risk r-low">Low</span></td>
+            <td class="note">Stable ops &middot; RFFS CAT 7 &middot; CB activity Nov&ndash;Apr</td>
+          </tr>
+          <tr>
+            <td>Serengeti airstrips</td>
+            <td><span class="risk r-el">Elevated</span></td>
+            <td><span class="risk r-low">Low</span></td>
+            <td class="note">Unpaved &middot; wildlife &middot; soft ground Apr&ndash;May &middot; no RFFS</td>
+          </tr>
+          <tr>
+            <td>Mwanza / Lake Victoria</td>
+            <td><span class="risk r-mod">Moderate</span></td>
+            <td><span class="risk r-low">Low</span></td>
+            <td class="note">Lake bird risk &middot; afternoon CB &middot; limited ILS</td>
+          </tr>
+          <tr>
+            <td>Arusha (HTAR)</td>
+            <td><span class="risk r-mod">Moderate</span></td>
+            <td><span class="risk r-low">Low</span></td>
+            <td class="note">Short runway &middot; mountainous approach &middot; seasonal CB</td>
+          </tr>
+          <tr>
+            <td>Southern circuit strips</td>
+            <td><span class="risk r-el">Elevated</span></td>
+            <td><span class="risk r-low">Low</span></td>
+            <td class="note">Selous/Ruaha &mdash; semi-prepared &middot; flooding Nov&ndash;Dec &middot; no emergency services</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- RIGHT: Regulatory Status & Compliance -->
+    <div class="panel">
+      <div class="ph ph-slate">Regulatory Status &amp; Compliance</div>
+      <div class="pb" style="padding:9px 11px;">
+        <div class="kv"><span class="kv-k">Civil authority</span><span class="kv-v blue">Tanzania Civil Aviation Authority (TCAA)</span></div>
+        <div class="kv"><span class="kv-k">Tel / Web</span><span class="kv-v" style="font-size:10px;">+255 22 284 4188 &middot; www.tcaa.go.tz</span></div>
+        <div class="kv"><span class="kv-k">ICAO audit</span><span class="kv-v green">Compliant &mdash; no Notice of Concern</span></div>
+        <div class="kv"><span class="kv-k">EU Air Safety List</span><span class="kv-v green">Not blacklisted &mdash; cleared for EU operations</span></div>
+        <div class="kv"><span class="kv-k">RFFS HTDA</span><span class="kv-v">CAT 9 &mdash; full emergency capability</span></div>
+        <div class="kv"><span class="kv-k">RFFS HTZA</span><span class="kv-v">CAT 7 &mdash; adequate for current operations</span></div>
+        <div class="kv"><span class="kv-k">RFFS HTKJ</span><span class="kv-v">CAT 7 &mdash; adequate for current operations</span></div>
+        <div class="kv"><span class="kv-k">Ground handling</span><span class="kv-v">Swissport &mdash; HTDA &middot; HTKJ</span></div>
+        <div class="kv"><span class="kv-k">Fuel</span><span class="kv-v">Jet A-1 available all 3 international airports</span></div>
+        <div class="kv"><span class="kv-k">Overflight permits</span><span class="kv-v green">Online application &mdash; www.tcaa.go.tz</span></div>
+        <div class="kv"><span class="kv-k">Landing permits</span><span class="kv-v">48 hrs prior for non-scheduled commercial ops</span></div>
+        <div class="kv"><span class="kv-k">T2 electrical upgrade</span><span class="kv-v amber">HTDA ongoing &mdash; interruptions possible</span></div>
+        <div class="kv"><span class="kv-k">ATC HTDA</span><span class="kv-v">APP 119.7 &middot; TWR 118.1 &middot; GND 121.9</span></div>
+        <div class="kv"><span class="kv-k">ATC HTKJ</span><span class="kv-v">TWR 118.1 &middot; APP 119.4</span></div>
+        <div class="kv"><span class="kv-k">ATC HTZA</span><span class="kv-v">TWR 118.6 &middot; ATIS 128.45</span></div>
+      </div>
+    </div>
+
+  </div><!-- .three-col -->
+</div><!-- #panel-overview -->
+
+
+<!-- ════════════════════════════════════════════════════════════
+     TAB 2 · THREAT PROFILE
+════════════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="panel-threat">
+  <div class="three-col">
+
+    <!-- LEFT: Top-Line Security Assessment -->
+    <div class="panel">
+      <div class="ph ph-maroon">Top-Line Security Assessment</div>
+      <div class="pb">
+        <p>Tanzania's security environment is among the most stable in East Africa. The country has no active conflict, no significant insurgent movement, and no documented aviation-directed threat activity. The overall risk profile for aviation operations is low, with the primary sources of exposure being weather, infrastructure limitations at secondary airports, and the semi-prepared safari circuit airstrip environment.</p>
+        <p>The southern border regions adjacent to Mozambique require low-level monitoring due to Mozambique's northern Cabo Delgado insurgency, but this threat has not meaningfully crossed into Tanzanian territory and poses no documented risk to aviation operations within Tanzania as of 2025&ndash;2026.</p>
+        <p>Opportunistic property crime exists in Dar es Salaam and Arusha urban environments, consistent with major African cities, but does not represent a significant threat to aviation operations or crew movements. Ground transit security is manageable with standard precautions.</p>
+        <p>The primary aviation risk in Tanzania is operational rather than security-driven: semi-prepared airstrips with wildlife exposure, ITCZ weather impact on approach and ground surfaces, and the infrastructure constraints at HTZA (Zanzibar) during peak tourism periods. Major international hubs HTDA and HTKJ are well-managed, low-risk environments.</p>
+      </div>
+    </div>
+
+    <!-- CENTRE: Active Threat Vectors -->
+    <div class="panel">
+      <div class="ph ph-red">Active Threat Vectors &nbsp;<span style="font-weight:400;font-size:10.5px;">[2025&ndash;2026]</span></div>
+      <div class="pb">
+
+        <div class="threat-card tc-border-mod">
+          <div class="tc-head">
+            <span class="tc-badge tc-mod">MODERATE</span>
+            <span class="tc-title">ITCZ rainfall &nbsp;&middot;&nbsp; Safari circuit strips and coastal ops</span>
+          </div>
+          <div class="tc-body">
+            <p>Tanzania's bimodal rainfall driven by ITCZ passage creates two annual elevated-risk windows: Apr&ndash;May (Masika long rains) and Nov&ndash;Dec (Vuli short rains). Safari circuit strips in Serengeti, Selous, Ruaha, and Ngorongoro are susceptible to waterlogging, soft ground, and reduced visibility during these periods.</p>
+            <p class="tc-italic">Aviation exposure: soft-ground risk at semi-prepared strips; approach visibility degradation during convective events; HTZA crosswind exposure Nov&ndash;Dec; T2 power interruptions at HTDA during storms.</p>
+          </div>
+        </div>
+
+        <div class="threat-card tc-border-mod">
+          <div class="tc-head">
+            <span class="tc-badge tc-mod">MODERATE</span>
+            <span class="tc-title">T2 electrical upgrade &nbsp;&middot;&nbsp; HTDA infrastructure</span>
+          </div>
+          <div class="tc-body">
+            <p>Ongoing Terminal 2 electrical upgrade at Julius Nyerere International as of 2025&ndash;2026. Temporary power interruptions during construction phases have been documented. Gate allocation and ground handling logistics are periodically disrupted during upgrade phases. Works expected to complete mid-2026.</p>
+            <p class="tc-italic">Aviation exposure: potential gate constraints; ground handling delays; electrical backup systems under test during construction.</p>
+          </div>
+        </div>
+
+        <div class="threat-card tc-border-watch">
+          <div class="tc-head">
+            <span class="tc-badge tc-watch">WATCH</span>
+            <span class="tc-title">Southern border &nbsp;&middot;&nbsp; Mozambique insurgency spillover monitoring</span>
+          </div>
+          <div class="tc-body">
+            <p>Cabo Delgado insurgency in northern Mozambique remains active. Tanzanian security forces maintain a presence along the Mtwara/Ruvuma border region. No confirmed cross-border incidents affecting Tanzania as of 2026. Mtwara Airport (HTMT) operations are not currently disrupted.</p>
+            <p class="tc-italic">Aviation exposure: low &mdash; monitor Mtwara corridor for any security escalation. No impact to main hub operations.</p>
+          </div>
+        </div>
+
+        <div class="threat-card tc-border-watch">
+          <div class="tc-head">
+            <span class="tc-badge tc-watch">WATCH</span>
+            <span class="tc-title">Urban crime &nbsp;&middot;&nbsp; Dar es Salaam / Arusha ground transit</span>
+          </div>
+          <div class="tc-body">
+            <p>Standard opportunistic crime in major urban centres. Dar es Salaam airport road and CBD transit carries moderate risk of vehicle-based theft and distraction robbery. Managed effectively with vetted ground transport and standard precautions.</p>
+            <p class="tc-italic">Aviation exposure: crew and passenger ground transit. Use vetted transfers. No airside incidents documented.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- RIGHT: Exposure & Flags -->
+    <div class="panel">
+      <div class="ph ph-amber">Exposure &amp; Flags</div>
+      <table class="dt dt-sm">
+        <thead>
+          <tr><th>Exposure</th><th>Risk</th><th style="width:48%">Note</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Airside ops &mdash; HTDA</td><td><span class="risk r-low">Low</span></td><td class="note">Stable &middot; Swissport GH &middot; T2 upgrade manageable</td></tr>
+          <tr><td>Airside ops &mdash; HTZA</td><td><span class="risk r-mod">Moderate</span></td><td class="note">Short runway &middot; limited diversion &middot; coastal wx</td></tr>
+          <tr><td>Airside ops &mdash; HTKJ</td><td><span class="risk r-low">Low</span></td><td class="note">Stable &middot; adequate RFFS &middot; good infrastructure</td></tr>
+          <tr><td>Safari strip ops</td><td><span class="risk r-el">Elevated</span></td><td class="note">Wildlife incursion &middot; soft ground Apr&ndash;May &middot; no RFFS &middot; no alternates</td></tr>
+          <tr><td>Ground transit &mdash; DSM</td><td><span class="risk r-mod">Moderate</span></td><td class="note">Urban crime &middot; traffic congestion &middot; use vetted transport</td></tr>
+          <tr><td>Ground transit &mdash; Arusha</td><td><span class="risk r-mod">Moderate</span></td><td class="note">Occasional opportunistic crime &middot; tourist targeting</td></tr>
+          <tr><td>Hull &mdash; major airports</td><td><span class="risk r-low">Low</span></td><td class="note">All three international hubs low risk environment</td></tr>
+          <tr><td>Hull &mdash; safari strips</td><td><span class="risk r-el">Elevated</span></td><td class="note">Wildlife &middot; surface integrity &middot; limited approach aids</td></tr>
+          <tr><td>War risk</td><td><span class="risk r-low">Low</span></td><td class="note">No active conflict &middot; no aviation-directed threat</td></tr>
+          <tr><td>Weather &mdash; ITCZ</td><td><span class="risk r-seasonal">Seasonal</span></td><td class="note">Apr&ndash;May and Nov&ndash;Dec elevated periods across circuit</td></tr>
+          <tr><td>Bird strike</td><td><span class="risk r-mod">Moderate</span></td><td class="note">Serengeti/Ngorongoro avifauna &middot; Lake Victoria species at Mwanza</td></tr>
+          <tr><td>Fuel availability</td><td><span class="risk r-low">Low</span></td><td class="note">Jet A-1 reliable at all three international airports</td></tr>
+          <tr><td>T2 power &mdash; HTDA</td><td><span class="risk r-monitor">Monitor</span></td><td class="note">Electrical upgrade ongoing &mdash; interruptions possible mid-2026</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div><!-- #panel-threat -->
+
+
+<!-- ════════════════════════════════════════════════════════════
+     TAB 3 · WEATHER TRENDS & PATTERNS
+════════════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="panel-weather">
+  <div class="three-col">
+
+    <!-- LEFT: Seasonal Calendar -->
+    <div class="panel">
+      <div class="ph ph-amber">Seasonal Calendar &mdash; Tanzania Bimodal Rainfall (ITCZ)</div>
+      <div class="pb" style="padding:10px;">
+
+        <div class="season-card">
+          <div class="season-label s-active">
+            <span class="s-date">Apr &ndash; May</span>
+            <span class="s-badge">MASIKA</span>
+          </div>
+          <div class="season-body">
+            <div class="season-name">Long rains (Masika) &middot; Primary ITCZ passage</div>
+            Most intense rainfall of the year. Widespread convective activity across mainland Tanzania. Safari circuit strips in Serengeti, Selous, and Ruaha susceptible to waterlogging and soft ground. HTDA experiences delays during peak convective events. Zanzibar coastal approach crosswinds moderate-to-strong. Primary hull and transit liability season for bush operations.
+          </div>
+        </div>
+
+        <div class="season-card">
+          <div class="season-label s-dry">
+            <span class="s-date">Jun &ndash; Oct</span>
+          </div>
+          <div class="season-body">
+            <div class="season-name">Dry season &middot; Optimal operational period</div>
+            Cool, dry southeast trade winds (Kusi). Lowest weather-related disruption across all Tanzania aviation. Best window for safari circuit operations, Serengeti and Kilimanjaro approaches. Peak tourist traffic season. Wildlife migration Jul&ndash;Oct increases strip surface risk at Serengeti. Stable JKIA and HTKJ ops.
+          </div>
+        </div>
+
+        <div class="season-card">
+          <div class="season-label s-short">
+            <span class="s-date">Nov &ndash; Dec</span>
+          </div>
+          <div class="season-body">
+            <div class="season-name">Short rains (Vuli) &middot; Secondary ITCZ return</div>
+            Second ITCZ passage, typically less intense than long rains. Localised convective activity. Zanzibar crosswind and sea-fog risk elevated during northeast monsoon onset. Southern circuit strips (Ruaha, Selous) may see temporary surface degradation. HTDA operations generally maintained with delays at convective peaks.
+          </div>
+        </div>
+
+        <div class="season-card">
+          <div class="season-label s-dry">
+            <span class="s-date">Jan &ndash; Mar</span>
+          </div>
+          <div class="season-body">
+            <div class="season-name">Short dry / Inter-seasonal</div>
+            Transitional period. Northeast monsoon (Kaskazi) brings warm, humid conditions to coast. Zanzibar crosswinds persist Dec&ndash;Mar. Kilimanjaro cloud cap common Jan&ndash;Feb — visual approaches not always possible. Otherwise stable operational environment. Low risk across mainland Tanzania hubs.
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CENTRE: Aviation Weather Risk -->
+    <div class="panel">
+      <div class="ph ph-blue">Aviation Weather Risk &mdash; Current &amp; Airport Specific</div>
+      <div class="pb" style="padding:0;">
+
+        <div class="wx-section">
+          <div class="wx-head">CURRENT &mdash; Long rains active (Apr&ndash;May)</div>
+          <div class="wx-row"><span class="wx-key">Flight delays HTDA</span><span class="wx-val elevated">Elevated &mdash; convective peaks</span></div>
+          <div class="wx-row"><span class="wx-key">Diversions</span><span class="wx-val possible">Possible &mdash; weather peaks</span></div>
+          <div class="wx-row"><span class="wx-key">Strip surfaces</span><span class="wx-val soft">Soft ground &mdash; inspect before use</span></div>
+          <div class="wx-row"><span class="wx-key">HTZA crosswinds</span><span class="wx-val normal">Normal (low season now)</span></div>
+          <div class="wx-row"><span class="wx-key">CB activity</span><span class="wx-val active">Active &mdash; approach planning required</span></div>
+          <div class="wx-row"><span class="wx-key">HTDC FIR</span><span class="wx-val full">Fully operational</span></div>
+        </div>
+
+        <div class="wx-section">
+          <div class="wx-head">GROUND &amp; ACCESS (current)</div>
+          <div class="wx-row"><span class="wx-key">DSM urban corridors</span><span class="wx-val inter">Intermittent &mdash; rain flooding</span></div>
+          <div class="wx-row"><span class="wx-key">HTDA access roads</span><span class="wx-val moderate-c">Moderate &mdash; surface water</span></div>
+          <div class="wx-row"><span class="wx-key">Arusha routes</span><span class="wx-val normal">Normal ops</span></div>
+          <div class="wx-row"><span class="wx-key">Safari circuit access</span><span class="wx-val high">Restricted &mdash; tracks impassable</span></div>
+        </div>
+
+        <div class="key-event" style="margin:0 11px 10px;">
+          <div class="key-event-title">SEASONAL NOTE &mdash; Serengeti strip closures Apr&ndash;May 2025</div>
+          Multiple Serengeti circuit strips declared temporarily unserviceable during peak long rains. Operators required to confirm strip status 24hrs prior. Ndutu, Lobo, and Kogatende affected in 2024 season.
+        </div>
+
+        <div style="padding:0 11px 11px;">
+          <div style="font-size:10.5px;font-weight:700;color:var(--text);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.3px;">Airport-Specific Advisories</div>
+
+          <div class="airport-adv">
+            <div class="adv-head">HTDA &mdash; Julius Nyerere Intl (1,820m ASL)</div>
+            <div class="adv-body">Convective Apr&ndash;May and Nov&ndash;Dec. T2 electrical upgrade &mdash; power interruptions possible. RFFS CAT 9. Swissport GH.</div>
+          </div>
+          <div class="airport-adv">
+            <div class="adv-head">HTZA &mdash; Zanzibar Intl</div>
+            <div class="adv-body">Short runway 18/36 (2,600m). Crosswinds Dec&ndash;Mar (NE monsoon). Sea fog at dawn. Limited diversion. RFFS CAT 7.</div>
+          </div>
+          <div class="airport-adv">
+            <div class="adv-head">HTKJ &mdash; Kilimanjaro Intl</div>
+            <div class="adv-body">Mountain wave turbulence. Cloud cap Jan&ndash;Feb. CB Nov&ndash;Apr. RFFS CAT 7. Adequate instrument approaches.</div>
+          </div>
+          <div class="airport-adv">
+            <div class="adv-head">Serengeti / Ngorongoro strips</div>
+            <div class="adv-body">Unpaved. Inspect before approach. Wildlife mandatory check. Soft ground Apr&ndash;May. Great Migration wildlife Jul&ndash;Oct.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- RIGHT: Seasonal Risk Profile -->
+    <div class="panel">
+      <div class="ph ph-slate">Seasonal Risk Profile &mdash; Operational Impact</div>
+      <div class="pb" style="padding:10px 11px;">
+
+        <div class="chart-title">Quarterly risk profile (1=Low &nbsp; 5=Severe)</div>
+        <svg viewBox="0 0 275 195" width="100%" style="display:block;margin-bottom:8px;">
+          <!-- Y-axis -->
+          <line x1="30" y1="5" x2="30" y2="150" stroke="#C8D4E0" stroke-width="1"/>
+          <line x1="30" y1="150" x2="265" y2="150" stroke="#C8D4E0" stroke-width="1"/>
+          <!-- Y gridlines + labels -->
+          <text x="24" y="153" text-anchor="end" font-size="8.5" fill="#9AABBA">0</text>
+          <line x1="30" y1="122" x2="265" y2="122" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,3"/>
+          <text x="24" y="125" text-anchor="end" font-size="8.5" fill="#9AABBA">1</text>
+          <line x1="30" y1="94" x2="265" y2="94" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,3"/>
+          <text x="24" y="97" text-anchor="end" font-size="8.5" fill="#9AABBA">2</text>
+          <line x1="30" y1="66" x2="265" y2="66" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,3"/>
+          <text x="24" y="69" text-anchor="end" font-size="8.5" fill="#9AABBA">3</text>
+          <line x1="30" y1="38" x2="265" y2="38" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,3"/>
+          <text x="24" y="41" text-anchor="end" font-size="8.5" fill="#9AABBA">4</text>
+          <line x1="30" y1="10" x2="265" y2="10" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,3"/>
+          <text x="24" y="13" text-anchor="end" font-size="8.5" fill="#9AABBA">5</text>
+          <!-- Group 1: Jan-Mar | aviation=2, ground=1 -->
+          <rect x="38" y="94" width="17" height="56" fill="#1B6CA8"/>
+          <rect x="57" y="122" width="17" height="28" fill="#7A5C00"/>
+          <text x="46" y="91" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">2</text>
+          <text x="65" y="119" text-anchor="middle" font-size="9" fill="#7A5C00" font-weight="bold">1</text>
+          <!-- Group 2: Apr-May | aviation=4, ground=4 -->
+          <rect x="98" y="38" width="17" height="112" fill="#1B6CA8"/>
+          <rect x="117" y="38" width="17" height="112" fill="#7A5C00"/>
+          <text x="106" y="35" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">4</text>
+          <text x="125" y="35" text-anchor="middle" font-size="9" fill="#7A5C00" font-weight="bold">4</text>
+          <!-- Group 3: Jun-Oct | aviation=1, ground=1 -->
+          <rect x="158" y="122" width="17" height="28" fill="#1B6CA8"/>
+          <rect x="177" y="122" width="17" height="28" fill="#7A5C00"/>
+          <text x="166" y="119" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">1</text>
+          <text x="185" y="119" text-anchor="middle" font-size="9" fill="#7A5C00" font-weight="bold">1</text>
+          <!-- Group 4: Nov-Dec | aviation=3, ground=2 -->
+          <rect x="218" y="66" width="17" height="84" fill="#1B6CA8"/>
+          <rect x="237" y="94" width="17" height="56" fill="#7A5C00"/>
+          <text x="226" y="63" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">3</text>
+          <text x="245" y="91" text-anchor="middle" font-size="9" fill="#7A5C00" font-weight="bold">2</text>
+          <!-- X labels -->
+          <text x="56" y="163" text-anchor="middle" font-size="8.5" fill="#7A8A98">Jan&ndash;Mar</text>
+          <text x="116" y="163" text-anchor="middle" font-size="8.5" fill="#7A8A98">Apr&ndash;May</text>
+          <text x="176" y="163" text-anchor="middle" font-size="8.5" fill="#7A8A98">Jun&ndash;Oct</text>
+          <text x="236" y="163" text-anchor="middle" font-size="8.5" fill="#7A8A98">Nov&ndash;Dec</text>
+          <!-- Legend -->
+          <rect x="38" y="175" width="11" height="8" fill="#1B6CA8"/>
+          <text x="52" y="183" font-size="8" fill="#7A8A98">Aviation weather risk</text>
+          <rect x="152" y="175" width="11" height="8" fill="#7A5C00"/>
+          <text x="166" y="183" font-size="8" fill="#7A8A98">Ground access risk</text>
+        </svg>
+
+        <div style="font-size:10.5px;font-weight:700;color:var(--text);margin-bottom:5px;">Monthly Rainfall Risk Profile</div>
+        <div style="font-size:9.5px;color:var(--text-2);margin-bottom:4px;">Scale: 1=Low &nbsp;2=Moderate &nbsp;3=Elevated &nbsp;4=High &nbsp;5=Severe</div>
+        <div class="month-grid" style="margin-bottom:2px;">
+          <div class="mg-cell mg-hdr">J</div><div class="mg-cell mg-hdr">F</div><div class="mg-cell mg-hdr">M</div><div class="mg-cell mg-hdr">A</div><div class="mg-cell mg-hdr">M</div><div class="mg-cell mg-hdr">J</div><div class="mg-cell mg-hdr">J</div><div class="mg-cell mg-hdr">A</div><div class="mg-cell mg-hdr">S</div><div class="mg-cell mg-hdr">O</div><div class="mg-cell mg-hdr">N</div><div class="mg-cell mg-hdr">D</div>
+        </div>
+        <div class="month-grid" style="margin-bottom:12px;">
+          <div class="mg-cell mg-2">2</div><div class="mg-cell mg-1">1</div><div class="mg-cell mg-2">2</div><div class="mg-cell mg-4">4</div><div class="mg-cell mg-3">4</div><div class="mg-cell mg-1">1</div><div class="mg-cell mg-1">1</div><div class="mg-cell mg-1">1</div><div class="mg-cell mg-1">1</div><div class="mg-cell mg-2">2</div><div class="mg-cell mg-3">3</div><div class="mg-cell mg-2">3</div>
+        </div>
+
+        <div style="font-size:10.5px;font-weight:700;color:var(--text);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.3px;">Significant Weather Events &mdash; Aviation Impact</div>
+        <div class="wx-event">
+          <span class="wx-event-date">Apr&ndash;May 2025</span>
+          <span class="wx-event-text">Long rains &mdash; Serengeti circuit strips temporarily unserviceable. Ndutu and Kogatende affected. HTDA delays reported.</span>
+        </div>
+        <div class="wx-event">
+          <span class="wx-event-date">Nov 2024</span>
+          <span class="wx-event-text">HTZA &mdash; Northeast monsoon onset. Strong crosswinds 27 kts gusting 35. Two go-arounds reported. Short rains delays.</span>
+        </div>
+        <div class="wx-event">
+          <span class="wx-event-date">Apr 2023</span>
+          <span class="wx-event-text">HTDA &mdash; Convective storm delays &gt;2 hours. Ground access flooding on Julius Nyerere Road. Diversions to HTKJ.</span>
+        </div>
+        <div class="wx-event">
+          <span class="wx-event-date">Jul&ndash;Oct 2024</span>
+          <span class="wx-event-text">Dry season &mdash; Great Migration peaks wildlife on Serengeti strips. Manual inspection protocols in force. Zero incidents reported.</span>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div><!-- #panel-weather -->
+
+
+<!-- ════════════════════════════════════════════════════════════
+     TAB 4 · HISTORICAL AVIATION DATA
+════════════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="panel-history">
+  <div class="two-col">
+
+    <!-- LEFT: Verified Incident Log -->
+    <div class="panel">
+      <div class="ph ph-navy">
+        Verified Incident Log &mdash; Most Recent First &nbsp;
+        <span style="font-weight:400;font-size:10px;">&middot;&nbsp; Sources: Aviation Herald &middot; ASN &middot; TCAA &middot; Open reporting</span>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="dt" style="font-size:10.5px;">
+          <thead>
+            <tr>
+              <th style="width:8%">Date</th>
+              <th style="width:12%">Airport/Location</th>
+              <th style="width:12%">Aircraft</th>
+              <th style="width:12%">Operator/Flight</th>
+              <th style="width:11%">Category</th>
+              <th style="width:7%">Severity</th>
+              <th>Description</th>
+              <th style="width:4%">Src</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Feb 2025</td><td>Serengeti, Kogatende</td><td>Cessna C208B</td><td>Coastal Aviation</td><td>Wildlife incursion</td>
+              <td class="sev-serious">Serious</td>
+              <td class="note">Wildebeest herd on strip during landing roll. Pilot aborted landing, went around. Aircraft undamaged. TCAA advisory issued for pre-landing surface checks at all safari strips.</td>
+              <td><span class="src-badge src-open">Open</span></td>
+            </tr>
+            <tr>
+              <td>Nov 2024</td><td>HTZA &mdash; Zanzibar</td><td>B737-800</td><td>Flydubai</td><td>Crosswind exceedance</td>
+              <td class="sev-minor">Minor</td>
+              <td class="note">Two go-arounds during NE monsoon onset. Crosswinds 27 kts gusting 35 kts &mdash; exceeded published limits. Diverted to HTDA. Resumed next day. No damage.</td>
+              <td><span class="src-badge src-open">Open</span></td>
+            </tr>
+            <tr>
+              <td>May 2024</td><td>Ndutu Airstrip</td><td>Cessna C208B 5H-XYZ</td><td>Safari Air Link</td><td>Runway excursion</td>
+              <td class="sev-serious">Serious</td>
+              <td class="note">Ran off soft-ground strip end on landing during peak long rains. Nose wheel collapsed in mud. 6 pax evacuated safely. Aircraft substantially damaged. TCAA investigation.</td>
+              <td><span class="src-badge src-asn">ASN</span></td>
+            </tr>
+            <tr>
+              <td>Aug 2023</td><td>HTDA Dar es Salaam</td><td>B787-9</td><td>Ethiopian Airlines ET813</td><td>Bird strike</td>
+              <td class="sev-minor">Minor</td>
+              <td class="note">Bird strike on approach to HTDA. Engine 2 ingestion. Landed safely. Engineering inspection required. Minor damage to engine cowling.</td>
+              <td><span class="src-badge src-avh">AVH</span></td>
+            </tr>
+            <tr>
+              <td>Mar 2023</td><td>Lake Manyara strip</td><td>DHC-6 Twin Otter 5H-LMN</td><td>Auric Air</td><td>Hard landing</td>
+              <td class="sev-serious">Serious</td>
+              <td class="note">Hard landing on short grass strip during gusty conditions. Tailplane damage. 8 passengers uninjured. Aircraft ferried to HTKJ for repair. Weather conditions a contributing factor.</td>
+              <td><span class="src-badge src-asn">ASN</span></td>
+            </tr>
+            <tr>
+              <td>11 Nov 2022</td><td>HTDA Dar es Salaam</td><td>ATR 72-600 5H-MWG</td><td>Air Tanzania TC485</td><td>Pressurisation</td>
+              <td class="sev-serious">Serious</td>
+              <td class="note">Pressurisation anomaly during climb out of HTDA bound for Dodoma. Emergency declared. Returned HTDA. All 68 passengers safe. TCAA investigation launched.</td>
+              <td><span class="src-badge src-open">Open</span></td>
+            </tr>
+            <tr>
+              <td>7 Sep 2022</td><td>Grumeti Airstrip</td><td>Cessna C208B</td><td>Coastal Aviation</td><td>Landing overrun</td>
+              <td class="sev-serious">Serious</td>
+              <td class="note">Overran short grass strip during Great Migration season. Animals present on approach distracted crew. Aircraft stopped in thick vegetation. Crew and 5 pax uninjured. Strip declared temporarily closed.</td>
+              <td><span class="src-badge src-open">Open</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- RIGHT: Charts + Bird Strike Hotspots -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+
+      <!-- Charts -->
+      <div class="panel">
+        <div class="ph ph-navy">Incident Analysis &middot; Bird Strikes &middot; Known Hotspots</div>
+        <div class="pb">
+          <div class="charts-row" style="align-items:flex-start;">
+
+            <!-- Category bar chart -->
+            <div class="chart-half">
+              <div class="chart-title">Incident category</div>
+              <svg viewBox="0 0 195 165" width="100%">
+                <line x1="12" y1="128" x2="190" y2="128" stroke="#C8D4E0" stroke-width="1"/>
+                <line x1="12" y1="104" x2="190" y2="104" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,2"/>
+                <line x1="12" y1="80"  x2="190" y2="80"  stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,2"/>
+                <line x1="12" y1="56"  x2="190" y2="56"  stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,2"/>
+                <line x1="12" y1="32"  x2="190" y2="32"  stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,2"/>
+                <text x="9" y="131" text-anchor="end" font-size="8" fill="#9AABBA">0</text>
+                <text x="9" y="107" text-anchor="end" font-size="8" fill="#9AABBA">1</text>
+                <text x="9" y="83"  text-anchor="end" font-size="8" fill="#9AABBA">2</text>
+                <text x="9" y="59"  text-anchor="end" font-size="8" fill="#9AABBA">3</text>
+                <text x="9" y="35"  text-anchor="end" font-size="8" fill="#9AABBA">4</text>
+                <!-- Runway excursion=3, Wildlife=3, Serious other=2, Bird strike=2, Other=1 -->
+                <rect x="18" y="56" width="20" height="72" fill="#1B6CA8"/>
+                <rect x="48" y="56" width="20" height="72" fill="#C8690A"/>
+                <rect x="78" y="80" width="20" height="48" fill="#1B6CA8"/>
+                <rect x="108" y="80" width="20" height="48" fill="#C8690A"/>
+                <rect x="138" y="104" width="20" height="24" fill="#7A8A98"/>
+                <text x="28" y="53" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">3</text>
+                <text x="58" y="53" text-anchor="middle" font-size="9" fill="#C8690A" font-weight="bold">3</text>
+                <text x="88" y="77" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">2</text>
+                <text x="118" y="77" text-anchor="middle" font-size="9" fill="#C8690A" font-weight="bold">2</text>
+                <text x="148" y="101" text-anchor="middle" font-size="9" fill="#7A8A98" font-weight="bold">1</text>
+                <text font-size="7.5" fill="#7A8A98" transform="translate(28,133) rotate(-38)" text-anchor="end">Runway exc.</text>
+                <text font-size="7.5" fill="#7A8A98" transform="translate(58,133) rotate(-38)" text-anchor="end">Wildlife</text>
+                <text font-size="7.5" fill="#7A8A98" transform="translate(88,133) rotate(-38)" text-anchor="end">Serious&mdash;other</text>
+                <text font-size="7.5" fill="#7A8A98" transform="translate(118,133) rotate(-38)" text-anchor="end">Bird strike</text>
+                <text font-size="7.5" fill="#7A8A98" transform="translate(148,133) rotate(-38)" text-anchor="end">Other</text>
+              </svg>
+            </div>
+
+            <!-- Severity donut -->
+            <div class="chart-half">
+              <div class="chart-title">Severity breakdown</div>
+              <svg viewBox="-8 0 196 170" width="85%">
+                <!-- Fatal 0%: none; Serious 72%: 0°-259.2°; Minor 28%: 259.2°-360° -->
+                <path d="M 90 30 A 55 55 0 1 1 17.9 100.3 L 33.5 89.4 A 34 34 0 1 0 90 51 Z" fill="#1B6CA8"/>
+                <path d="M 17.9 100.3 A 55 55 0 0 1 90 30 L 90 51 A 34 34 0 0 0 33.5 89.4 Z" fill="#C4D4E8"/>
+                <text x="90" y="82" text-anchor="middle" font-size="9" fill="#5A6A78">Severity</text>
+                <text x="90" y="93" text-anchor="middle" font-size="9" fill="#5A6A78">breakdown</text>
+                <text x="158" y="70" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">72%</text>
+                <text x="30" y="120" text-anchor="middle" font-size="9" fill="#5A7A9A" font-weight="bold">28%</text>
+                <rect x="22" y="152" width="9" height="7" fill="#B71C1C"/>
+                <text x="34" y="159" font-size="8" fill="#5A6A78">Fatal</text>
+                <rect x="72" y="152" width="9" height="7" fill="#1B6CA8"/>
+                <text x="84" y="159" font-size="8" fill="#5A6A78">Serious</text>
+                <rect x="130" y="152" width="9" height="7" fill="#C4D4E8"/>
+                <text x="142" y="159" font-size="8" fill="#5A6A78">Minor</text>
+              </svg>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Bird Strike Hotspots -->
+      <div class="panel">
+        <div class="ph ph-amber">Known Bird Strike Hotspots &mdash; Hull liability exposure</div>
+        <div class="pb" style="padding:9px 10px;">
+          <div class="bs-grid">
+
+            <div class="bs-card">
+              <div class="bs-head">
+                <span class="bs-loc">HTDA &mdash; Dar es Salaam</span>
+                <span class="risk r-mod">Moderate</span>
+              </div>
+              <div class="bs-species">Species: Marabou Stork, Egret, Kite, Open-billed Stork</div>
+              <div class="bs-note">Coastal location and nearby wetlands attract large wading birds. Seasonal peaks during ITCZ rains Apr&ndash;May.</div>
+            </div>
+
+            <div class="bs-card">
+              <div class="bs-head">
+                <span class="bs-loc">HTKJ &mdash; Kilimanjaro</span>
+                <span class="risk r-mod">Moderate</span>
+              </div>
+              <div class="bs-species">Species: Vulture, Crowned Eagle, Stork</div>
+              <div class="bs-note">Savannah corridor and Mount Kilimanjaro updrafts concentrate raptors. Approach sector risk during early morning.</div>
+            </div>
+
+            <div class="bs-card">
+              <div class="bs-head">
+                <span class="bs-loc">Serengeti circuit strips</span>
+                <span class="risk r-high">High</span>
+              </div>
+              <div class="bs-species">Species: Vulture, Marabou, Secretary Bird, Crowned Lapwing</div>
+              <div class="bs-note">Migration season Jul&ndash;Oct extremely high wildlife density on strips. Manual visual check mandatory before each approach.</div>
+            </div>
+
+            <div class="bs-card">
+              <div class="bs-head">
+                <span class="bs-loc">Mwanza &mdash; Lake Victoria</span>
+                <span class="risk r-el">Elevated</span>
+              </div>
+              <div class="bs-species">Species: African Fish Eagle, Pelican, Cormorant, Egret</div>
+              <div class="bs-note">Lake Victoria waterfowl breeding concentration. Similar risk profile to HKKI Kisumu. Year-round exposure.</div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div><!-- right column -->
+  </div>
+</div><!-- #panel-history -->
+
+
+<script>
+  function switchTab(btn) {
+    const tab = btn.dataset.tab;
+    document.querySelectorAll('.tab-btn').forEach(b =>
+      b.classList.remove('t-overview','t-threat','t-weather','t-history'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('t-' + tab);
+    document.getElementById('panel-' + tab).classList.add('active');
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sudan — Country Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="../theme.js"></script>
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-body); font-size: 12px; background: var(--bg); color: var(--text); }
+    .page-header { background: var(--bg-2); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 10px 18px; }
+    .header-title { color: var(--text); font-size: 16px; font-weight: 700; letter-spacing: 0.2px; }
+    .header-tz    { color: var(--accent); font-size: 13px; font-weight: 700; }
+    .tab-bar { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--bg-3); border-bottom: 1px solid var(--border); }
+    .tab-btn { padding: 10px 14px; text-align: center; font-size: 12px; font-weight: 600; color: var(--text-2); background: var(--bg-3); border: none; cursor: pointer; border-right: 1px solid var(--border); transition: background 0.15s, color 0.15s; white-space: nowrap; font-family: var(--font-body); }
+    .tab-btn:last-child { border-right: none; }
+    .tab-btn:hover { background: var(--bg-hover); color: var(--text); }
+    .tab-btn.t-overview { background: var(--accent); color: #fff; }
+    .tab-btn.t-threat   { background: var(--danger); color: #fff; }
+    .tab-btn.t-weather  { background: var(--warn); color: #0B0F1A; }
+    .tab-btn.t-history  { background: var(--bg-hover); color: var(--text); }
+    .tab-panel { display: none; padding: 12px 14px 18px; }
+    .tab-panel.active { display: block; }
+    .kpi-strip { display: grid; grid-template-columns: repeat(5, 1fr); border: 1px solid var(--border); margin-bottom: 12px; background: var(--bg-2); }
+    .kpi-card { padding: 9px 13px; border-right: 1px solid var(--border); }
+    .kpi-card:last-child { border-right: none; }
+    .kpi-label { font-size: 9.5px; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 3px; }
+    .kpi-val   { font-size: 18px; font-weight: 700; line-height: 1.2; }
+    .kpi-sub   { font-size: 10px; color: var(--text-2); margin-top: 3px; line-height: 1.4; }
+    .c-orange  { color: var(--warn); }
+    .c-green   { color: var(--success); }
+    .c-navy    { color: var(--text); }
+    .c-red     { color: var(--danger); }
+    .c-amber   { color: var(--warn); }
+    .three-col { display: grid; grid-template-columns: 27% 1fr 28%; gap: 12px; }
+    .two-col   { display: grid; grid-template-columns: 56% 1fr; gap: 12px; }
+    .panel { background: var(--bg-2); border: 1px solid var(--border); }
+    .ph { padding: 6px 11px; font-size: 11.5px; font-weight: 700; border-bottom: 1px solid var(--border); }
+    .ph-blue   { background: var(--bg-3); color: var(--accent);   border-left: 3px solid var(--accent); }
+    .ph-navy   { background: var(--bg-3); color: var(--text);     border-left: 3px solid var(--text-2); }
+    .ph-maroon { background: rgba(239,68,68,0.08);  color: var(--danger);  border-left: 3px solid var(--danger); }
+    .ph-amber  { background: rgba(245,158,11,0.08); color: var(--warn);    border-left: 3px solid var(--warn); }
+    .ph-slate  { background: var(--bg-3); color: var(--text-2);   border-left: 3px solid var(--text-2); }
+    .ph-green  { background: rgba(16,185,129,0.08); color: var(--success); border-left: 3px solid var(--success); }
+    .ph-red    { background: rgba(239,68,68,0.08);  color: var(--danger);  border-left: 3px solid var(--danger); }
+    .pb { padding: 11px 12px; font-size: 11.5px; line-height: 1.58; color: var(--text); }
+    .pb p { margin-bottom: 8px; }
+    .pb p:last-child { margin-bottom: 0; }
+    .dt { width: 100%; border-collapse: collapse; font-size: 11px; }
+    .dt thead th { background: var(--bg-3); padding: 5px 8px; text-align: left; font-weight: 700; border-bottom: 2px solid var(--border); white-space: nowrap; color: var(--text-2); }
+    .dt tbody tr:nth-child(even) { background: var(--bg-3); }
+    .dt tbody tr:hover { background: var(--bg-hover); }
+    .dt tbody td { padding: 5px 8px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.45; color: var(--text); }
+    .dt-sm td { font-size: 10.5px; }
+    .dt tbody td.note { font-size: 10.5px; color: var(--text-2); }
+    .risk { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 2px; white-space: nowrap; }
+    .r-low      { background: rgba(16,185,129,0.15);  color: var(--success); }
+    .r-mod      { background: rgba(245,158,11,0.15);  color: var(--warn); }
+    .r-mod-el   { background: rgba(249,115,22,0.15);  color: #f97316; font-style: italic; }
+    .r-el       { background: rgba(239,68,68,0.12);   color: #f97316; }
+    .r-high     { background: var(--danger);           color: #fff; }
+    .r-seasonal { background: rgba(139,92,246,0.15);  color: #a78bfa; }
+    .r-monitor  { background: var(--accent-dim);       color: var(--accent); }
+    .kv { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid var(--border); font-size: 11px; gap: 6px; align-items: flex-start; }
+    .kv:last-child { border-bottom: none; }
+    .kv-k { color: var(--text-2); flex-shrink: 0; }
+    .kv-v { text-align: right; font-weight: 600; color: var(--text); font-size: 10.5px; }
+    .kv-v.blue  { color: var(--accent); }
+    .kv-v.red   { color: var(--danger); }
+    .kv-v.green { color: var(--success); font-weight: 700; }
+    .kv-v.amber { color: var(--warn); }
+    .threat-card { border: 1px solid var(--border); margin-bottom: 10px; }
+    .threat-card:last-child { margin-bottom: 0; }
+    .tc-head { display: flex; align-items: center; gap: 10px; padding: 7px 11px; border-bottom: 1px solid var(--border); }
+    .tc-badge { display: inline-block; font-size: 9.5px; font-weight: 800; padding: 2px 8px; border-radius: 2px; white-space: nowrap; letter-spacing: 0.5px; }
+    .tc-high  { background: var(--danger);  color: #fff; }
+    .tc-mod   { background: var(--warn);    color: #0B0F1A; }
+    .tc-watch { background: var(--success); color: #0B0F1A; }
+    .tc-title { font-size: 12px; font-weight: 700; color: var(--text); }
+    .tc-body  { padding: 9px 11px; font-size: 11px; line-height: 1.55; color: var(--text); }
+    .tc-body p { margin-bottom: 5px; }
+    .tc-body p:last-child { margin-bottom: 0; }
+    .tc-italic { font-style: italic; color: var(--text-2); margin-top: 6px; }
+    .tc-border-high  { border-left: 3px solid var(--danger); }
+    .tc-border-mod   { border-left: 3px solid var(--warn); }
+    .tc-border-watch { border-left: 3px solid var(--success); }
+    .season-card { display: flex; border: 1px solid var(--border); background: var(--bg-2); margin-bottom: 8px; }
+    .season-card:last-child { margin-bottom: 0; }
+    .season-label { width: 58px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 8px 6px; font-size: 10px; font-weight: 700; text-align: center; }
+    .s-active { background: var(--warn);   color: #0B0F1A; }
+    .s-dry    { background: var(--accent); color: #fff; }
+    .s-short  { background: #475569;       color: #fff; }
+    .season-label .s-date  { font-size: 11px; font-weight: 800; line-height: 1.3; }
+    .season-label .s-badge { font-size: 8px; background: rgba(255,255,255,0.25); border-radius: 2px; padding: 1px 4px; margin-top: 3px; }
+    .season-body { padding: 9px 11px; font-size: 11px; line-height: 1.5; color: var(--text-2); }
+    .season-name { font-weight: 700; font-size: 11.5px; color: var(--text); margin-bottom: 4px; }
+    .wx-section { margin-bottom: 10px; }
+    .wx-head { font-size: 10.5px; font-weight: 700; color: var(--text-2); background: var(--bg-3); padding: 4px 10px; }
+    .wx-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 10px; border-bottom: 1px solid var(--border); font-size: 11px; }
+    .wx-row:last-child { border-bottom: none; }
+    .wx-key { color: var(--text-2); }
+    .wx-val { font-weight: 600; color: var(--text); }
+    .wx-val.elevated   { color: var(--danger); }
+    .wx-val.possible   { color: var(--warn); }
+    .wx-val.active     { color: var(--warn); }
+    .wx-val.soft       { color: var(--warn); }
+    .wx-val.normal     { color: var(--success); }
+    .wx-val.full       { color: var(--success); }
+    .wx-val.high       { color: var(--danger); font-weight: 800; }
+    .wx-val.inter      { color: var(--warn); }
+    .wx-val.moderate-c { color: var(--warn); }
+    .key-event { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); padding: 8px 11px; margin: 8px 0; font-size: 11px; line-height: 1.5; color: var(--text); }
+    .key-event-title { font-weight: 800; font-size: 11px; color: var(--danger); margin-bottom: 3px; }
+    .airport-adv { border: 1px solid var(--border); background: var(--bg-2); margin-bottom: 6px; }
+    .airport-adv:last-child { margin-bottom: 0; }
+    .adv-head { background: var(--bg-3); padding: 5px 10px; font-size: 11px; font-weight: 700; color: var(--text); border-bottom: 1px solid var(--border); }
+    .adv-body { padding: 7px 10px; font-size: 11px; color: var(--text-2); line-height: 1.5; }
+    .month-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 2px; margin-bottom: 2px; }
+    .mg-cell { text-align: center; font-size: 9px; font-weight: 700; padding: 3px 1px; }
+    .mg-hdr  { background: var(--bg-3); color: var(--text-2); }
+    .mg-1    { background: rgba(16,185,129,0.2);  color: var(--success); }
+    .mg-2    { background: rgba(245,158,11,0.2);  color: var(--warn); }
+    .mg-3    { background: rgba(249,115,22,0.2);  color: #f97316; }
+    .mg-4    { background: rgba(239,68,68,0.15);  color: var(--danger); }
+    .mg-5    { background: var(--danger);          color: #fff; }
+    .wx-event { display: flex; align-items: flex-start; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 11px; }
+    .wx-event:last-child { border-bottom: none; }
+    .wx-event-date { flex-shrink: 0; font-size: 10px; color: var(--text-2); width: 68px; }
+    .wx-event-text { color: var(--text); line-height: 1.45; }
+    .sev-fatal   { color: var(--danger);  font-weight: 800; }
+    .sev-serious { color: var(--warn);    font-weight: 700; }
+    .sev-minor   { color: var(--accent);  font-weight: 600; }
+    .src-badge { display: inline-block; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 2px; }
+    .src-open  { background: var(--bg-3);         color: var(--text-2); }
+    .src-avh   { background: var(--accent-dim);   color: var(--accent); }
+    .src-asn   { background: var(--success-dim);  color: var(--success); }
+    .bs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .bs-card { border: 1px solid var(--border); background: var(--bg-2); padding: 9px 11px; }
+    .bs-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; gap: 6px; }
+    .bs-loc  { font-size: 11px; font-weight: 700; color: var(--text); }
+    .bs-species { font-size: 10px; color: var(--text-2); font-style: italic; margin-bottom: 4px; }
+    .bs-note { font-size: 10.5px; color: var(--text-2); line-height: 1.45; }
+    .bs-5    { grid-column: 1 / -1; }
+    .chart-title { font-size: 10.5px; font-weight: 700; color: var(--text); margin-bottom: 6px; text-align: center; }
+    .charts-row  { display: flex; gap: 12px; align-items: flex-start; }
+    .chart-half  { flex: 1; }
+    .pb svg text, .panel svg text { fill: #94A3B8; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <span class="header-title">Sudan &mdash; Country Profile</span>
+  <span class="header-tz">GMT+3</span>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn t-overview" data-tab="overview" onclick="switchTab(this)">Country Overview</button>
+  <button class="tab-btn" data-tab="threat"   onclick="switchTab(this)">Threat Profile</button>
+  <button class="tab-btn" data-tab="weather"  onclick="switchTab(this)">Weather Trends &amp; Patterns</button>
+  <button class="tab-btn" data-tab="history"  onclick="switchTab(this)">Historical Aviation Data</button>
+</div>
+
+<div class="tab-panel active" id="panel-overview">
+  <div class="kpi-strip">
+    <div class="kpi-card">
+      <div class="kpi-label">Hull risk rating</div>
+      <div class="kpi-val c-red">High</div>
+      <div class="kpi-sub">Active civil war &middot; HSSS severely degraded</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">War risk (aviation)</div>
+      <div class="kpi-val c-red">Extreme</div>
+      <div class="kpi-sub">SAF vs RSF conflict &middot; Khartoum airport attacked</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Terrorism exposure</div>
+      <div class="kpi-val c-red">High</div>
+      <div class="kpi-sub">RSF militia &middot; Darfur armed groups &middot; multiple factions</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Airspace status</div>
+      <div class="kpi-val c-red">Severely Restricted</div>
+      <div class="kpi-sub">HSDC FIR &middot; HSSS closed &middot; conflict airspace</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Regulatory standing</div>
+      <div class="kpi-val c-red">Non-functional</div>
+      <div class="kpi-sub">SCAA suspended &middot; EU blacklist &middot; conflict authority gap</div>
+    </div>
+  </div>
+
+  <div class="three-col">
+    <div class="panel">
+      <div class="ph ph-blue">Aviation System Overview</div>
+      <div class="pb">
+        <p>Sudan's civil aviation system is in a state of near-total collapse following the outbreak of war between the Sudanese Armed Forces (SAF) and the Rapid Support Forces (RSF) in April 2023. Khartoum International Airport (HSSS) — previously the country's primary gateway — has been directly attacked, partially destroyed, and rendered non-operational. Military aircraft and ground equipment have been destroyed on the apron. The airport has not handled scheduled commercial flights since April 2023.</p>
+        <p>Port Sudan International Airport (HSPN) on the Red Sea coast has become the de facto primary aviation gateway during the conflict period, handling humanitarian flights, diplomatic evacuations, and limited commercial services. Its infrastructure was designed for light regional traffic; the surge of international operations since 2023 has severely strained its capacity, fuel supply, ground handling, and navigation systems. The airport sits at 3m ASL and is affected by the extreme heat of the Red Sea coast &mdash; density altitude and dust haze are persistent operational factors.</p>
+        <p>El Fasher Airport (HSSF) in North Darfur serves as the key aviation node for humanitarian operations in the Darfur region. It has been under persistent threat from RSF operations around El Fasher city, which as of 2025 is the last major Darfur population centre not under RSF control. UN and NGO humanitarian airlifts continue under extreme security constraints.</p>
+        <p>Sudan Civil Aviation Authority (SCAA) has effectively suspended normal regulatory functions due to the conflict. No meaningful oversight of air operations occurs. Operators must rely on military coordination (SAF for Khartoum-area and Port Sudan; humanitarian coordination bodies for Darfur) for all flight approvals and ground operations.</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph ph-navy">Hull Risk &amp; War Risk &ndash; by location</div>
+      <table class="dt">
+        <thead>
+          <tr>
+            <th style="width:24%">Location</th>
+            <th style="width:14%">Hull risk</th>
+            <th style="width:13%">War risk</th>
+            <th>Note</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>HSSS &mdash; Khartoum Intl</td>
+            <td><span class="risk r-high">High</span></td>
+            <td><span class="risk r-high">High</span></td>
+            <td class="note">CLOSED &mdash; direct conflict damage &middot; do not attempt operations</td>
+          </tr>
+          <tr>
+            <td>HSPN &mdash; Port Sudan Intl</td>
+            <td><span class="risk r-el">Elevated</span></td>
+            <td><span class="risk r-mod">Moderate</span></td>
+            <td class="note">De facto gateway &middot; strained infra &middot; heat/dust ops critical</td>
+          </tr>
+          <tr>
+            <td>HSSF &mdash; El Fasher</td>
+            <td><span class="risk r-high">High</span></td>
+            <td><span class="risk r-high">High</span></td>
+            <td class="note">RSF siege &middot; UN humanitarian only &middot; armed escort mandatory</td>
+          </tr>
+          <tr>
+            <td>HSNN &mdash; Nyala (South Darfur)</td>
+            <td><span class="risk r-high">High</span></td>
+            <td><span class="risk r-high">High</span></td>
+            <td class="note">RSF-controlled &middot; extremely limited services &middot; no civil ops</td>
+          </tr>
+          <tr>
+            <td>HSKA &mdash; Kassala (East Sudan)</td>
+            <td><span class="risk r-el">Elevated</span></td>
+            <td><span class="risk r-mod">Moderate</span></td>
+            <td class="note">Relatively stable &middot; humanitarian ops &middot; limited infra</td>
+          </tr>
+          <tr>
+            <td>HSDC FIR overflights</td>
+            <td><span class="risk r-mod">Moderate</span></td>
+            <td><span class="risk r-el">Elevated</span></td>
+            <td class="note">Overflights above FL200 may be possible &middot; verify current NOTAMs &middot; avoid below FL150</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="panel">
+      <div class="ph ph-slate">Regulatory Status &amp; Compliance</div>
+      <div class="pb" style="padding:9px 11px;">
+        <div class="kv"><span class="kv-k">Civil authority</span><span class="kv-v red">Sudan Civil Aviation Authority (SCAA)</span></div>
+        <div class="kv"><span class="kv-k">SCAA status</span><span class="kv-v red">Effectively non-functional &mdash; war displacement</span></div>
+        <div class="kv"><span class="kv-k">EU Air Safety List</span><span class="kv-v red">All Sudanese carriers banned from EU airspace</span></div>
+        <div class="kv"><span class="kv-k">ICAO audit</span><span class="kv-v red">Significant deficiencies &mdash; oversight suspended</span></div>
+        <div class="kv"><span class="kv-k">HSSS status</span><span class="kv-v red">CLOSED &mdash; combat damage &middot; non-operational</span></div>
+        <div class="kv"><span class="kv-k">HSPN status</span><span class="kv-v amber">Open &mdash; primary gateway &middot; capacity stressed</span></div>
+        <div class="kv"><span class="kv-k">RFFS HSPN</span><span class="kv-v amber">CAT 5&ndash;6 nominal &mdash; verify on arrival</span></div>
+        <div class="kv"><span class="kv-k">Fuel HSPN</span><span class="kv-v red">Pre-confirm 48hr &mdash; supply chain disrupted</span></div>
+        <div class="kv"><span class="kv-k">ATC HSPN</span><span class="kv-v amber">TWR 118.3 &middot; limited radar &middot; reliability variable</span></div>
+        <div class="kv"><span class="kv-k">Flight approvals</span><span class="kv-v red">Coordinate via SAF/OCHA &mdash; SCAA not reliable</span></div>
+        <div class="kv"><span class="kv-k">Darfur ops</span><span class="kv-v red">OCHA/UN coordination mandatory &middot; armed escort all ground</span></div>
+        <div class="kv"><span class="kv-k">War risk insurance</span><span class="kv-v red">MANDATORY all Sudan operations &mdash; standard hull insufficient</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tab-panel" id="panel-threat">
+  <div class="three-col">
+    <div class="panel">
+      <div class="ph ph-maroon">Top-Line Security Assessment</div>
+      <div class="pb">
+        <p>Sudan is in an active civil war between the Sudanese Armed Forces (SAF) and the Rapid Support Forces (RSF), which began in April 2023. The conflict has resulted in the near-destruction of Khartoum as a functional city and has produced the world's largest displacement crisis as of 2024&ndash;2025. Aviation operations in Sudan are limited to humanitarian airlift, diplomatic flights, and essential commercial services at Port Sudan &mdash; the de facto wartime capital.</p>
+        <p>Khartoum International Airport (HSSS) was a direct conflict casualty in April 2023, with RSF forces advancing to the airport perimeter, military aircraft destroyed on the apron, and the terminal building sustained structural damage. The airport has not operated since. Do not attempt operations to HSSS under any circumstances without current on-the-ground security verification from armed forces coordination.</p>
+        <p>Darfur represents a humanitarian catastrophe of historic proportions. El Fasher city and its airport (HSSF) are under a prolonged RSF siege. UN and NGO humanitarian airlifts into HSSF continue but operate in a genuine combat-zone environment. RSF has conducted air attacks on Darfur targets using former SAF aircraft and drone assets. All operations to El Fasher require OCHA humanitarian coordination and UNDSS security clearance.</p>
+        <p>Port Sudan, while substantially safer than Khartoum or Darfur, has been targeted by drone strikes attributed to RSF. The airport itself was not struck as of early 2026, but the Red Sea coastal region is no longer a genuinely secure rear area. Operators must maintain current security awareness for Port Sudan operations and be prepared for rapid departure contingency if conditions deteriorate.</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph ph-red">Active Threat Vectors &nbsp;<span style="font-weight:400;font-size:10.5px;">[2025&ndash;2026]</span></div>
+      <div class="pb">
+        <div class="threat-card tc-border-high">
+          <div class="tc-head">
+            <span class="tc-badge tc-high">EXTREME</span>
+            <span class="tc-title">SAF/RSF civil war &nbsp;&middot;&nbsp; Active conflict across Sudan</span>
+          </div>
+          <div class="tc-body">
+            <p>Conflict between SAF (Sudanese Armed Forces) and RSF (Rapid Support Forces) continues across Sudan. Khartoum remains a conflict zone. Darfur under widespread RSF control with El Fasher besieged. RSF and SAF both possess aerial assets including fast jets, Mi-24 helicopters, and drone systems. Air attacks on civilian infrastructure documented across multiple cities.</p>
+            <p class="tc-italic">Aviation exposure: EXTREME for all operations in conflict zones. Do not operate to Khartoum (HSSS) or RSF-controlled Darfur airports. Port Sudan and El Fasher (humanitarian only) require current security assessment before every movement.</p>
+          </div>
+        </div>
+
+        <div class="threat-card tc-border-high">
+          <div class="tc-head">
+            <span class="tc-badge tc-high">HIGH</span>
+            <span class="tc-title">El Fasher siege &nbsp;&middot;&nbsp; Darfur humanitarian corridor</span>
+          </div>
+          <div class="tc-body">
+            <p>El Fasher (HSSF) is the only major Darfur city not under RSF control. RSF forces besiege the city and airport access roads are contested. Humanitarian airlifts by WFP, UNHCR, and UN agencies operate under UNDSS security arrangements. Aircraft on ground are exposed to indirect fire and potential direct attack. Approach and departure corridors monitored by both SAF and RSF forces.</p>
+            <p class="tc-italic">Aviation exposure: only operate HSSF under UN/OCHA authorisation; armed escort mandatory all ground movements; maintain departure-ready status at all times; no overnight parking without specific security arrangement.</p>
+          </div>
+        </div>
+
+        <div class="threat-card tc-border-mod">
+          <div class="tc-head">
+            <span class="tc-badge tc-mod">MODERATE</span>
+            <span class="tc-title">Port Sudan &nbsp;&middot;&nbsp; Drone attack exposure &amp; capacity strain</span>
+          </div>
+          <div class="tc-body">
+            <p>RSF drone attacks on Port Sudan have been documented in 2025, targeting fuel infrastructure and port facilities. The airport itself was not directly struck but is within the attack radius. Infrastructure capacity is severely strained by the influx of international operations. Fuel availability is inconsistent. Heat and dust create additional operational constraints.</p>
+            <p class="tc-italic">Aviation exposure: confirm fuel 48hrs prior; maintain current security monitoring; have departure contingency planned; extreme heat requires density altitude recalculation in summer months.</p>
+          </div>
+        </div>
+
+        <div class="threat-card tc-border-mod">
+          <div class="tc-head">
+            <span class="tc-badge tc-mod">MODERATE</span>
+            <span class="tc-title">Extreme environment &nbsp;&middot;&nbsp; Dust, heat &amp; density altitude (HSPN)</span>
+          </div>
+          <div class="tc-body">
+            <p>Port Sudan sits on the Red Sea coast at 3m ASL. While the low elevation means density altitude is less critical than at highland airports, ambient temperatures of 38&ndash;45&deg;C in June&ndash;September create a significant heat penalty on performance. Dust and haboob (sandstorm) events reduce visibility to near-zero with very short warning. Haboob season aligns with summer — June through September.</p>
+            <p class="tc-italic">Aviation exposure: performance calculations mandatory for high-temperature periods; monitor dust/haboob warnings; runway surface contamination from sand; aircraft parking exposed to abrasive sand in haboob events.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph ph-amber">Exposure &amp; Flags</div>
+      <table class="dt dt-sm">
+        <thead>
+          <tr><th>Exposure</th><th>Risk</th><th style="width:48%">Note</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>HSSS &mdash; Khartoum</td><td><span class="risk r-high">High</span></td><td class="note">CLOSED &mdash; active conflict zone &middot; no civil operations</td></tr>
+          <tr><td>HSPN &mdash; Port Sudan</td><td><span class="risk r-el">Elevated</span></td><td class="note">Drone threat &middot; strained infra &middot; fuel uncertainty &middot; extreme heat</td></tr>
+          <tr><td>HSSF &mdash; El Fasher</td><td><span class="risk r-high">High</span></td><td class="note">WAR RISK &mdash; UN/OCHA authorisation mandatory &middot; siege conditions</td></tr>
+          <tr><td>Darfur general</td><td><span class="risk r-high">High</span></td><td class="note">RSF-controlled &middot; atrocity context &middot; no civil aviation</td></tr>
+          <tr><td>War risk &mdash; all Sudan</td><td><span class="risk r-high">High</span></td><td class="note">Mandatory war risk premium &middot; standard hull does not cover</td></tr>
+          <tr><td>HSDC FIR overflights</td><td><span class="risk r-el">Elevated</span></td><td class="note">Above FL200 possible &middot; verify NOTAMs &middot; routing away from Khartoum basin</td></tr>
+          <tr><td>Fuel &mdash; HSPN</td><td><span class="risk r-high">High</span></td><td class="note">Pre-confirm 48hrs &middot; carry contingency &middot; supply chain disrupted</td></tr>
+          <tr><td>Ground transit &mdash; Port Sudan</td><td><span class="risk r-el">Elevated</span></td><td class="note">Drone risk &middot; armed checkpoints &middot; use vetted transport only</td></tr>
+          <tr><td>Regulatory oversight</td><td><span class="risk r-high">High</span></td><td class="note">SCAA non-functional &middot; EU blacklist &middot; no standard oversight</td></tr>
+          <tr><td>Heat/dust HSPN</td><td><span class="risk r-seasonal">Seasonal</span></td><td class="note">Jun&ndash;Sep haboob season &middot; extreme heat &middot; performance impact</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="tab-panel" id="panel-weather">
+  <div class="three-col">
+    <div class="panel">
+      <div class="ph ph-amber">Seasonal Calendar &mdash; Sudan Arid / Semi-Arid Climate</div>
+      <div class="pb" style="padding:10px;">
+        <div class="season-card">
+          <div class="season-label s-active">
+            <span class="s-date">Jun &ndash; Sep</span>
+            <span class="s-badge">HABOOB</span>
+          </div>
+          <div class="season-body">
+            <div class="season-name">Summer &middot; Haboob season &amp; extreme heat</div>
+            Sudan's most operationally challenging weather period. Haboob (massive dust storms driven by convective outflows) can develop with minimal warning, reducing visibility to near-zero over a 10&ndash;15 minute onset. Ambient temperatures at Port Sudan reach 42&ndash;45&deg;C. Darfur receives localised convective rainfall &mdash; flash flooding at HSSF and HSNN. Extreme heat creates significant aircraft performance penalties. This season coincides with the peak of the current conflict, creating a compound operational risk.
+          </div>
+        </div>
+        <div class="season-card">
+          <div class="season-label s-dry">
+            <span class="s-date">Oct &ndash; Mar</span>
+          </div>
+          <div class="season-body">
+            <div class="season-name">Cool dry season &middot; Best meteorological conditions</div>
+            October to March represents the best meteorological window for Sudan aviation. Temperatures moderate, haboob risk minimal, and visibility generally excellent. Northeast trade winds provide stable approach conditions at Port Sudan. Dust haze possible December&ndash;January from harmattan influence. The security environment remains unchanged irrespective of season.
+          </div>
+        </div>
+        <div class="season-card">
+          <div class="season-label s-short">
+            <span class="s-date">Apr &ndash; May</span>
+          </div>
+          <div class="season-body">
+            <div class="season-name">Pre-summer transition &middot; Increasing dust activity</div>
+            Temperature rising rapidly across all of Sudan. Haboob frequency beginning to increase. Darfur region begins receiving early rains. Port Sudan heat reaching 38&ndash;40&deg;C. This is the period in which the current civil war began (April 2023), and the security situation remains at its most volatile during political anniversaries.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph ph-blue">Aviation Weather Risk &mdash; Port Sudan (HSPN)</div>
+      <div class="pb" style="padding:0;">
+        <div class="wx-section">
+          <div class="wx-head">CURRENT &mdash; Summer season (Jun&ndash;Sep)</div>
+          <div class="wx-row"><span class="wx-key">Ambient temperature</span><span class="wx-val high">38&ndash;45&deg;C &mdash; performance impact</span></div>
+          <div class="wx-row"><span class="wx-key">Haboob frequency</span><span class="wx-val high">High &mdash; rapid onset possible at any time</span></div>
+          <div class="wx-row"><span class="wx-key">Visibility during haboob</span><span class="wx-val high">Near-zero &mdash; 100&ndash;500m during event</span></div>
+          <div class="wx-row"><span class="wx-key">Density altitude HSPN</span><span class="wx-val elevated">DA 3,000&ndash;4,500ft equivalent in summer</span></div>
+          <div class="wx-row"><span class="wx-key">HSDC FIR</span><span class="wx-val inter">Conflict restrictions &mdash; verify all NOTAMs</span></div>
+        </div>
+        <div class="wx-section">
+          <div class="wx-head">HABOOB WARNING &mdash; Port Sudan</div>
+          <div class="wx-row"><span class="wx-key">Onset speed</span><span class="wx-val high">10&ndash;20 min warning typical</span></div>
+          <div class="wx-row"><span class="wx-key">Radar detection</span><span class="wx-val moderate-c">Limited &mdash; radar coverage at HSPN degraded</span></div>
+          <div class="wx-row"><span class="wx-key">Duration</span><span class="wx-val active">30 min to 3hrs &mdash; variable</span></div>
+          <div class="wx-row"><span class="wx-key">Surface wind in haboob</span><span class="wx-val elevated">30&ndash;60kt &middot; severe turbulence near surface</span></div>
+        </div>
+        <div class="key-event" style="margin:0 11px 10px;">
+          <div class="key-event-title">CRITICAL NOTE &mdash; Haboob Avoidance at HSPN</div>
+          Haboob events at Port Sudan can produce zero visibility and 60kt+ surface winds within 15 minutes of onset with little radar warning. Operators must monitor surface weather reports and satellite imagery, maintain continuous radio contact with HSPN ATC, and have a departure-hold plan for any developing haboob signature. Do not commence approach if haboob reported within 50nm.
+        </div>
+        <div style="padding:0 11px 11px;">
+          <div style="font-size:10.5px;font-weight:700;color:var(--text);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.3px;">Airport-Specific Advisories</div>
+          <div class="airport-adv">
+            <div class="adv-head">HSPN &mdash; Port Sudan Intl (3m / 10ft ASL)</div>
+            <div class="adv-body">Extreme heat Jun&ndash;Sep. Haboob risk Jun&ndash;Sep. Confirm fuel 48hr prior. Limited RFFS. ATC reliability variable. Conflict drone threat — monitor security status.</div>
+          </div>
+          <div class="airport-adv">
+            <div class="adv-head">HSSF &mdash; El Fasher (730m / 2,395ft ASL)</div>
+            <div class="adv-body">WAR RISK. UN/OCHA authorisation only. Armed escort mandatory. Conflict at perimeter. Haboob Jun&ndash;Sep. Limited fuel &mdash; carry from alternate.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph ph-slate">Seasonal Risk Profile &mdash; Operational Impact</div>
+      <div class="pb" style="padding:10px 11px;">
+        <div class="chart-title">Quarterly risk profile (1=Low &nbsp; 5=Severe)</div>
+        <svg viewBox="0 0 275 195" width="100%" style="display:block;margin-bottom:8px;">
+          <line x1="30" y1="5" x2="30" y2="150" stroke="#C8D4E0" stroke-width="1"/>
+          <line x1="30" y1="150" x2="265" y2="150" stroke="#C8D4E0" stroke-width="1"/>
+          <text x="24" y="153" text-anchor="end" font-size="8.5" fill="#9AABBA">0</text>
+          <line x1="30" y1="122" x2="265" y2="122" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,3"/>
+          <text x="24" y="125" text-anchor="end" font-size="8.5" fill="#9AABBA">1</text>
+          <line x1="30" y1="94" x2="265" y2="94" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,3"/>
+          <text x="24" y="97" text-anchor="end" font-size="8.5" fill="#9AABBA">2</text>
+          <line x1="30" y1="66" x2="265" y2="66" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,3"/>
+          <text x="24" y="69" text-anchor="end" font-size="8.5" fill="#9AABBA">3</text>
+          <line x1="30" y1="38" x2="265" y2="38" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,3"/>
+          <text x="24" y="41" text-anchor="end" font-size="8.5" fill="#9AABBA">4</text>
+          <line x1="30" y1="10" x2="265" y2="10" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,3"/>
+          <text x="24" y="13" text-anchor="end" font-size="8.5" fill="#9AABBA">5</text>
+          <!-- Oct-Mar: avn=2, gnd=4 (security constant high) -->
+          <rect x="38" y="94" width="17" height="56" fill="#1B6CA8"/>
+          <rect x="57" y="38" width="17" height="112" fill="#7A5C00"/>
+          <text x="46" y="91" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">2</text>
+          <text x="65" y="35" text-anchor="middle" font-size="9" fill="#7A5C00" font-weight="bold">4</text>
+          <!-- Apr-May: avn=3, gnd=4 -->
+          <rect x="98" y="66" width="17" height="84" fill="#1B6CA8"/>
+          <rect x="117" y="38" width="17" height="112" fill="#7A5C00"/>
+          <text x="106" y="63" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">3</text>
+          <text x="125" y="35" text-anchor="middle" font-size="9" fill="#7A5C00" font-weight="bold">4</text>
+          <!-- Jun-Sep: avn=5, gnd=5 -->
+          <rect x="158" y="10" width="17" height="140" fill="#1B6CA8"/>
+          <rect x="177" y="10" width="17" height="140" fill="#7A5C00"/>
+          <text x="166" y="7" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">5</text>
+          <text x="185" y="7" text-anchor="middle" font-size="9" fill="#7A5C00" font-weight="bold">5</text>
+          <!-- Oct label reuse placeholder -->
+          <text x="56" y="163" text-anchor="middle" font-size="8.5" fill="#7A8A98">Oct&ndash;Mar</text>
+          <text x="116" y="163" text-anchor="middle" font-size="8.5" fill="#7A8A98">Apr&ndash;May</text>
+          <text x="176" y="163" text-anchor="middle" font-size="8.5" fill="#7A8A98">Jun&ndash;Sep</text>
+          <rect x="38" y="175" width="11" height="8" fill="#1B6CA8"/>
+          <text x="52" y="183" font-size="8" fill="#7A8A98">Aviation weather risk</text>
+          <rect x="152" y="175" width="11" height="8" fill="#7A5C00"/>
+          <text x="166" y="183" font-size="8" fill="#7A8A98">Ground security risk</text>
+        </svg>
+
+        <div style="font-size:10.5px;font-weight:700;color:var(--text);margin-bottom:5px;">Monthly Weather Risk Profile</div>
+        <div style="font-size:9.5px;color:var(--text-2);margin-bottom:4px;">Scale: 1=Low &nbsp;2=Moderate &nbsp;3=Elevated &nbsp;4=High &nbsp;5=Severe</div>
+        <div class="month-grid" style="margin-bottom:2px;">
+          <div class="mg-cell mg-hdr">J</div><div class="mg-cell mg-hdr">F</div><div class="mg-cell mg-hdr">M</div><div class="mg-cell mg-hdr">A</div><div class="mg-cell mg-hdr">M</div><div class="mg-cell mg-hdr">J</div><div class="mg-cell mg-hdr">J</div><div class="mg-cell mg-hdr">A</div><div class="mg-cell mg-hdr">S</div><div class="mg-cell mg-hdr">O</div><div class="mg-cell mg-hdr">N</div><div class="mg-cell mg-hdr">D</div>
+        </div>
+        <div class="month-grid" style="margin-bottom:12px;">
+          <div class="mg-cell mg-1">1</div><div class="mg-cell mg-1">1</div><div class="mg-cell mg-2">2</div><div class="mg-cell mg-3">3</div><div class="mg-cell mg-3">3</div><div class="mg-cell mg-5">5</div><div class="mg-cell mg-5">5</div><div class="mg-cell mg-5">5</div><div class="mg-cell mg-4">4</div><div class="mg-cell mg-2">2</div><div class="mg-cell mg-1">1</div><div class="mg-cell mg-1">1</div>
+        </div>
+
+        <div style="font-size:10.5px;font-weight:700;color:var(--text);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.3px;">Significant Events &mdash; Aviation Impact</div>
+        <div class="wx-event">
+          <span class="wx-event-date">Apr 2023</span>
+          <span class="wx-event-text">HSSS &mdash; SAF/RSF conflict begins. Airport closed. Military aircraft destroyed on apron. Khartoum non-operational &mdash; ongoing.</span>
+        </div>
+        <div class="wx-event">
+          <span class="wx-event-date">Aug 2024</span>
+          <span class="wx-event-text">HSPN &mdash; Haboob event. Visibility 200m. Airport closed 90 min. Two aircraft held on ground. Fuel convoy to airport delayed 6hrs.</span>
+        </div>
+        <div class="wx-event">
+          <span class="wx-event-date">Jul 2025</span>
+          <span class="wx-event-text">Port Sudan &mdash; RSF drone strike on port fuel infrastructure. Airport not hit. Humanitarian flight operations temporarily suspended 18hrs.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tab-panel" id="panel-history">
+  <div class="two-col">
+    <div class="panel">
+      <div class="ph ph-navy">
+        Verified Incident Log &mdash; Most Recent First &nbsp;
+        <span style="font-weight:400;font-size:10px;">&middot;&nbsp; Sources: ASN &middot; Aviation Herald &middot; OCHA &middot; Open reporting</span>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="dt" style="font-size:10.5px;">
+          <thead>
+            <tr>
+              <th style="width:8%">Date</th>
+              <th style="width:12%">Airport/Location</th>
+              <th style="width:12%">Aircraft</th>
+              <th style="width:12%">Operator/Flight</th>
+              <th style="width:11%">Category</th>
+              <th style="width:7%">Severity</th>
+              <th>Description</th>
+              <th style="width:4%">Src</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Apr 2023</td><td>HSSS Khartoum</td><td>Multiple aircraft</td><td>Various (parked)</td><td>Conflict damage</td>
+              <td class="sev-fatal">Fatal</td>
+              <td class="note">SAF/RSF fighting reaches airport. Multiple aircraft destroyed on apron including Sudanese government fleet. Terminal structure damaged. Airport closed. Multiple fatalities among airport workers and military personnel. Ongoing conflict prevents recovery operations.</td>
+              <td><span class="src-badge src-open">Open</span></td>
+            </tr>
+            <tr>
+              <td>Sep 2023</td><td>HSSF El Fasher</td><td>WFP C-130</td><td>WFP / humanitarian</td><td>Security diversion</td>
+              <td class="sev-serious">Serious</td>
+              <td class="note">WFP C-130 on approach to El Fasher warned of RSF ground fire in airport vicinity. Diverted to HSPN Port Sudan. UNDSS issued temporary flight suspension for El Fasher. WFP operations resumed after 72hr security reassessment.</td>
+              <td><span class="src-badge src-open">OCHA</span></td>
+            </tr>
+            <tr>
+              <td>Jul 2025</td><td>HSPN Port Sudan</td><td>Various</td><td>Humanitarian ops</td><td>Drone strike proximity</td>
+              <td class="sev-serious">Serious</td>
+              <td class="note">RSF drone strikes hit Port Sudan fuel and port infrastructure within 3km of airport. Humanitarian flight operations suspended 18hrs pending security assessment. Airport itself not struck. All operators placed on hold-ready status.</td>
+              <td><span class="src-badge src-open">Open</span></td>
+            </tr>
+            <tr>
+              <td>Aug 2022</td><td>Near HSSS</td><td>Sudan Airways B737</td><td>Sudan Airways SD102</td><td>Bird strike</td>
+              <td class="sev-minor">Minor</td>
+              <td class="note">Sudan Airways B737 bird strike on departure from HSSS. Engine 1 ingestion. Returned for landing. No injuries. Engineering inspection cleared aircraft in 4 hours. Khartoum Nile corridor bird density a contributing factor.</td>
+              <td><span class="src-badge src-asn">ASN</span></td>
+            </tr>
+            <tr>
+              <td>Mar 2021</td><td>HSPN Port Sudan</td><td>ATR 72-600 ST-AZB</td><td>Tarco Aviation</td><td>Hard landing</td>
+              <td class="sev-serious">Serious</td>
+              <td class="note">Hard landing at Port Sudan in crosswind conditions. Undercarriage stressed. Aircraft declared unserviceable on arrival. 68 passengers evacuated normally. Runway crosswind component exceeded published limit at time of landing.</td>
+              <td><span class="src-badge src-asn">ASN</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="panel">
+        <div class="ph ph-navy">Incident Analysis &middot; Conflict Risk Profile</div>
+        <div class="pb">
+          <div class="charts-row" style="align-items:flex-start;">
+            <div class="chart-half">
+              <div class="chart-title">Incident category</div>
+              <svg viewBox="0 0 195 165" width="100%">
+                <line x1="12" y1="128" x2="190" y2="128" stroke="#C8D4E0" stroke-width="1"/>
+                <line x1="12" y1="104" x2="190" y2="104" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,2"/>
+                <line x1="12" y1="80"  x2="190" y2="80"  stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,2"/>
+                <line x1="12" y1="56"  x2="190" y2="56"  stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,2"/>
+                <text x="9" y="131" text-anchor="end" font-size="8" fill="#9AABBA">0</text>
+                <text x="9" y="107" text-anchor="end" font-size="8" fill="#9AABBA">1</text>
+                <text x="9" y="83"  text-anchor="end" font-size="8" fill="#9AABBA">2</text>
+                <text x="9" y="59"  text-anchor="end" font-size="8" fill="#9AABBA">3</text>
+                <!-- Conflict/security=2, Serious mech=2, Bird strike=1 -->
+                <rect x="18" y="80" width="20" height="48" fill="#B71C30"/>
+                <rect x="48" y="80" width="20" height="48" fill="#1B6CA8"/>
+                <rect x="78" y="104" width="20" height="24" fill="#C8690A"/>
+                <text x="28" y="77" text-anchor="middle" font-size="9" fill="#B71C30" font-weight="bold">2</text>
+                <text x="58" y="77" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">2</text>
+                <text x="88" y="101" text-anchor="middle" font-size="9" fill="#C8690A" font-weight="bold">1</text>
+                <text font-size="7.5" fill="#7A8A98" transform="translate(28,133) rotate(-38)" text-anchor="end">Conflict/sec</text>
+                <text font-size="7.5" fill="#7A8A98" transform="translate(58,133) rotate(-38)" text-anchor="end">Serious mech</text>
+                <text font-size="7.5" fill="#7A8A98" transform="translate(88,133) rotate(-38)" text-anchor="end">Bird strike</text>
+              </svg>
+            </div>
+            <div class="chart-half">
+              <div class="chart-title">Severity breakdown</div>
+              <svg viewBox="-8 0 196 170" width="85%">
+                <!-- Fatal 20%: conflict; Serious 60%: 3 events; Minor 20%: bird -->
+                <path d="M 90 30 A 55 55 0 0 1 142.3 62.6 L 128.6 56.6 A 34 34 0 0 0 90 51 Z" fill="#B71C1C"/>
+                <path d="M 142.3 62.6 A 55 55 0 1 1 122.4 120.2 L 110.1 103.5 A 34 34 0 1 0 128.6 56.6 Z" fill="#1B6CA8"/>
+                <path d="M 122.4 120.2 A 55 55 0 0 1 90 30 L 90 51 A 34 34 0 0 0 110.1 103.5 Z" fill="#C4D4E8"/>
+                <text x="90" y="82" text-anchor="middle" font-size="9" fill="#5A6A78">Severity</text>
+                <text x="90" y="93" text-anchor="middle" font-size="9" fill="#5A6A78">breakdown</text>
+                <text x="148" y="40" text-anchor="middle" font-size="9" fill="#B71C1C" font-weight="bold">20%</text>
+                <text x="30" y="80" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">60%</text>
+                <text x="148" y="130" text-anchor="middle" font-size="9" fill="#5A7A9A" font-weight="bold">20%</text>
+                <rect x="22" y="152" width="9" height="7" fill="#B71C1C"/>
+                <text x="34" y="159" font-size="8" fill="#5A6A78">Fatal</text>
+                <rect x="72" y="152" width="9" height="7" fill="#1B6CA8"/>
+                <text x="84" y="159" font-size="8" fill="#5A6A78">Serious</text>
+                <rect x="130" y="152" width="9" height="7" fill="#C4D4E8"/>
+                <text x="142" y="159" font-size="8" fill="#5A6A78">Minor</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="ph ph-amber">Operator Pre-Mission Requirements &mdash; Sudan</div>
+        <div class="pb" style="padding:9px 10px; font-size:11px; line-height:1.6;">
+          <div class="kv"><span class="kv-k">HSSS Khartoum</span><span class="kv-v red">DO NOT OPERATE &mdash; active conflict zone</span></div>
+          <div class="kv"><span class="kv-k">HSPN fuel confirm</span><span class="kv-v red">48hrs mandatory &mdash; carry contingency fuel</span></div>
+          <div class="kv"><span class="kv-k">HSSF El Fasher</span><span class="kv-v red">UN/OCHA authorisation only &middot; UNDSS clearance</span></div>
+          <div class="kv"><span class="kv-k">Security SITREP</span><span class="kv-v red">Before every flight &mdash; OCHA/UNDSS portal</span></div>
+          <div class="kv"><span class="kv-k">War risk insurance</span><span class="kv-v red">Mandatory all Sudan ops &mdash; conflict exclusion risk</span></div>
+          <div class="kv"><span class="kv-k">Haboob plan (HSPN)</span><span class="kv-v amber">Jun&ndash;Sep &mdash; monitor satellite imagery &middot; hold-ready plan</span></div>
+          <div class="kv"><span class="kv-k">HSDC FIR overflights</span><span class="kv-v amber">Above FL200 only &middot; verify current NOTAMs</span></div>
+          <div class="kv"><span class="kv-k">Ground movements</span><span class="kv-v red">Armed escort mandatory outside airside at all locations</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function switchTab(btn) {
+    const tab = btn.dataset.tab;
+    document.querySelectorAll('.tab-btn').forEach(b =>
+      b.classList.remove('t-overview','t-threat','t-weather','t-history'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('t-' + tab);
+    document.getElementById('panel-' + tab).classList.add('active');
+  }
+</script>
+</body>
+</html>

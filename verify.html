@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verify Email — FRED BLACK Aviation</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="theme.js"></script>
+<link rel="stylesheet" href="styles.css">
+<style>
+body{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:100vh;padding:24px;background:var(--bg);}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(26,111,232,.18) 0%,transparent 70%);}
+.auth-logo{display:flex;align-items:center;gap:11px;margin-bottom:28px;position:relative;z-index:1;}
+.auth-logo-icon{width:42px;height:42px;background:var(--accent);border-radius:12px;display:flex;
+  align-items:center;justify-content:center;box-shadow:0 4px 16px var(--accent-glow);}
+.auth-logo-icon svg{width:22px;height:22px;fill:white;}
+.auth-logo-name{font-size:17px;font-weight:800;letter-spacing:.05em;color:var(--text);}
+.auth-logo-tag{font-size:11px;color:var(--text-3);margin-top:2px;}
+.card{background:var(--bg-2);border:1px solid var(--border);border-radius:16px;padding:40px 40px 36px;
+  width:100%;max-width:420px;box-shadow:0 8px 32px rgba(0,0,0,.45);position:relative;z-index:1;text-align:center;}
+.icon-wrap{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;}
+.icon-wrap.loading{background:var(--accent-dim);border:1px solid rgba(26,111,232,.2);}
+.icon-wrap.success{background:var(--success-dim);border:1px solid rgba(16,185,129,.2);}
+.icon-wrap.error  {background:var(--danger-dim); border:1px solid rgba(239,68,68,.2);}
+.icon-wrap svg{width:28px;height:28px;}
+.card-title{font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px;}
+.card-sub  {font-size:13px;color:var(--text-2);line-height:1.55;margin-bottom:24px;}
+.btn{display:block;width:100%;padding:13px;background:var(--accent);border:none;border-radius:9px;
+  color:white;font-size:14px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;
+  text-decoration:none;transition:background .15s;}
+.btn:hover{background:var(--accent-h);}
+@keyframes spin{to{transform:rotate(360deg);}}
+.footer{margin-top:22px;font-size:11px;color:var(--text-3);text-align:center;position:relative;z-index:1;}
+</style>
+</head>
+<body>
+
+<div class="auth-logo">
+  <div class="auth-logo-icon">
+    <svg viewBox="0 0 24 24"><path d="M21 16v-2l-8-5V3.5A1.5 1.5 0 0 0 11.5 2 1.5 1.5 0 0 0 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg>
+  </div>
+  <div>
+    <div class="auth-logo-name">FRED BLACK</div>
+    <div class="auth-logo-tag">Aviation Intelligence Platform</div>
+  </div>
+</div>
+
+<div class="card" id="card">
+
+  <!-- Loading -->
+  <div id="stateLoading">
+    <div class="icon-wrap loading">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" style="animation:spin .7s linear infinite;">
+        <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+      </svg>
+    </div>
+    <div class="card-title">Verifying your email…</div>
+    <div class="card-sub">Please wait a moment.</div>
+  </div>
+
+  <!-- Success -->
+  <div id="stateSuccess" style="display:none;">
+    <div class="icon-wrap success">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div class="card-title">Email verified!</div>
+    <div class="card-sub">Your email address has been confirmed. You're all set — click below to go to the dashboard.</div>
+    <a class="btn" href="index.html">Go to Dashboard →</a>
+  </div>
+
+  <!-- Error -->
+  <div id="stateError" style="display:none;">
+    <div class="icon-wrap error">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    </div>
+    <div class="card-title" id="errTitle">Link expired</div>
+    <div class="card-sub" id="errSub">This verification link is invalid or has already been used. You can request a new one from the sign-in page.</div>
+    <a class="btn" href="login.html">Back to Sign In</a>
+  </div>
+
+</div>
+
+<div class="footer">© 2026 Stone Africa &nbsp;·&nbsp; FRED BLACK Aviation Intelligence</div>
+
+<script>
+(async function() {
+  const token = new URLSearchParams(location.search).get('t');
+  if (!token) { showError('No token', 'No verification token was found in this link.'); return; }
+
+  try {
+    const res  = await fetch('/api/auth/verify-email', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ token }),
+    });
+    const data = await res.json();
+
+    if (!res.ok) { showError('Link invalid or expired', data.error); return; }
+
+    // Store updated JWT (now has emailVerified: true)
+    localStorage.setItem('av_token', data.token);
+    localStorage.setItem('av_user',  JSON.stringify(data.user));
+
+    document.getElementById('stateLoading').style.display = 'none';
+    document.getElementById('stateSuccess').style.display = '';
+
+  } catch {
+    showError('Something went wrong', 'Could not reach the server. Please try again.');
+  }
+})();
+
+function showError(title, msg) {
+  document.getElementById('stateLoading').style.display = 'none';
+  document.getElementById('stateError').style.display   = '';
+  document.getElementById('errTitle').textContent = title;
+  document.getElementById('errSub').textContent   = msg;
+}
+</script>
+</body>
+</html>

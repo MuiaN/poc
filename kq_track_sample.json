@@ -1,0 +1,211 @@
+{
+  "ident": "KQ100",
+  "ident_iata": "KQ100",
+  "fa_flight_id": "KQA100-1779350400-airline-001",
+  "origin": {
+    "code_icao": "HKJK",
+    "code_iata": "NBO",
+    "city": "Nairobi",
+    "name": "Jomo Kenyatta Intl"
+  },
+  "destination": {
+    "code_icao": "EGLL",
+    "code_iata": "LHR",
+    "city": "London",
+    "name": "Heathrow"
+  },
+  "aircraft_type": "B789",
+  "scheduled_off": "2026-05-22T04:00:00Z",
+  "estimated_on": "2026-05-22T12:30:00Z",
+  "status": "En Route / On Time",
+  "waypoints": [
+    {
+      "t": "2026-05-22T04:00:00.000Z",
+      "lat": -1.319,
+      "lon": 36.927,
+      "alt_ft": 0,
+      "kts": 0,
+      "hdg": 345,
+      "phase": "ground"
+    },
+    {
+      "t": "2026-05-22T04:08:00.000Z",
+      "lat": -0.68,
+      "lon": 36.78,
+      "alt_ft": 4200,
+      "kts": 240,
+      "hdg": 346,
+      "phase": "climb"
+    },
+    {
+      "t": "2026-05-22T04:18:00.000Z",
+      "lat": 0.28,
+      "lon": 36.55,
+      "alt_ft": 14500,
+      "kts": 360,
+      "hdg": 347,
+      "phase": "climb"
+    },
+    {
+      "t": "2026-05-22T04:30:00.000Z",
+      "lat": 1.85,
+      "lon": 36.25,
+      "alt_ft": 26000,
+      "kts": 420,
+      "hdg": 348,
+      "phase": "climb"
+    },
+    {
+      "t": "2026-05-22T04:48:00.000Z",
+      "lat": 4.1,
+      "lon": 35.85,
+      "alt_ft": 37000,
+      "kts": 458,
+      "hdg": 349,
+      "phase": "cruise"
+    },
+    {
+      "t": "2026-05-22T05:15:00.000Z",
+      "lat": 7.9,
+      "lon": 35.1,
+      "alt_ft": 37000,
+      "kts": 469,
+      "hdg": 350,
+      "phase": "cruise"
+    },
+    {
+      "t": "2026-05-22T05:45:00.000Z",
+      "lat": 12.2,
+      "lon": 34.25,
+      "alt_ft": 37000,
+      "kts": 471,
+      "hdg": 351,
+      "phase": "cruise"
+    },
+    {
+      "t": "2026-05-22T06:15:00.000Z",
+      "lat": 16.5,
+      "lon": 33.4,
+      "alt_ft": 37000,
+      "kts": 468,
+      "hdg": 352,
+      "phase": "cruise"
+    },
+    {
+      "t": "2026-05-22T06:45:00.000Z",
+      "lat": 20.8,
+      "lon": 32.3,
+      "alt_ft": 37000,
+      "kts": 473,
+      "hdg": 353,
+      "phase": "cruise"
+    },
+    {
+      "t": "2026-05-22T07:15:00.000Z",
+      "lat": 25.1,
+      "lon": 30.8,
+      "alt_ft": 37000,
+      "kts": 470,
+      "hdg": 354,
+      "phase": "cruise"
+    },
+    {
+      "t": "2026-05-22T07:45:00.000Z",
+      "lat": 29.2,
+      "lon": 28.9,
+      "alt_ft": 37000,
+      "kts": 472,
+      "hdg": 354,
+      "phase": "cruise"
+    },
+    {
+      "t": "2026-05-22T08:15:00.000Z",
+      "lat": 32.8,
+      "lon": 26.5,
+      "alt_ft": 37000,
+      "kts": 469,
+      "hdg": 355,
+      "phase": "cruise"
+    },
+    {
+      "t": "2026-05-22T09:00:00.000Z",
+      "lat": 37.2,
+      "lon": 22.8,
+      "alt_ft": 37000,
+      "kts": 471,
+      "hdg": 320,
+      "phase": "cruise",
+      "current": true
+    },
+    {
+      "t": "2026-05-22T09:30:00.000Z",
+      "lat": 40.8,
+      "lon": 18.2,
+      "alt_ft": 37000,
+      "kts": 470,
+      "hdg": 318,
+      "phase": "cruise",
+      "planned": true
+    },
+    {
+      "t": "2026-05-22T10:00:00.000Z",
+      "lat": 44.2,
+      "lon": 12.8,
+      "alt_ft": 37000,
+      "kts": 469,
+      "hdg": 316,
+      "phase": "cruise",
+      "planned": true
+    },
+    {
+      "t": "2026-05-22T10:30:00.000Z",
+      "lat": 47.2,
+      "lon": 6.5,
+      "alt_ft": 37000,
+      "kts": 468,
+      "hdg": 314,
+      "phase": "cruise",
+      "planned": true
+    },
+    {
+      "t": "2026-05-22T10:55:00.000Z",
+      "lat": 49,
+      "lon": 1.5,
+      "alt_ft": 33000,
+      "kts": 430,
+      "hdg": 312,
+      "phase": "descent",
+      "planned": true
+    },
+    {
+      "t": "2026-05-22T11:15:00.000Z",
+      "lat": 50.2,
+      "lon": -0.1,
+      "alt_ft": 18000,
+      "kts": 320,
+      "hdg": 308,
+      "phase": "descent",
+      "planned": true
+    },
+    {
+      "t": "2026-05-22T11:28:00.000Z",
+      "lat": 51.1,
+      "lon": -0.32,
+      "alt_ft": 7000,
+      "kts": 240,
+      "hdg": 280,
+      "phase": "descent",
+      "planned": true
+    },
+    {
+      "t": "2026-05-22T11:38:00.000Z",
+      "lat": 51.477,
+      "lon": -0.461,
+      "alt_ft": 0,
+      "kts": 0,
+      "hdg": 270,
+      "phase": "ground",
+      "planned": true
+    }
+  ]
+}

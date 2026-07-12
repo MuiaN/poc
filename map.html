@@ -1,0 +1,3409 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Kenya Aviation Map</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <script src="theme.js"></script>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/papaparse@5.3.2/papaparse.min.js"></script>
+<script src="https://unpkg.com/leaflet-rotatedmarker/leaflet.rotatedMarker.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      background-color: var(--bg);
+      font-family: var(--font-body);
+      overflow: hidden;
+    }
+
+    #map { height: 100vh; width: 100%; }
+
+    /* ── DATE & TIME FILTER WIDGET ── */
+    #dtf-widget {
+      position: absolute;
+      top: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1002;
+      font-family: var(--font-body);
+    }
+    #dtf-trigger {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 14px;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-2);
+      font-size: 12px;
+      font-weight: 600;
+      font-family: var(--font-body);
+      cursor: pointer;
+      white-space: nowrap;
+      box-shadow: var(--shadow);
+      transition: background .15s, color .15s;
+    }
+    #dtf-trigger:hover { background: var(--bg-hover); color: var(--text); }
+    #dtf-trigger svg { width: 13px; height: 13px; fill: currentColor; flex-shrink: 0; }
+    #dtf-trigger .dtf-chev {
+      width: 10px; height: 10px;
+      fill: none; stroke: currentColor; stroke-width: 2.5;
+      transition: transform .2s;
+      flex-shrink: 0;
+    }
+    #dtf-trigger.dtf-open .dtf-chev { transform: rotate(180deg); }
+
+    #dtf-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: 0 6px 24px rgba(0,0,0,.35);
+      overflow: hidden;
+      min-width: 260px;
+    }
+    #dtf-dropdown.dtf-show { display: block; }
+
+    .dtf-menu-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 10px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-2);
+      cursor: pointer;
+      transition: background .12s, color .12s;
+      border-bottom: 1px solid var(--border);
+    }
+    .dtf-menu-item:last-child { border-bottom: none; }
+    .dtf-menu-item:hover { background: var(--bg-hover); color: var(--text); }
+    .dtf-menu-item svg { width: 13px; height: 13px; fill: currentColor; flex-shrink: 0; }
+    .dtf-menu-item .dtf-item-chev {
+      width: 10px; height: 10px;
+      fill: none; stroke: currentColor; stroke-width: 2.5;
+      margin-left: auto; flex-shrink: 0;
+      transition: transform .2s;
+    }
+    .dtf-menu-item.dtf-active { background: var(--accent-dim); color: var(--accent); }
+    .dtf-menu-item.dtf-active .dtf-item-chev { transform: rotate(90deg); }
+
+    .dtf-panel {
+      display: none;
+      padding: 12px 14px 13px;
+      border-top: 1px solid var(--border);
+      background: var(--bg-3);
+    }
+    .dtf-panel.dtf-panel-show { display: block; }
+    .dtf-panel-title {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--text-3);
+      margin-bottom: 9px;
+    }
+    .dtf-row {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 7px;
+      font-size: 11.5px;
+      color: var(--text-2);
+    }
+    .dtf-row:last-child { margin-bottom: 0; }
+    .dtf-label { width: 34px; flex-shrink: 0; font-weight: 600; }
+    .dtf-row input[type=date] {
+      flex: 1;
+      padding: 5px 8px;
+      border-radius: 5px;
+      border: 1px solid var(--border-2);
+      background: var(--bg-2);
+      color: var(--text);
+      font-size: 11.5px;
+      font-family: var(--font-body);
+      outline: none;
+    }
+    .dtf-row input[type=date]:focus { border-color: var(--accent); }
+    .dtf-actions { display: flex; gap: 6px; margin-top: 10px; }
+    .dtf-btn {
+      flex: 1;
+      padding: 6px 10px;
+      border: none;
+      border-radius: 5px;
+      font-size: 11.5px;
+      font-weight: 600;
+      font-family: var(--font-body);
+      cursor: pointer;
+      transition: background .12s;
+    }
+    .dtf-btn-apply { background: var(--accent); color: #fff; }
+    .dtf-btn-apply:hover { background: var(--accent-h, var(--accent)); opacity: .9; }
+    .dtf-btn-reset { background: var(--bg-hover); color: var(--text-2); border: 1px solid var(--border); }
+    .dtf-btn-reset:hover { color: var(--text); }
+
+    /* SEARCH UI */
+    .search-box {
+      position: absolute;
+      top: 15px;
+      left: 50px;
+      z-index: 1100;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      padding: 10px;
+      border-radius: 8px;
+      display: flex;
+      gap: 8px;
+    }
+    .search-box input {
+      padding: 6px 10px;
+      border-radius: 5px;
+      border: 1px solid var(--border-2);
+      background: var(--bg-3);
+      color: var(--text);
+      width: 220px;
+    }
+    .search-box input::placeholder { color: var(--text-3); }
+    .search-box button {
+      padding: 6px 10px;
+      border: none;
+      border-radius: 5px;
+      background: var(--accent);
+      color: white;
+      cursor: pointer;
+    }
+
+    /* TOGGLE */
+    .toggle-box {
+      position: absolute;
+      top: 70px;
+      left: 50px;
+      z-index: 1100;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      padding: 10px;
+      border-radius: 8px;
+      color: var(--text);
+    }
+
+    /* SIDE PANEL */
+    #infoPanel {
+      position: absolute;
+      left: 0;
+      top: 135px;   /* clears search bar (top 15→66 px) + focus toggle (top 70→108 px) */
+      bottom: 0;
+      width: 560px;
+      background: var(--bg-2);
+      color: var(--text);
+      overflow-y: auto;
+      z-index: 1000;
+      transition: transform 0.35s ease;
+      transform: translateX(-100%);
+      box-shadow: 4px 0 24px rgba(0,0,0,.5);
+      font-family: var(--font-body);
+      font-size: 13px;
+      border-right: 1px solid var(--border);
+      border-top: 1px solid var(--border);
+      border-top-right-radius: 10px;
+    }
+    #infoPanel.show { transform: translateX(0); }
+    #infoPanel::-webkit-scrollbar { width: 4px; }
+    #infoPanel::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 2px; }
+
+    #closePanel {
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      color: var(--text-2);
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: bold;
+      float: right;
+      margin: 8px 10px 0 0;
+      flex-shrink: 0;
+    }
+    #closePanel:hover { background: var(--bg-hover); color: var(--text); }
+
+    /* Accordion */
+    .acc-section { border-bottom: 1px solid var(--border); }
+    .acc-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 18px;
+      cursor: pointer; user-select: none;
+      background: var(--bg-2);
+      transition: background .15s;
+    }
+    .acc-header:hover { background: var(--bg-hover); }
+    .acc-title { font-size: 14px; font-weight: 600; color: var(--accent); }
+    .acc-chevron { font-size: 11px; color: var(--text-2); transition: transform .2s; }
+    .acc-chevron.open { transform: rotate(180deg); }
+    .acc-body { display: none; padding: 0 18px 16px; font-size: 12.5px; line-height: 1.6; color: var(--text); }
+    .acc-body.open { display: block; }
+
+    /* Panel header */
+    .panel-airport-name { font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--accent); letter-spacing: .04em; }
+    .panel-airport-city { font-size: 11px; color: var(--text-2); margin-top: 1px; }
+
+    /* Risk fields */
+    .ra-header-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px; }
+    .ra-field { font-size: 12px; }
+    .ra-label { color: var(--text-2); font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; }
+    .ra-value { font-weight: 600; color: var(--text); }
+    .ra-value.status-green { background: #16a34a; color: white; padding: 1px 8px; border-radius: 3px; display: inline-block; }
+    .ra-value.status-amber { background: #d97706; color: white; padding: 1px 8px; border-radius: 3px; display: inline-block; }
+    .ra-value.status-red   { background: #dc2626; color: white; padding: 1px 8px; border-radius: 3px; display: inline-block; }
+
+    /* CIA table */
+    .cia-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 10px; }
+    .cia-table thead tr { background: var(--bg-3); color: var(--text-2); }
+    .cia-table th { padding: 7px 10px; text-align: left; font-weight: 600; font-size: 11.5px; }
+    .cia-table td { padding: 7px 10px; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--text); }
+    .cia-table tr:nth-child(even) td { background: var(--bg-3); }
+    .cia-table td:first-child { font-weight: 600; white-space: nowrap; width: 38%; }
+
+    /* Section heading & info table */
+    .sec-heading { font-size: 12px; font-weight: 700; color: var(--accent); margin: 14px 0 6px; padding-bottom: 4px; border-bottom: 1px solid var(--border); }
+    .info-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .info-table th { text-align: left; color: var(--text); font-weight: 700; padding: 5px 0; border-bottom: 1px solid var(--border); }
+    .info-table td { padding: 5px 0 5px 10px; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--text-2); }
+    .info-table td:first-child { padding-left: 0; font-weight: 500; color: var(--text); width: 38%; }
+
+    /* Risk bar */
+    .rs-bar-wrap { margin: 10px 0 6px; }
+    .rs-bar-track { height: 7px; background: var(--bg-3); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+    .rs-bar-fill { height: 100%; border-radius: 4px; transition: width .4s; }
+
+    .exposure-note { color: var(--accent); font-style: italic; font-size: 12px; margin-top: 10px; line-height: 1.55; }
+    .ra-bullets { margin: 8px 0 0 14px; padding: 0; font-size: 12.5px; line-height: 1.6; }
+    .ra-bullets li { margin-bottom: 4px; }
+
+
+    /* Full path button */
+    .path-btn { display:inline-flex;align-items:center;gap:5px;margin-top:10px;padding:5px 12px;border-radius:5px;background:rgba(99,102,241,.12);color:#818cf8;border:1px solid rgba(99,102,241,.3);font-size:10.5px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;width:100%;justify-content:center;transition:background .15s; }
+    .path-btn:hover { background:rgba(99,102,241,.22); }
+    .path-btn.active { background:rgba(99,102,241,.3);color:#a5b4fc; }
+    /* Custom popup */
+    .custom-popup .leaflet-popup-content-wrapper {
+      background: var(--bg-2);
+      padding: 0;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 20px rgba(0,0,0,.4);
+      overflow: hidden;
+      width: 620px;
+      max-width: 90vw;
+    }
+    .custom-popup .leaflet-popup-content { margin: 0; width: 100% !important; }
+    .custom-popup .leaflet-popup-tip-container { display: none; }
+
+    .pu-img { width: 100%; height: auto; display: block; }
+    .pu-body { padding: 10px 14px 12px; }
+    .pu-name { font-size: 12.5px; font-weight: 700; text-transform: uppercase; color: var(--text); letter-spacing: .04em; margin-bottom: 2px; }
+    .pu-icao { font-size: 10px; color: var(--text-2); margin-bottom: 7px; }
+    .pu-info-table { width: 100%; border-collapse: collapse; font-size: 10.5px; margin-bottom: 2px; }
+    .pu-info-label { color: var(--text-2); padding: 2px 4px 2px 0; white-space: nowrap; width: 22%; }
+    .pu-info-val   { color: var(--text); font-weight: 600; padding: 2px 8px 2px 2px; }
+    .pu-divider    { border: none; border-top: 1px solid var(--border); margin: 7px 0; }
+    .pu-additional { display: flex; align-items: center; justify-content: space-between; margin-bottom: 7px; }
+    .pu-additional-label { font-size: 11px; font-weight: 600; color: var(--accent); }
+    .pu-additional-hint  { font-size: 10.5px; color: var(--text-2); font-style: italic; }
+    .pu-btn {
+      display: block; width: 100%; margin-top: 2px;
+      padding: 7px; text-align: center; font-size: 12px; font-weight: 700;
+      background: var(--accent); color: white; border: none;
+      border-radius: 6px; cursor: pointer; transition: background .15s; letter-spacing: .02em;
+    }
+    .pu-btn:hover { background: var(--accent-h); }
+
+    /* Right panel — redesigned layout */
+    .rp-header { padding: 12px 16px 10px; border-bottom: 1px solid var(--border); }
+    .rp-name { font-size: 13px; font-weight: 700; text-transform: uppercase; color: var(--text); letter-spacing: .04em; line-height:1.3; }
+    .rp-city { font-size: 11.5px; color: var(--text-2); margin-top: 3px; font-weight:600; letter-spacing:.06em; }
+    .rp-section { padding: 12px 18px; border-bottom: 1px solid var(--border); }
+    .rp-sec-heading { font-size: 11.5px; font-weight: 700; color: var(--text); text-transform: uppercase;
+                      letter-spacing: .06em; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid var(--border); }
+    .rp-narrative { font-size: 12.5px; line-height: 1.7; color: var(--text); margin: 0; }
+
+    /* Summary table */
+    .rp-summary-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .rp-sum-label { color: var(--text-2); font-size: 11px; font-weight: 600; text-transform: uppercase;
+                    letter-spacing: .04em; padding: 5px 12px 5px 0; vertical-align: top; white-space: nowrap; width: 38%; }
+    .rp-sum-val   { color: var(--text); font-weight: 600; padding: 5px 0; vertical-align: top; }
+    .rp-summary-table tr { border-bottom: 1px solid var(--border); }
+    .rp-summary-table tr:last-child { border-bottom: none; }
+
+    /* Status bar */
+    .status-bar { display: block; width: 100%; padding: 4px 10px; border-radius: 4px;
+                  font-weight: 700; font-size: 11.5px; letter-spacing: .06em; text-align: center; }
+    .status-bar-green { background: #16a34a; color: #fff; }
+    .status-bar-amber { background: #d97706; color: #fff; }
+    .status-bar-red   { background: #dc2626; color: #fff; }
+
+    /* Domain table */
+    .rp-domain-table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+    .rp-domain-table thead tr { background: var(--bg-3); }
+    .rp-domain-table th { padding: 6px 8px; text-align: left; font-weight: 700; font-size: 11px;
+                          color: var(--text-2); border-bottom: 1px solid var(--border); }
+    .rp-domain-table td { padding: 6px 8px; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--text); }
+    .rp-domain-table tr:nth-child(even) td { background: var(--bg-3); }
+    .rp-domain-table td:first-child { font-weight: 600; white-space: nowrap; }
+    .domain-lxi { font-family: monospace; font-weight: 700; font-size: 11px; white-space: nowrap; }
+
+    /* General info table for panel */
+    .rp-info-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .rp-info-table thead tr { background: var(--bg-3); }
+    .rp-info-table th { padding: 6px 8px; text-align: left; font-weight: 700; font-size: 11px;
+                        color: var(--text-2); border-bottom: 1px solid var(--border); }
+    .rp-info-table td { padding: 6px 8px; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--text); }
+    .rp-info-table tr:nth-child(even) td { background: var(--bg-3); }
+    .rp-info-table td:first-child { font-weight: 600; white-space: nowrap; width: 35%; }
+
+    /* Impact severity bands */
+    /* badge spans — used outside the domain table */
+    .band-low     { background: #16a34a; color: #fff; padding: 1px 7px; border-radius: 3px; font-size: 10.5px; font-weight: 700; display: inline-block; }
+    .band-medium  { background: #d97706; color: #fff; padding: 1px 7px; border-radius: 3px; font-size: 10.5px; font-weight: 700; display: inline-block; }
+    .band-high    { background: #ea580c; color: #fff; padding: 1px 7px; border-radius: 3px; font-size: 10.5px; font-weight: 700; display: inline-block; }
+    .band-extreme { background: #dc2626; color: #fff; padding: 1px 7px; border-radius: 3px; font-size: 10.5px; font-weight: 700; display: inline-block; }
+    /* full-cell colour for the Impact Severity Band column in the domain table */
+    .rp-domain-table td.band-cell-low     { background: #16a34a !important; color: #fff; font-weight: 700; font-size: 11px; text-align: center; white-space: nowrap; }
+    .rp-domain-table td.band-cell-medium  { background: #d97706 !important; color: #fff; font-weight: 700; font-size: 11px; text-align: center; white-space: nowrap; }
+    .rp-domain-table td.band-cell-high    { background: #ea580c !important; color: #fff; font-weight: 700; font-size: 11px; text-align: center; white-space: nowrap; }
+    .rp-domain-table td.band-cell-extreme { background: #dc2626 !important; color: #fff; font-weight: 700; font-size: 11px; text-align: center; white-space: nowrap; }
+
+    /* Risk Matrix */
+    .rm-wrap   { margin-top: 8px; }
+    .rm-hdr    { font-size: 9.5px; color: var(--text-2); margin-bottom: 6px; font-weight: 500; line-height: 1.5; }
+    .rm-tbl    { border-collapse: separate; border-spacing: 3px; table-layout: fixed; width: 100%; }
+    .rm-corner { width: 46px; font-size: 7px; font-weight: 500; color: var(--text-3); text-align: center;
+                 line-height: 1.35; padding: 0 2px 2px 0; vertical-align: bottom; }
+    .rm-th     { font-size: 10px; font-weight: 700; color: var(--text-2); text-align: center; padding: 0 0 3px; }
+    .rm-lh     { width: 50px; font-size: 8px; color: var(--text-3); text-align: right;
+                 padding-right: 5px; vertical-align: middle; line-height: 1.4; white-space: nowrap; }
+    .rm-lh b   { display: block; font-size: 10px; font-weight: 700; color: var(--text-2); line-height: 1.1; }
+    .rm-cell   { font-size: 10px; font-weight: 600; text-align: center; padding: 4px 2px;
+                 color: white; border-radius: 3px; vertical-align: middle; }
+
+    /* Risk colours */
+    .risk-low     { background: #16a34a; }
+    .risk-mod     { background: #d97706; }
+    .risk-high    { background: #ea580c; }
+    .risk-extreme { background: #dc2626; }
+
+    /* Risk text & gauge */
+    .risk-text { font-size: 12px; color: var(--text); line-height: 1.4; }
+    .risk-row { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+    .gauge-wrap { width: 80px; text-align: center; }
+    .gauge { position: relative; width: 80px; height: 40px; overflow: hidden; }
+    .gauge-arc {
+      position: absolute; inset: 0;
+      border-radius: 110px 110px 0 0;
+      background: conic-gradient(from 180deg, #22c55e 45deg, #eab308 90deg, #f97316 135deg, #ef4444 180deg);
+    }
+    .gauge::after {
+      content: ""; position: absolute; left: 7px; top: 7px;
+      width: 66px; height: 33px;
+      background: var(--bg-2);
+      border-radius: 90px 90px 0 0; z-index: 1;
+    }
+    .gauge-needle {
+      position: absolute; left: 50%; bottom: 0;
+      width: 2px; height: 30px;
+      background: var(--text);
+      transform-origin: bottom center;
+      transform: translateX(-50%) rotate(calc(var(--score) * 180deg - 90deg));
+      z-index: 2; border-radius: 2px;
+    }
+    .gauge-center {
+      position: absolute; left: 50%; bottom: -1px;
+      width: 7px; height: 7px;
+      background: var(--text); border-radius: 50%;
+      transform: translateX(-50%); z-index: 3;
+    }
+    .gauge-label { font-size: 12px; font-weight: bold; margin-top: 6px; color: var(--text); }
+
+    .risk-button {
+      display: block; margin-top: 10px; padding: 5px 10px;
+      background: var(--accent); color: white;
+      text-align: center; border-radius: 10px;
+      font-size: 12px; font-weight: 600; border: none;
+      cursor: pointer; width: fit-content; margin-left: auto;
+    }
+
+    .popup-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
+    a:hover { text-decoration: underline; }
+
+    /* Leaflet UI overrides */
+    .leaflet-popup-content-wrapper, .leaflet-popup-tip {
+      background: var(--bg-2) !important;
+      color: var(--text) !important;
+      box-shadow: 0 4px 16px rgba(0,0,0,.4) !important;
+    }
+    .leaflet-bar a { background: var(--bg-2) !important; color: var(--text) !important; border-color: var(--border) !important; }
+    .leaflet-bar a:hover { background: var(--bg-hover) !important; }
+
+    /* Legend */
+    .legend {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-size: 12.5px;
+      font-family: var(--font-body);
+      box-shadow: var(--shadow);
+    }
+
+    /* ── CUSTOM LAYER TREE PANEL ── */
+    #layerToggleBtn {
+      position: absolute;
+      top: 15px;
+      right: 10px;
+      z-index: 1001;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-2);
+      box-shadow: var(--shadow);
+      transition: background .15s, color .15s;
+      font-family: var(--font-body);
+    }
+    #layerToggleBtn:hover { background: var(--bg-hover); color: var(--text); }
+    #layerToggleBtn svg { width: 14px; height: 14px; fill: currentColor; flex-shrink:0; }
+
+    #layerPanel {
+      position: absolute;
+      top: 53px;
+      right: 10px;
+      z-index: 1001;
+      width: 234px;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,.35);
+      overflow: hidden;
+      max-height: calc(100vh - 80px);
+      display: flex;
+      flex-direction: column;
+      font-family: var(--font-body);
+    }
+    #layerPanel.lp-hidden { display: none; }
+
+    #layerPanelHead {
+      padding: 9px 14px;
+      background: var(--bg-3);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    #layerPanelHead span {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--text-3);
+    }
+
+    #layerPanelScroll {
+      overflow-y: auto;
+      flex: 1;
+    }
+    #layerPanelScroll::-webkit-scrollbar { width: 3px; }
+    #layerPanelScroll::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 2px; }
+
+    /* Base map section */
+    .lp-basemap-section { border-bottom: 1px solid var(--border); padding: 6px 0; }
+    .lp-basemap-head {
+      padding: 5px 14px 3px;
+      font-size: 9.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--text-3);
+    }
+    .lp-basemap-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 14px;
+      cursor: pointer;
+      transition: background .12s;
+    }
+    .lp-basemap-row:hover { background: var(--bg-hover); }
+    .lp-basemap-row input { cursor: pointer; accent-color: var(--accent); margin: 0; }
+    .lp-basemap-label { font-size: 11.5px; color: var(--text-2); }
+    .lp-basemap-row:hover .lp-basemap-label { color: var(--text); }
+
+    /* Bucket */
+    .lp-bucket { border-bottom: 1px solid var(--border); }
+    .lp-bucket:last-child { border-bottom: none; }
+    .lp-bucket-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 14px;
+      cursor: pointer;
+      user-select: none;
+      background: var(--bg-2);
+      transition: background .15s;
+    }
+    .lp-bucket-head:hover { background: var(--bg-hover); }
+    .lp-bucket-ck {
+      cursor: pointer;
+      accent-color: var(--accent);
+      flex-shrink: 0;
+      margin: 0;
+      width: 13px;
+      height: 13px;
+    }
+    .lp-bucket-icon { width: 15px; height: 15px; flex-shrink: 0; }
+    .lp-bucket-label { font-size: 12px; font-weight: 600; color: var(--text); flex: 1; }
+    .lp-bucket-chevron {
+      width: 12px; height: 12px;
+      fill: none; stroke: var(--text-3); stroke-width: 2.5;
+      flex-shrink: 0;
+      transition: transform .2s;
+    }
+    .lp-bucket-chevron.lp-open { transform: rotate(180deg); }
+    .lp-bucket-body { display: none; padding: 4px 0 8px; }
+    .lp-bucket-body.lp-open { display: block; }
+
+    /* Sublayer rows */
+    .lp-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 14px 5px 30px;
+      cursor: pointer;
+      transition: background .12s;
+    }
+    .lp-row:hover { background: var(--bg-hover); }
+    .lp-row input[type=checkbox] { cursor: pointer; accent-color: var(--accent); flex-shrink: 0; margin: 0; }
+    .lp-row-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .lp-row-label { font-size: 11.5px; color: var(--text-2); }
+    .lp-row:hover .lp-row-label { color: var(--text); }
+
+    /* ── FULLSCREEN BUTTON ── */
+    #fullscreenBtn {
+      position: absolute;
+      bottom: 30px;
+      right: 10px;
+      z-index: 1001;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-2);
+      box-shadow: var(--shadow);
+      transition: background .15s, color .15s;
+      font-family: var(--font-body);
+      white-space: nowrap;
+    }
+    #fullscreenBtn:hover { background: var(--bg-hover); color: var(--text); }
+    #fullscreenBtn svg { width: 14px; height: 14px; fill: currentColor; flex-shrink: 0; }
+
+    /* Flights dropdown */
+    .lp-flights-select {
+      display: block;
+      margin: 4px 14px 6px 30px;
+      background: var(--bg-3);
+      border: 1px solid var(--border-2);
+      border-radius: 5px;
+      padding: 5px 8px;
+      font-size: 11.5px;
+      color: var(--text);
+      width: calc(100% - 44px);
+      cursor: pointer;
+      font-family: var(--font-body);
+      outline: none;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- SEARCH -->
+<div class="search-box">
+  <input type="text" id="searchInput" placeholder="Search airport or ICAO">
+  <button onclick="searchAirport()">Search</button>
+</div>
+
+<!-- TOGGLE -->
+<div class="toggle-box">
+  <label>
+    <input type="checkbox" id="focusMode" onchange="toggleFocusMode()">
+    Focus
+  </label>
+</div>
+
+<!-- DATE & TIME FILTER WIDGET -->
+<div id="dtf-widget">
+  <button id="dtf-trigger" onclick="toggleDTFDropdown()">
+    <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm0 18H5V9h14v12zM5 7V5h14v2H5zm2 4h10v2H7v-2zm0 4h7v2H7v-2z"/></svg>
+    Date &amp; Time Filter
+    <svg class="dtf-chev" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+  </button>
+
+  <div id="dtf-dropdown">
+    <!-- Menu items -->
+    <div class="dtf-menu-item" id="dtf-item-acled" onclick="toggleDTFPanel('acled')">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+      ACLED Filter
+      <svg class="dtf-item-chev" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+    <div id="dtf-panel-acled" class="dtf-panel">
+      <div class="dtf-panel-title">ACLED Security Events</div>
+      <div class="dtf-row">
+        <span class="dtf-label">From</span>
+        <input type="date" id="acledFrom">
+      </div>
+      <div class="dtf-row">
+        <span class="dtf-label">To</span>
+        <input type="date" id="acledTo">
+      </div>
+      <div class="dtf-actions">
+        <button class="dtf-btn dtf-btn-apply" onclick="applyACLEDDateFilter()">Apply</button>
+        <button class="dtf-btn dtf-btn-reset" onclick="resetACLEDFilter()">Reset</button>
+      </div>
+    </div>
+
+    <!-- ASN -->
+    <div class="dtf-menu-item" id="dtf-item-asn" onclick="toggleDTFPanel('asn')">
+      <svg viewBox="0 0 24 24"><path d="M21 3L3 10.53v.98l6.84 2.65L12.48 21h.98L21 3z"/></svg>
+      ASN Filter
+      <svg class="dtf-item-chev" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+    <div id="dtf-panel-asn" class="dtf-panel">
+      <div class="dtf-panel-title">ASN Aviation Incidents</div>
+      <div class="dtf-row">
+        <span class="dtf-label">From</span>
+        <input type="date" id="asnFrom">
+      </div>
+      <div class="dtf-row">
+        <span class="dtf-label">To</span>
+        <input type="date" id="asnTo">
+      </div>
+      <div class="dtf-actions">
+        <button class="dtf-btn dtf-btn-apply" onclick="applyASNDateFilter()">Apply</button>
+        <button class="dtf-btn dtf-btn-reset" onclick="resetASNFilter()">Reset</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="map"></div>
+<!-- Floating clear-path banner -->
+<div id="clearTrackBanner" onclick="clearAllPaths()" style="display:none;position:absolute;bottom:32px;left:50%;transform:translateX(-50%);z-index:1100;background:#1e293b;color:#fff;border:1px solid rgba(129,140,248,.4);border-radius:20px;padding:7px 18px;font-size:12px;font-weight:600;align-items:center;gap:10px;box-shadow:0 4px 16px rgba(0,0,0,.5);cursor:pointer;white-space:nowrap;">
+  <span style="color:#818cf8;">🗺</span> Path active &nbsp;·&nbsp; <span style="color:#f87171;">✕ Clear</span>
+</div>
+
+<!-- Layer Tree Toggle Button -->
+<button id="layerToggleBtn" onclick="toggleLayerPanel()">
+  <svg viewBox="0 0 24 24"><path d="M3 6h18v2H3V6zm3 5h12v2H6v-2zm3 5h6v2H9v-2z"/></svg>
+  Layers
+</button>
+
+<!-- Custom Layer Tree Panel -->
+<div id="layerPanel">
+  <div id="layerPanelHead"><span>Map Layers</span></div>
+  <div id="layerPanelScroll">
+
+    <!-- Basemap -->
+    <div class="lp-basemap-section">
+      <div class="lp-basemap-head">Base Map</div>
+      <label class="lp-basemap-row"><input type="radio" name="basemap" value="osm" checked onchange="setBaseMap('osm')"><span class="lp-basemap-label">OpenStreetMap</span></label>
+      <label class="lp-basemap-row"><input type="radio" name="basemap" value="light" onchange="setBaseMap('light')"><span class="lp-basemap-label">Light</span></label>
+      <label class="lp-basemap-row"><input type="radio" name="basemap" value="dark" onchange="setBaseMap('dark')"><span class="lp-basemap-label">Dark</span></label>
+      <label class="lp-basemap-row"><input type="radio" name="basemap" value="satellite" onchange="setBaseMap('satellite')"><span class="lp-basemap-label">Satellite (Esri)</span></label>
+    </div>
+
+    <!-- Bucket: Airfields -->
+    <div class="lp-bucket">
+      <div class="lp-bucket-head" onclick="toggleBucket('airfields')">
+        <input type="checkbox" class="lp-bucket-ck" checked onclick="toggleBucketLayers('airfields',this.checked,event)">
+        <svg class="lp-bucket-icon" viewBox="0 0 24 24" fill="#dc2626"><path d="M2.5 19h19v2h-19zm7.18-1.73l4.35 1.16 5.31 1.42c.8.21 1.62-.26 1.84-1.06.21-.8-.26-1.62-1.06-1.84l-3.77-1.01-2.89-4.86-1.45.39.89 4.34-3.27-.87-.87-1.73-1.09.29.96 3.78z"/></svg>
+        <span class="lp-bucket-label">Airfields</span>
+        <svg class="lp-bucket-chevron lp-open" id="chev-airfields" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="lp-bucket-body lp-open" id="body-airfields">
+        <label class="lp-row"><input type="checkbox" checked onchange="toggleLayer('major',this.checked)"><svg viewBox="0 0 24 24" width="14" height="14" style="flex-shrink:0"><path d="M2.5 19h19v2h-19zm7.18-1.73l4.35 1.16 5.31 1.42c.8.21 1.62-.26 1.84-1.06.21-.8-.26-1.62-1.06-1.84l-3.77-1.01-2.89-4.86-1.45.39.89 4.34-3.27-.87-.87-1.73-1.09.29.96 3.78z" fill="#dc2626"/></svg><span class="lp-row-label">Major Airports</span></label>
+        <label class="lp-row"><input type="checkbox" checked onchange="toggleLayer('minor',this.checked)"><svg viewBox="0 0 24 24" width="14" height="14" style="flex-shrink:0"><path d="M2.5 19h19v2h-19zm7.18-1.73l4.35 1.16 5.31 1.42c.8.21 1.62-.26 1.84-1.06.21-.8-.26-1.62-1.06-1.84l-3.77-1.01-2.89-4.86-1.45.39.89 4.34-3.27-.87-.87-1.73-1.09.29.96 3.78z" fill="#2563eb"/></svg><span class="lp-row-label">Minor Airports</span></label>
+        <label class="lp-row"><input type="checkbox" checked onchange="toggleLayer('airbase',this.checked)"><svg viewBox="0 0 24 24" width="14" height="14" style="flex-shrink:0"><path d="M2.5 19h19v2h-19zm7.18-1.73l4.35 1.16 5.31 1.42c.8.21 1.62-.26 1.84-1.06.21-.8-.26-1.62-1.06-1.84l-3.77-1.01-2.89-4.86-1.45.39.89 4.34-3.27-.87-.87-1.73-1.09.29.96 3.78z" fill="#16a34a"/></svg><span class="lp-row-label">Air Bases</span></label>
+        <label class="lp-row"><input type="checkbox" checked onchange="toggleLayer('airstrip',this.checked)"><svg viewBox="0 0 24 24" width="14" height="14" style="flex-shrink:0"><path d="M2.5 19h19v2h-19zm7.18-1.73l4.35 1.16 5.31 1.42c.8.21 1.62-.26 1.84-1.06.21-.8-.26-1.62-1.06-1.84l-3.77-1.01-2.89-4.86-1.45.39.89 4.34-3.27-.87-.87-1.73-1.09.29.96 3.78z" fill="#92400e"/></svg><span class="lp-row-label">Airstrips</span></label>
+      </div>
+    </div>
+
+    <!-- Bucket: Live Flights -->
+    <div class="lp-bucket">
+      <div class="lp-bucket-head" onclick="toggleBucket('live-flights')">
+        <input type="checkbox" class="lp-bucket-ck" onclick="toggleBucketLayers('live-flights',this.checked,event)">
+        <svg class="lp-bucket-icon" viewBox="0 0 24 24" fill="#10b981"><path d="M21 16v-2l-8-5V3.5A1.5 1.5 0 0 0 11.5 2 1.5 1.5 0 0 0 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg>
+        <span class="lp-bucket-label">Live Flights</span>
+        <svg class="lp-bucket-chevron lp-open" id="chev-live-flights" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="lp-bucket-body lp-open" id="body-live-flights">
+        <label class="lp-row"><input type="radio" name="flightMode" value="all" checked onchange="setFlightFilter('all')"><span class="lp-row-dot" style="background:#94a3b8"></span><span class="lp-row-label">All Airlines</span></label>
+        <label class="lp-row"><input type="radio" name="flightMode" value="KQ" onchange="setFlightFilter('KQ')"><span class="lp-row-dot" style="background:#CC0001"></span><span class="lp-row-label" id="kqFilterLabel">Kenya Airways</span></label>
+        <label class="lp-row"><input type="radio" name="flightMode" value="ET" onchange="setFlightFilter('ET')"><span class="lp-row-dot" style="background:#009B3A"></span><span class="lp-row-label">Ethiopian Airlines</span></label>
+        <label class="lp-row"><input type="radio" name="flightMode" value="U7" onchange="setFlightFilter('U7')"><span class="lp-row-dot" style="background:#FCDC04"></span><span class="lp-row-label">Uganda Airlines</span></label>
+        <label class="lp-row"><input type="radio" name="flightMode" value="WB" onchange="setFlightFilter('WB')"><span class="lp-row-dot" style="background:#20C4F4"></span><span class="lp-row-label">RwandAir</span></label>
+        <label class="lp-row"><input type="radio" name="flightMode" value="TC" onchange="setFlightFilter('TC')"><span class="lp-row-dot" style="background:#1BB4E8"></span><span class="lp-row-label">Air Tanzania</span></label>
+        <label class="lp-row"><input type="radio" name="flightMode" value="JM" onchange="setFlightFilter('JM')"><span class="lp-row-dot" style="background:#FF5500"></span><span class="lp-row-label">Jambojet</span></label>
+        <label class="lp-row"><input type="radio" name="flightMode" value="SL" onchange="setFlightFilter('SL')"><span class="lp-row-dot" style="background:#1A6FE8"></span><span class="lp-row-label">Skyline Express</span></label>
+        <label class="lp-row"><input type="radio" name="flightMode" value="PW" onchange="setFlightFilter('PW')"><span class="lp-row-dot" style="background:#E8821B"></span><span class="lp-row-label">Precision Air</span></label>
+        <div id="flightStatusBadge" style="margin:3px 14px 4px 30px;font-size:10px;color:var(--text-3);display:none;"></div>
+      </div>
+    </div>
+
+    <!-- Bucket: Live Updates -->
+    <div class="lp-bucket">
+      <div class="lp-bucket-head" onclick="toggleBucket('live-updates')">
+        <input type="checkbox" class="lp-bucket-ck" onclick="toggleBucketLayers('live-updates',this.checked,event)">
+        <svg class="lp-bucket-icon" viewBox="0 0 24 24" fill="#f59e0b"><path d="M13 2.05v2.02c3.95.49 7 3.85 7 7.93s-3.05 7.44-7 7.93v2.02c5.05-.5 9-4.76 9-9.95S18.05 2.55 13 2.05zM11 2.05C5.95 2.55 2 6.81 2 12s3.95 9.45 9 9.95v-2.02C7.05 19.43 4 16.07 4 12s3.05-7.44 7-7.93V2.05zM12 6l-5 9h10L12 6z"/></svg>
+        <span class="lp-bucket-label">Live Updates</span>
+        <svg class="lp-bucket-chevron" id="chev-live-updates" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="lp-bucket-body" id="body-live-updates">
+        <label class="lp-row"><input type="checkbox" onchange="toggleLayer('weather',this.checked)"><span class="lp-row-dot" style="background:#f59e0b"></span><span class="lp-row-label">Weather</span></label>
+        <label class="lp-row"><input type="checkbox" onchange="toggleLayer('security-feed',this.checked)"><span class="lp-row-dot" style="background:#ef4444"></span><span class="lp-row-label">Security</span></label>
+        <label class="lp-row"><input type="checkbox" onchange="toggleLayer('regulation',this.checked)"><span class="lp-row-dot" style="background:#7c3aed"></span><span class="lp-row-label">Regulation</span></label>
+        <label class="lp-row"><input type="checkbox" onchange="toggleLayer('commercial',this.checked)"><span class="lp-row-dot" style="background:#1a6fe8"></span><span class="lp-row-label">Commercial</span></label>
+        <label class="lp-row"><input type="checkbox" onchange="toggleLayer('infrastructure',this.checked)"><span class="lp-row-label">Infrastructure</span></label>
+      </div>
+    </div>
+
+    <!-- Bucket: Aviation Safety -->
+    <div class="lp-bucket">
+      <div class="lp-bucket-head" onclick="toggleBucket('aviation-safety')">
+        <input type="checkbox" class="lp-bucket-ck" onclick="toggleBucketLayers('aviation-safety',this.checked,event)">
+        <svg class="lp-bucket-icon" viewBox="0 0 24 24" fill="#2563eb"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+        <span class="lp-bucket-label">Aviation Safety</span>
+        <svg class="lp-bucket-chevron" id="chev-aviation-safety" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="lp-bucket-body" id="body-aviation-safety">
+        <label class="lp-row"><input type="checkbox" onchange="toggleLayer('asn',this.checked)"><span class="lp-row-dot" style="background:#ef4444"></span><span class="lp-row-label">ASN Incidents</span></label>
+      </div>
+    </div>
+
+    <!-- Bucket: Historic Security Events -->
+    <div class="lp-bucket">
+      <div class="lp-bucket-head" onclick="toggleBucket('security-hist')">
+        <input type="checkbox" class="lp-bucket-ck" onclick="toggleBucketLayers('security-hist',this.checked,event)">
+        <svg class="lp-bucket-icon" viewBox="0 0 24 24" fill="#ef4444"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+        <span class="lp-bucket-label">Historic Security Events</span>
+        <svg class="lp-bucket-chevron" id="chev-security-hist" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="lp-bucket-body" id="body-security-hist">
+        <label class="lp-row"><input type="checkbox" onchange="toggleLayer('acled',this.checked)"><span class="lp-row-dot" style="background:#ef4444"></span><span class="lp-row-label">ACLED Events</span></label>
+      </div>
+    </div>
+
+    <!-- Bucket: Flight Zones -->
+    <div class="lp-bucket">
+      <div class="lp-bucket-head" onclick="toggleBucket('flight-zones')">
+        <input type="checkbox" class="lp-bucket-ck" onclick="toggleBucketLayers('flight-zones',this.checked,event)">
+        <svg class="lp-bucket-icon" viewBox="0 0 24 24" fill="#7c3aed"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm0-14c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4z"/></svg>
+        <span class="lp-bucket-label">Flight Zones</span>
+        <svg class="lp-bucket-chevron" id="chev-flight-zones" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="lp-bucket-body" id="body-flight-zones">
+        <label class="lp-row"><input type="checkbox" onchange="toggleLayer('ctr',this.checked)"><span class="lp-row-dot" style="background:#f97316"></span><span class="lp-row-label">CTR — Control Zones</span></label>
+        <label class="lp-row"><input type="checkbox" onchange="toggleLayer('tma',this.checked)"><span class="lp-row-dot" style="background:#5C3317"></span><span class="lp-row-label">TMA — Terminal Areas</span></label>
+        <label class="lp-row"><input type="checkbox" onchange="toggleLayer('fir',this.checked)"><span class="lp-row-dot" style="background:#4B0082"></span><span class="lp-row-label">FIR — Flight Info Regions</span></label>
+        <label class="lp-row"><input type="checkbox" onchange="toggleLayer('prohibited',this.checked)"><span class="lp-row-dot" style="background:#32CD32"></span><span class="lp-row-label">Prohibited Airspace</span></label>
+        <label class="lp-row"><input type="checkbox" onchange="toggleLayer('danger',this.checked)"><span class="lp-row-dot" style="background:#ef4444"></span><span class="lp-row-label">Danger Airspace</span></label>
+        <label class="lp-row"><input type="checkbox" onchange="toggleLayer('afis',this.checked)"><span class="lp-row-dot" style="background:#eab308"></span><span class="lp-row-label">AFIS Zones</span></label>
+        <label class="lp-row"><input type="checkbox" onchange="toggleLayer('restricted',this.checked)"><span class="lp-row-dot" style="background:#94a3b8"></span><span class="lp-row-label">Restricted Airspace</span></label>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- FULLSCREEN BUTTON -->
+<button id="fullscreenBtn" onclick="toggleFullscreen()">
+  <svg id="fsIconExpand" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+  <svg id="fsIconCompress" viewBox="0 0 24 24" style="display:none;"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg>
+  <span id="fsLabel">Fullscreen</span>
+</button>
+
+<div id="acledStatus" style="
+  position:absolute;
+  top: 550px;
+  right: 20px;
+  z-index:999;
+  background:#111827;
+  color:white;
+  padding:10px 12px;
+  border-radius:8px;
+  font-size:12px;
+">
+</div>
+<!-- SIDE PANEL -->
+<div id="infoPanel">
+  <button id="closePanel">✖</button>
+  <div id="panelContent"></div>
+</div>
+<!-- ADDITIONAL INFO POPUP -->
+<div id="extraPopup">
+  <div id="extraContent"></div>
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+
+  var map = L.map('map').setView([0.5, 37.9], 6.2);
+
+  // Re-render when revealed from a hidden parent (iframe in display:none page)
+  window.addEventListener('resize', function() { map.invalidateSize(); });
+
+  map.on('click', function() {
+  const extra = document.querySelector("#extraPopup");
+  if (extra) extra.style.display = "none";
+});
+
+// Icon sizes are fixed — no zoom-driven resizing
+// Distinct sizes make each category immediately recognisable
+function getIconSize() { return [42, 42]; }
+    // BASE MAPS
+
+var darkMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png')
+
+var lightMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png');
+
+// Standard OpenStreetMap — default base layer
+var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+// OpenStreetMap HOT (Humanitarian style)
+var osmHOT = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap contributors, Humanitarian OpenStreetMap Team'
+});
+
+// Esri World Imagery (very useful for aviation)
+var esriSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+  attribution: 'Tiles &copy; Esri'
+});
+
+  // ── AIRFIELD ICONS — side-view takeoff aircraft + runway line ──
+  // "flight_takeoff" shape: aircraft ascending from runway.
+  // Distinct from live-flight markers (top-down plane silhouette).
+  function makeAirfieldIcon(color, size) {
+    size = size || 40;
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="${size}" height="${size}">
+      <path d="M2.5 19h19v2h-19zm7.18-1.73l4.35 1.16 5.31 1.42c.8.21 1.62-.26 1.84-1.06.21-.8-.26-1.62-1.06-1.84l-3.77-1.01-2.89-4.86-1.45.39.89 4.34-3.27-.87-.87-1.73-1.09.29.96 3.78z"
+        fill="${color}" stroke="white" stroke-width="0.35"/>
+    </svg>`;
+    return L.divIcon({
+      html: svg,
+      className: '',
+      iconSize:    [size, size],
+      iconAnchor:  [size / 2, size * 0.88],
+      popupAnchor: [0, -size * 0.6]
+    });
+  }
+
+  var majorIcon   = makeAirfieldIcon('#dc2626', 42); // red   — major airports (largest)
+  var minorIcon   = makeAirfieldIcon('#2563eb', 34); // blue  — minor airports
+  var airbaseIcon = makeAirfieldIcon('#16a34a', 34); // green — air bases
+  var airstripIcon= makeAirfieldIcon('#92400e', 26); // brown — airstrips (smallest)
+
+
+  var majorLayer = L.layerGroup().addTo(map);
+  var minorLayer = L.layerGroup().addTo(map);
+  var airbaseLayer = L.layerGroup().addTo(map);
+  var airstripLayer = L.layerGroup().addTo(map);
+  var airspaceLayer = L.layerGroup().addTo(map);
+  var ctrLayer = L.layerGroup();
+  var tmaLayer = L.layerGroup();
+  var firLayer = L.layerGroup();
+  var prohibitedLayer = L.layerGroup();
+  var dangerLayer = L.layerGroup();
+  var afisLayer = L.layerGroup();
+  var restrictedLayer = L.layerGroup();
+
+  
+var acledData = [];
+var acledLayer = L.layerGroup();
+var DEFAULT_ACLED_LIMIT = 100;
+
+// =======================
+// LIVE FLIGHT LAYER
+// =======================
+var flightLayer = L.layerGroup().addTo(map);
+
+// =======================
+// LIVE UPDATES LAYERS
+// =======================
+var weatherLayer      = L.layerGroup();
+var securityFeedLayer = L.layerGroup();
+var regulationLayer   = L.layerGroup();
+var commercialLayer   = L.layerGroup();
+var infrastructureLayer = L.layerGroup();
+var asnLayer           = L.layerGroup();
+var flights = {}; // store aircraft by ICAO24
+
+Papa.parse("data/acled.csv", {
+  download: true,
+  header: true,
+  complete: function(results) {
+    acledData = results.data
+      .filter(row => row.longitude && row.latitude && row.event_date)
+      .map(row => ({
+        ...row,
+        eventDateObj: new Date(row.event_date)
+      }))
+      .filter(row => !isNaN(row.eventDateObj))
+      .sort((a, b) => b.eventDateObj - a.eventDateObj);
+
+    const latest = acledData.slice(0, DEFAULT_ACLED_LIMIT);
+    drawACLED(latest);
+    updateACLEDStatus(`Showing latest ${latest.length} ACLED events`);
+  }
+});
+
+    function drawACLED(data) {
+  acledLayer.clearLayers();
+
+  data.forEach(function(row) {
+    const lat = parseFloat(row.latitude);
+    const lon = parseFloat(row.longitude);
+    if (isNaN(lat) || isNaN(lon)) return;
+
+    const fatalities = Number(row.fatalities) || 0;
+
+    var marker = L.circleMarker([lat, lon], {
+      radius: 5,
+      fillColor: getFatalityColor(fatalities),
+      color: "#111",
+      weight: 0,
+      fillOpacity: 0.85
+    });
+    marker.bindPopup(`
+      <b>${row.disorder_type || ""}</b><br><br>
+      <b>Event:</b> ${row.event_type || ""}<br>
+      <b>Sub-event:</b> ${row.sub_event_type || ""}<br>
+      <b>Fatalities:</b> ${row.fatalities || "0"}<br>
+      <b>Main actor:</b> ${row.actor1 || ""}<br>
+      <b>Description:</b> ${row.notes || ""}<br>
+      <b>Source:</b> ${row.source || ""}<br>
+      <b>Country:</b> ${row.country || ""}<br>
+      <b>Location:</b> ${row.location || ""}<br>
+      <b>Date:</b> ${row.event_date || ""}
+    `, {
+      autoPan: true,
+      autoPanPaddingTopLeft: L.point(330, 140),
+      autoPanPaddingBottomRight: L.point(20, 20)
+    });
+
+    marker.addTo(acledLayer);
+  });
+}
+// ============================================================
+// LIVE FLIGHTS — ADSB.lol (free, no API key, CORS-enabled)
+// Centered on Nairobi, 1500 nm radius covers East + Central
+// Africa and all KQ long-haul departure corridors.
+// ============================================================
+var ADSB_URL = 'https://api.adsb.lol/v2/point/-1.3/36.8/1500';
+
+function setFlightStatus(msg, color) {
+  var el = document.getElementById('flightStatusBadge');
+  if (el) { el.textContent = msg; el.style.color = color || 'var(--text-3)'; }
+}
+
+function makePlaneIcon(color, size, isKQ) {
+  var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="' + size + '" height="' + size + '">' +
+    '<path d="M21 16v-2l-8-5V3.5C13 2.67 12.33 2 11.5 2S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"' +
+    ' fill="' + color + '" stroke="white" stroke-width="' + (isKQ ? '1.5' : '0.8') + '"/>' +
+    '</svg>';
+  return L.divIcon({
+    html: svg,
+    className: '',
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
+    popupAnchor: [0, -size / 2 - 4]
+  });
+}
+
+async function fetchFlights() {
+  setFlightStatus('Updating…', 'var(--warn)');
+  try {
+    var resp = await fetch(ADSB_URL);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    var data = await resp.json();
+    var ac = data.ac || [];
+    updateFlights(ac);
+    setFlightStatus(ac.length + ' aircraft', 'var(--success)');
+  } catch (err) {
+    console.warn('ADSB fetch error:', err.message);
+    setFlightStatus('', ''); // suppress error — simulated flights are shown
+  }
+}
+
+function updateFlights(ac) {
+  var seen = new Set();
+
+  ac.forEach(function(a) {
+    var icao24   = a.hex || '';
+    var callsign = (a.flight || '').trim();
+    var reg      = a.r  || '';
+    var type     = a.t  || '';
+    var lat      = a.lat;
+    var lon      = a.lon;
+    var altRaw   = a.alt_baro;                        // feet or "ground"
+    var onGround = altRaw === 'ground' || (typeof altRaw === 'number' && altRaw < 50);
+    var heading  = a.track || 0;
+
+    if (!lat || !lon || onGround || !icao24) return;
+    seen.add(icao24);
+
+    var isKQ  = callsign.startsWith('KQA') || callsign.startsWith('KQ');
+    var color = isKQ ? '#10b981' : '#818cf8';
+    var size  = isKQ ? 26 : 20;
+
+    if (flights[icao24]) {
+      flights[icao24].setLatLng([lat, lon]);
+      if (flights[icao24].setRotationAngle) {
+        flights[icao24].setRotationAngle(heading);
+      }
+    } else {
+      var marker = L.marker([lat, lon], {
+        icon: makePlaneIcon(color, size, isKQ),
+        rotationAngle: heading
+      });
+      marker._callsign = callsign;
+      marker._isKQ     = isKQ;
+
+      var altFt = (typeof altRaw === 'number') ? Math.round(altRaw).toLocaleString() + ' ft' : 'N/A';
+      var spdKt = a.gs ? Math.round(a.gs) + ' kt' : 'N/A';
+      var hdg   = Math.round(heading) + '°';
+
+      var kqBadge = isKQ
+        ? '<div style="display:inline-block;background:rgba(16,185,129,.15);color:#10b981;' +
+          'font-size:9px;font-weight:800;padding:1px 7px;border-radius:3px;' +
+          'border:1px solid rgba(16,185,129,.35);margin-bottom:7px;letter-spacing:.06em;">KENYA AIRWAYS</div><br>'
+        : '';
+
+      marker.bindPopup(
+        '<div style="font-family:\'Inter\',sans-serif;min-width:195px;padding:2px;">' +
+        kqBadge +
+        '<div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:7px;">' +
+          (callsign || icao24) +
+        '</div>' +
+        '<table style="font-size:11.5px;width:100%;border-collapse:collapse;">' +
+          (reg  ? '<tr><td style="color:var(--text-2);padding:3px 0;width:45%;">Registration</td><td style="font-weight:600;color:var(--text);">' + reg  + '</td></tr>' : '') +
+          (type ? '<tr><td style="color:var(--text-2);padding:3px 0;">Aircraft</td><td style="font-weight:600;color:var(--text);">'                + type + '</td></tr>' : '') +
+          '<tr><td style="color:var(--text-2);padding:3px 0;">Altitude</td><td style="font-weight:600;color:var(--text);">'  + altFt + '</td></tr>' +
+          '<tr><td style="color:var(--text-2);padding:3px 0;">Speed</td><td style="font-weight:600;color:var(--text);">'     + spdKt + '</td></tr>' +
+          '<tr><td style="color:var(--text-2);padding:3px 0;">Heading</td><td style="font-weight:600;color:var(--text);">'   + hdg   + '</td></tr>' +
+          '<tr><td style="color:var(--text-2);padding:3px 0;">ICAO24</td><td style="font-weight:600;color:var(--text-2);font-size:10.5px;font-family:monospace;">' + icao24 + '</td></tr>' +
+        '</table>' +
+        '</div>',
+        { autoPan: true, autoPanPaddingTopLeft: L.point(330, 140), autoPanPaddingBottomRight: L.point(20, 20) }
+      );
+
+      marker.addTo(flightLayer);
+      flights[icao24] = marker;
+    }
+  });
+
+  // Remove stale markers
+  Object.keys(flights).forEach(function(id) {
+    if (!seen.has(id)) {
+      flightLayer.removeLayer(flights[id]);
+      delete flights[id];
+    }
+  });
+
+  applyFlightFilter();
+}
+
+// =======================
+// LIVE UPDATE LOOP
+// =======================
+fetchFlights();
+setInterval(fetchFlights, 60000); // 60-second refresh
+
+// ============================================================
+//  SIMULATED FLIGHTS — East Africa & Horn of Africa
+//  Positions interpolated between origin/destination airports
+//  based on elapsed time.  Added to the same flightLayer so
+//  the All Flights / My Flights key works automatically.
+// ============================================================
+
+var simPageStart     = Date.now();
+var simFlightMarkers = {};   // callsign → Leaflet marker
+var simFlightData    = {};   // callsign → flight data (for path drawing)
+
+// ── Full-path drawing (great circle routes) ───────────────────────
+var pathLayerGroup = L.layerGroup().addTo(map);
+var drawnPaths     = {};   // callsign → [layers]
+
+// Generate N+1 points along the great circle between two [lat,lon] pairs
+function greatCirclePoints(from, to, n) {
+  var toRad = Math.PI / 180, toDeg = 180 / Math.PI;
+  var lat1 = from[0] * toRad, lon1 = from[1] * toRad;
+  var lat2 = to[0]   * toRad, lon2 = to[1]   * toRad;
+  var d = 2 * Math.asin(Math.sqrt(
+    Math.pow(Math.sin((lat2 - lat1) / 2), 2) +
+    Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin((lon2 - lon1) / 2), 2)
+  ));
+  if (d < 1e-9) return [from, to]; // same point guard
+  var pts = [];
+  for (var i = 0; i <= n; i++) {
+    var t = i / n;
+    var A = Math.sin((1 - t) * d) / Math.sin(d);
+    var B = Math.sin(t * d)       / Math.sin(d);
+    var x = A * Math.cos(lat1) * Math.cos(lon1) + B * Math.cos(lat2) * Math.cos(lon2);
+    var y = A * Math.cos(lat1) * Math.sin(lon1) + B * Math.cos(lat2) * Math.sin(lon2);
+    var z = A * Math.sin(lat1) + B * Math.sin(lat2);
+    pts.push([
+      Math.atan2(z, Math.sqrt(x * x + y * y)) * toDeg,
+      Math.atan2(y, x) * toDeg
+    ]);
+  }
+  return pts;
+}
+
+function drawFlightPath(cs) {
+  var f = simFlightData[cs];
+  if (!f || !f.from || !f.to) return;
+  clearFlightPath(cs);
+  var elapsed  = Math.floor((Date.now() - simPageStart) / 60000);
+  var progress = Math.min(1, (f.elapsed0 + elapsed) / f.totalMins);
+  // Use 80 segments — enough for a smooth arc on any route length
+  var N   = 80;
+  var all = greatCirclePoints(f.from, f.to, N);
+  var splitIdx = Math.round(progress * N);
+  var flownPts  = all.slice(0, splitIdx + 1);
+  var remainPts = all.slice(splitIdx);
+  var flown  = L.polyline(flownPts,  { color:'#10b981', weight:2.5, opacity:0.9 });
+  var remain = L.polyline(remainPts, { color:'#94a3b8', weight:2,   opacity:0.6, dashArray:'6,4' });
+  flown.addTo(pathLayerGroup);
+  remain.addTo(pathLayerGroup);
+  drawnPaths[cs] = [flown, remain];
+  document.getElementById('clearTrackBanner').style.display = 'flex';
+}
+
+function clearFlightPath(cs) {
+  if (drawnPaths[cs]) {
+    drawnPaths[cs].forEach(function(l) { pathLayerGroup.removeLayer(l); });
+    delete drawnPaths[cs];
+  }
+  if (!Object.keys(drawnPaths).length) {
+    document.getElementById('clearTrackBanner').style.display = 'none';
+  }
+}
+
+function clearAllPaths() {
+  Object.keys(drawnPaths).forEach(clearFlightPath);
+  map.closePopup();
+}
+
+function toggleFlightPath(cs) {
+  if (drawnPaths[cs]) { clearFlightPath(cs); }
+  else { drawFlightPath(cs); }
+  // Update button label if popup still open
+  var btn = document.getElementById('pathBtn_' + cs);
+  if (btn) { btn.textContent = drawnPaths[cs] ? '✕ Clear Path' : '🗺 Full Path'; btn.classList.toggle('active', !!drawnPaths[cs]); }
+}
+
+// Airport coordinates [lat, lon]
+var AP = {
+  HAAB: [ 8.978,  38.799],   // Addis Ababa Bole
+  HKJK: [-1.319,  36.927],   // Nairobi JKIA
+  HRYR: [-1.969,  30.140],   // Kigali Intl
+  HUEN: [ 0.042,  32.443],   // Entebbe Intl
+  HTDA: [-6.878,  39.203],   // Dar es Salaam JNIA
+  HTZA: [-6.222,  39.225],   // Zanzibar
+  HKMO: [-4.035,  39.594],   // Mombasa Moi
+  OMDB: [25.253,  55.364],   // Dubai Intl
+  EGLL: [51.477,  -0.461],   // London Heathrow
+  HKKI: [ 0.086,  34.729],   // Kisumu, Kenya
+  HDAM: [11.547,  43.160],   // Djibouti Ambouli
+  FMCZ: [-12.805, 45.281],   // Dzaoudzi / Mayotte
+  FACT: [-33.965, 18.602],   // Cape Town Intl
+  FLLI: [-17.822, 25.823],   // Livingstone, Zambia
+  OMSJ: [25.329,  55.517],   // Sharjah Intl
+  HTKJ: [-3.429,  37.075],   // Kilimanjaro Intl
+  VABB: [19.090,  72.866],   // Mumbai CSIA
+  ZGGG: [23.392, 113.299],   // Guangzhou Baiyun
+  VTBS: [13.681, 100.747],   // Bangkok Suvarnabhumi
+  FVHA: [-17.932,  31.093],  // Harare Intl
+  FLLS: [-15.331,  28.453],  // Lusaka Kenneth Kaunda
+  FMCH: [-11.534,  43.272],  // Moroni Prince Said Ibrahim
+  FAOR: [-26.139,  28.246],  // Johannesburg OR Tambo
+  // ── Additional airports for 50-flight simulation ──────────────
+  HSSJ: [ 4.872,  31.601],   // Juba Intl (South Sudan)
+  HBBA: [-3.324,  29.319],   // Bujumbura Melchior Ndadaye (Burundi)
+  FZAA: [-4.385,  15.445],   // Kinshasa N'djili (DRC)
+  HCMM: [ 2.014,  45.305],   // Mogadishu Aden Adde (Somalia)
+  HHAS: [15.292,  38.910],   // Asmara Intl (Eritrea)
+  HSSS: [15.590,  32.553],   // Khartoum Intl (Sudan)
+  VIDP: [28.556,  77.100],   // Delhi Indira Gandhi (India)
+  ZBAA: [40.080, 116.584],   // Beijing Capital (China)
+  KJFK: [40.639, -73.778],   // New York JFK (USA)
+};
+
+// Airline colours for map markers
+var AIRLINE_COLORS = {
+  'Kenya Airways':     '#CC0001',
+  'Jambojet':          '#FF5500',
+  'Skyline Express':   '#1A6FE8',
+  'Ethiopian Airlines':'#009B3A',
+  'Uganda Airlines':   '#FCDC04',
+  'RwandAir':          '#20C4F4',
+  'Air Tanzania':      '#1BB4E8',
+  'Precision Air':     '#E8821B',
+};
+
+// Helper: build a simFlight entry
+// totalMins = full trip duration; etaMinsRemaining = mins left when page loads
+function mkFlight(cs, airline, ac, fr, to, totalMins, etaMinsRemaining, frCity, toCity) {
+  return {
+    cs: cs, airline: airline, ac: ac,
+    from: AP[fr], to: AP[to],
+    totalMins: totalMins,
+    elapsed0: Math.max(0, totalMins - etaMinsRemaining),
+    isKQ: airline === 'Kenya Airways',
+    color: AIRLINE_COLORS[airline] || '#818cf8',
+    origCode: fr, origCity: frCity || fr,
+    destCode: to, destCity: toCity || to,
+  };
+}
+
+// 50 simulated flights — mirrors the index.html live flights table
+// totalMins estimated from typical block times; elapsed0 = totalMins - etaMinsRemaining
+var simFlightsData = [
+  // ── Kenya Airways (KQ) ──────────────────────────────────────────
+  mkFlight('KQ100','Kenya Airways','B772','HKJK','EGLL', 540, 285, 'Nairobi',   'London'),
+  mkFlight('KQ101','Kenya Airways','B772','EGLL','HKJK', 510,  98, 'London',    'Nairobi'),
+  mkFlight('KQ300','Kenya Airways','B738','HKJK','HAAB', 120,  48, 'Nairobi',   'Addis Ababa'),
+  mkFlight('KQ202','Kenya Airways','B738','HTDA','HKJK',  90,  62, 'Dar es Salaam','Nairobi'),
+  mkFlight('KQ304','Kenya Airways','B738','HKJK','HRYR',  90,  78, 'Nairobi',   'Kigali'),
+  mkFlight('KQ406','Kenya Airways','B789','HKJK','OMDB', 240,  88, 'Nairobi',   'Dubai'),
+  mkFlight('KQ112','Kenya Airways','B789','OMDB','HKJK', 240, 115, 'Dubai',     'Nairobi'),
+  mkFlight('KQ502','Kenya Airways','B772','HKJK','FAOR', 240, 152, 'Nairobi',   'Johannesburg'),
+  mkFlight('KQ450','Kenya Airways','B738','HKJK','HUEN',  90,  58, 'Nairobi',   'Entebbe'),
+  mkFlight('KQ710','Kenya Airways','B789','HKJK','VIDP', 360, 178, 'Nairobi',   'Delhi'),
+  mkFlight('KQ250','Kenya Airways','B738','HKJK','HTZA', 120,  67, 'Nairobi',   'Zanzibar'),
+  // ── Jambojet (JM) ───────────────────────────────────────────────
+  mkFlight('JM402','Jambojet','Q400','HKMO','HKJK',  60,  38, 'Mombasa',   'Nairobi'),
+  mkFlight('JM404','Jambojet','Q400','HKJK','HKKI',  60,  42, 'Nairobi',   'Kisumu'),
+  mkFlight('JM500','Jambojet','Q400','HKJK','HTDA', 150,  95, 'Nairobi',   'Dar es Salaam'),
+  // ── Skyline Express (SL) ────────────────────────────────────────
+  mkFlight('SL100','Skyline Express','E190','HKJK','HTDA', 120,  72, 'Nairobi',   'Dar es Salaam'),
+  mkFlight('SL102','Skyline Express','E190','HTDA','HKJK', 120,  88, 'Dar es Salaam','Nairobi'),
+  // ── Ethiopian Airlines (ET) ─────────────────────────────────────
+  mkFlight('ET306','Ethiopian Airlines','B789','HAAB','HKJK', 120,  55, 'Addis Ababa','Nairobi'),
+  mkFlight('ET307','Ethiopian Airlines','B789','HKJK','HAAB', 120,  42, 'Nairobi',   'Addis Ababa'),
+  mkFlight('ET320','Ethiopian Airlines','A359','HAAB','EGLL', 540, 245, 'Addis Ababa','London'),
+  mkFlight('ET314','Ethiopian Airlines','B789','HAAB','OMDB', 210, 118, 'Addis Ababa','Dubai'),
+  mkFlight('ET202','Ethiopian Airlines','DH8D','HAAB','HSSJ',  90,  52, 'Addis Ababa','Juba'),
+  mkFlight('ET512','Ethiopian Airlines','B738','HAAB','HTDA', 150,  78, 'Addis Ababa','Dar es Salaam'),
+  mkFlight('ET318','Ethiopian Airlines','B738','HAAB','HUEN',  90,  38, 'Addis Ababa','Entebbe'),
+  mkFlight('ET204','Ethiopian Airlines','AT76','HAAB','HDAM',  90,  58, 'Addis Ababa','Djibouti'),
+  mkFlight('ET206','Ethiopian Airlines','AT76','HAAB','HHAS',  90,  40, 'Addis Ababa','Asmara'),
+  mkFlight('ET400','Ethiopian Airlines','B738','HAAB','FZAA', 270, 185, 'Addis Ababa','Kinshasa'),
+  mkFlight('ET100','Ethiopian Airlines','B789','HAAB','ZBAA', 600, 485, 'Addis Ababa','Beijing'),
+  mkFlight('ET506','Ethiopian Airlines','DH8D','HAAB','HCMM',  90,  62, 'Addis Ababa','Mogadishu'),
+  mkFlight('ET416','Ethiopian Airlines','AT76','HAAB','HBBA', 120,  70, 'Addis Ababa','Bujumbura'),
+  mkFlight('ET808','Ethiopian Airlines','A359','HAAB','KJFK', 840, 545, 'Addis Ababa','New York'),
+  // ── Uganda Airlines (U7) ────────────────────────────────────────
+  mkFlight('U7201','Uganda Airlines','A320','HUEN','HKJK',  90,  58, 'Entebbe',   'Nairobi'),
+  mkFlight('U7202','Uganda Airlines','A320','HKJK','HUEN',  90,  52, 'Nairobi',   'Entebbe'),
+  mkFlight('U7205','Uganda Airlines','A320','HUEN','HAAB', 120,  68, 'Entebbe',   'Addis Ababa'),
+  mkFlight('U7301','Uganda Airlines','CRJ9','HUEN','HRYR',  90,  48, 'Entebbe',   'Kigali'),
+  // ── RwandAir (WB) ───────────────────────────────────────────────
+  mkFlight('WB100','RwandAir','A320','HRYR','HKJK', 120,  82, 'Kigali',    'Nairobi'),
+  mkFlight('WB101','RwandAir','A320','HKJK','HRYR', 120,  68, 'Nairobi',   'Kigali'),
+  mkFlight('WB200','RwandAir','A333','HRYR','EGLL', 540, 410, 'Kigali',    'London'),
+  mkFlight('WB300','RwandAir','A320','HRYR','HAAB', 150,  88, 'Kigali',    'Addis Ababa'),
+  mkFlight('WB401','RwandAir','B738','HRYR','OMDB', 240, 155, 'Kigali',    'Dubai'),
+  // ── Air Tanzania (TC) ───────────────────────────────────────────
+  mkFlight('TC501','Air Tanzania','B738','HTDA','HRYR', 150,  88, 'Dar es Salaam','Kigali'),
+  mkFlight('TC502','Air Tanzania','B738','HRYR','HTDA', 150,  80, 'Kigali',    'Dar es Salaam'),
+  mkFlight('TC320','Air Tanzania','A220','HTDA','HAAB', 180,  96, 'Dar es Salaam','Addis Ababa'),
+  // ── Precision Air (PW) ──────────────────────────────────────────
+  mkFlight('PW201','Precision Air','DH8D','HTDA','HTZA',  45,  32, 'Dar es Salaam','Zanzibar'),
+  mkFlight('PW205','Precision Air','DH8D','HTDA','HTKJ',  60,  36, 'Dar es Salaam','Kilimanjaro'),
+];
+
+// Bearing (degrees) from point A to point B
+function simBearing(from, to) {
+  var dLon = (to[1] - from[1]) * Math.PI / 180;
+  var la1  = from[0] * Math.PI / 180;
+  var la2  = to[0]   * Math.PI / 180;
+  var y    = Math.sin(dLon) * Math.cos(la2);
+  var x    = Math.cos(la1) * Math.sin(la2) - Math.sin(la1) * Math.cos(la2) * Math.cos(dLon);
+  return ((Math.atan2(y, x) * 180 / Math.PI) + 360) % 360;
+}
+
+// Linear interpolate between two [lat,lon] points
+function simLerp(from, to, t) {
+  t = Math.max(0, Math.min(1, t));
+  return [from[0] + (to[0] - from[0]) * t, from[1] + (to[1] - from[1]) * t];
+}
+
+function loadSimFlights() {
+  var elapsedSinceLoad = Math.floor((Date.now() - simPageStart) / 60000);
+
+  simFlightsData.forEach(function(f) { try {
+    var totalElapsed = f.elapsed0 + elapsedSinceLoad;
+    var progress     = totalElapsed / f.totalMins;
+
+    // Skip flights with missing coordinates
+    if (!f.from || !f.to) return;
+
+    if (progress >= 1) {
+      // Flight has landed — remove marker if present
+      if (simFlightMarkers[f.cs]) {
+        flightLayer.removeLayer(simFlightMarkers[f.cs]);
+        delete simFlightMarkers[f.cs];
+      }
+      return;
+    }
+
+    var pos     = simLerp(f.from, f.to, progress);
+    var heading = simBearing(pos, f.to);
+    var color   = f.color || (f.isKQ ? '#10b981' : '#818cf8');
+    var size    = f.isKQ ? 26 : 20;
+
+    if (simFlightMarkers[f.cs]) {
+      // Slide existing marker to new position
+      simFlightMarkers[f.cs].setLatLng(pos);
+      if (simFlightMarkers[f.cs].setRotationAngle) {
+        simFlightMarkers[f.cs].setRotationAngle(heading);
+      }
+    } else {
+      var remMins  = Math.round(f.totalMins - totalElapsed);
+      var remStr   = remMins >= 60
+        ? Math.floor(remMins / 60) + 'h ' + String(remMins % 60).padStart(2, '0') + 'm'
+        : remMins + 'm';
+
+      // Aircraft type — expand ICAO code to full name
+      var acNames = {
+        B738:'Boeing 737-800', B38M:'Boeing 737 MAX 8', B789:'Boeing 787-9',
+        B788:'Boeing 787-8',   B77W:'Boeing 777-300ER', B763:'Boeing 767-300',
+        B752:'Boeing 757-200', A320:'Airbus A320',      A321:'Airbus A321',
+        A333:'Airbus A330-300',A359:'Airbus A350-900',  E190:'Embraer 190',
+        E195:'Embraer 195',    AT76:'ATR 72-600',       AT75:'ATR 72-500',
+        DH8D:'Dash 8-400',     CRJ9:'CRJ-900',          CRJ7:'CRJ-700'
+      };
+      var acFull = acNames[f.ac] || f.ac;
+
+      // Estimated altitude based on flight progress curve
+      var pct = totalElapsed / f.totalMins;
+      var estAlt;
+      if      (pct < 0.10) estAlt = Math.round(pct / 0.10 * 35000);
+      else if (pct > 0.90) estAlt = Math.round((1 - pct) / 0.10 * 35000);
+      else                 estAlt = 33000 + Math.round(Math.sin(pct * Math.PI) * 2000);
+      var altStr = estAlt > 500
+        ? 'FL' + String(Math.round(estAlt / 100)).padStart(3, '0')
+        : 'Descending';
+
+      // Estimated speed
+      var estSpd = pct < 0.10 ? Math.round(200 + pct / 0.10 * 250)
+                 : pct > 0.90 ? Math.round(200 + (1 - pct) / 0.10 * 250)
+                 : 450;
+
+      // Departure time display
+      var depStr = '';
+      if (f.depTime) {
+        var d = new Date(f.depTime);
+        depStr = d.getUTCHours().toString().padStart(2,'0') + ':' +
+                 d.getUTCMinutes().toString().padStart(2,'0') + 'Z';
+      }
+
+      // Progress bar width
+      var progPct = Math.min(100, Math.round(pct * 100));
+
+      // Origin / destination labels
+      var origLbl = (f.origCode || '') + (f.origCity ? ' · ' + f.origCity : '');
+      var destLbl = (f.destCode || '') + (f.destCity ? ' · ' + f.destCity : '');
+
+      var marker = L.marker(pos, {
+        icon: makePlaneIcon(color, size, f.isKQ),
+        rotationAngle: heading
+      });
+      marker._callsign = f.cs;
+      marker._isKQ     = f.isKQ;
+      marker._isSim    = true;
+      marker._airline  = f.airline;  // full airline name stored directly
+
+      marker.bindPopup(
+        '<div style="font-family:\'Inter\',sans-serif;min-width:230px;padding:2px;">' +
+
+        // ── Header ──────────────────────────────────────────────
+        (f.airline
+          ? '<div style="display:inline-block;background:' + color.replace(')', ',.15)').replace('rgb','rgba') + ';color:' + color + ';' +
+            'font-size:9px;font-weight:800;padding:1px 7px;border-radius:3px;' +
+            'border:1px solid ' + color + '55;margin-bottom:6px;letter-spacing:.06em;">' + f.airline.toUpperCase() + '</div><br>'
+          : '') +
+        '<div style="font-size:18px;font-weight:800;color:var(--text);letter-spacing:.02em;margin-bottom:2px;">' + f.cs + '</div>' +
+        '<div style="font-size:10.5px;color:var(--text-2);margin-bottom:10px;">' + acFull + '</div>' +
+
+        // ── Route ───────────────────────────────────────────────
+        '<div style="background:var(--bg-2,rgba(255,255,255,.05));border-radius:6px;padding:8px 10px;margin-bottom:10px;">' +
+          '<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">' +
+            '<div style="text-align:left;min-width:0;">' +
+              '<div style="font-size:16px;font-weight:800;color:var(--text);">' + (f.origCode || '—') + '</div>' +
+              '<div style="font-size:9.5px;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80px;" title="' + (f.origName || '') + '">' + (f.origCity || '') + '</div>' +
+            '</div>' +
+            '<div style="flex:1;text-align:center;">' +
+              '<div style="font-size:11px;color:var(--text-3);">✈</div>' +
+              '<div style="height:1px;background:var(--border,rgba(255,255,255,.1));margin:2px 4px;position:relative;">' +
+                '<div style="position:absolute;top:-2px;left:' + progPct + '%;width:5px;height:5px;background:' + (f.isKQ ? '#10b981' : '#818cf8') + ';border-radius:50%;transform:translateX(-50%);"></div>' +
+              '</div>' +
+              '<div style="font-size:8.5px;color:var(--text-3);margin-top:2px;">' + progPct + '% complete</div>' +
+            '</div>' +
+            '<div style="text-align:right;min-width:0;">' +
+              '<div style="font-size:16px;font-weight:800;color:var(--text);">' + (f.destCode || '—') + '</div>' +
+              '<div style="font-size:9.5px;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80px;" title="' + (f.destName || '') + '">' + (f.destCity || '') + '</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+
+        // ── Details table ────────────────────────────────────────
+        '<table style="font-size:11px;width:100%;border-collapse:collapse;">' +
+          '<tr><td style="color:var(--text-2);padding:3px 0;width:42%;">ETA</td>' +
+              '<td style="font-weight:700;color:#10b981;">' + remStr + ' remaining</td></tr>' +
+          (depStr
+            ? '<tr><td style="color:var(--text-2);padding:3px 0;">Departed</td>' +
+              '<td style="font-weight:600;color:var(--text);">' + depStr + '</td></tr>'
+            : '') +
+          '<tr><td style="color:var(--text-2);padding:3px 0;">Altitude</td>' +
+              '<td style="font-weight:600;color:var(--text);">' + altStr + '</td></tr>' +
+          '<tr><td style="color:var(--text-2);padding:3px 0;">Est. Speed</td>' +
+              '<td style="font-weight:600;color:var(--text);">' + estSpd + ' kt</td></tr>' +
+          '<tr><td style="color:var(--text-2);padding:3px 0;">Heading</td>' +
+              '<td style="font-weight:600;color:var(--text);">' + Math.round(heading) + '°</td></tr>' +
+          '<tr><td style="color:var(--text-2);padding:3px 0;">Flight Time</td>' +
+              '<td style="font-weight:600;color:var(--text);">' + Math.floor(f.totalMins/60) + 'h ' + String(f.totalMins%60).padStart(2,'0') + 'm total</td></tr>' +
+        '</table>' +
+        '<button id="pathBtn_' + f.cs + '" class="path-btn' + (drawnPaths[f.cs] ? ' active' : '') + '" onclick="toggleFlightPath(\'' + f.cs + '\')">' +
+          (drawnPaths[f.cs] ? '✕ Clear Path' : '🗺 Full Path') +
+        '</button>' +
+        '</div>',
+        { autoPan: true, autoPanPaddingTopLeft: L.point(330, 140), autoPanPaddingBottomRight: L.point(20, 20) }
+      );
+
+      marker.addTo(flightLayer);
+      simFlightMarkers[f.cs] = marker;
+      simFlightData[f.cs]    = f;
+    }
+  } catch(e) { console.error('Flight render error [' + f.cs + ']:', e); } });
+
+  applyFlightFilter();
+}
+
+// Load flight markers; layer is hidden by default — user enables via layer panel
+try { loadSimFlights(); } catch(e) { console.error('loadSimFlights error:', e); }
+if (map.hasLayer(flightLayer)) map.removeLayer(flightLayer);
+setInterval(function(){ try { loadSimFlights(); } catch(e) {} }, 60000);
+
+// ── Real KQ flights from FlightAware data file ────────────────────────────
+function injectRealKQFlights() {
+  fetch('/kq_flights_live.json')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var allFlights = (data.scheduled || []).concat(data.flights || []);
+      var now = Date.now();
+
+      // Remove existing simulated KQ flights so real ones replace them
+      simFlightsData = simFlightsData.filter(function(f) { return !f.isKQ; });
+
+      allFlights.forEach(function(fl) {
+        var origIcao = fl.origin      && fl.origin.code_icao;
+        var destIcao = fl.destination && fl.destination.code_icao;
+        if (!origIcao || !destIcao || !AP[origIcao] || !AP[destIcao]) return;
+
+        var depMs     = fl.scheduled_off ? new Date(fl.scheduled_off).getTime() : now;
+        var totalMins = fl.filed_ete    ? Math.round(fl.filed_ete / 60) : 120;
+        var elapsed0  = Math.max(0, Math.floor((now - depMs) / 60000));
+
+        // Skip already-landed flights
+        if (elapsed0 >= totalMins) return;
+
+        simFlightsData.push({
+          cs:        fl.ident_iata || fl.ident_icao || fl.ident,
+          op:        'Kenya Airways',
+          ac:        fl.aircraft_type || 'B738',
+          from:      AP[origIcao],
+          to:        AP[destIcao],
+          totalMins: totalMins,
+          elapsed0:  elapsed0,
+          isKQ:      true,
+          origCode:  fl.origin.code_iata      || origIcao,
+          destCode:  fl.destination.code_iata || destIcao,
+          origCity:  fl.origin.city           || origIcao,
+          destCity:  fl.destination.city      || destIcao,
+          origName:  fl.origin.name           || '',
+          destName:  fl.destination.name      || '',
+          depTime:   fl.scheduled_off         || null
+        });
+      });
+
+      loadSimFlights();
+      console.log('KQ real flights loaded:', simFlightsData.filter(function(f){ return f.isKQ; }).length);
+    })
+    .catch(function(e) {
+      console.warn('kq_flights_live.json unavailable — keeping simulated KQ flights:', e.message);
+    });
+}
+injectRealKQFlights();
+
+// ── Load real FlightAware tracks on startup ───────────────────────────────────
+// Two live flights fetched 2026-05-22 — real ADS-B data, currently airborne
+// EK770  DXB→CPT  — over East Africa right now  (24 ADS-B fixes, FL340)
+// AI111  DEL→LHR  — approaching London           (842 ADS-B fixes, FL380)
+// Source: FlightAware AeroAPI /flights/{id}/track  Cost: $0.012 per call
+
+  fetch('data/africa_airspace.geojson')
+  .then(res => res.json())
+  .then(data => {
+console.log(data.features[0].properties); 
+    
+L.geoJSON(data, {
+      // 🔴 CTR ONLY
+      filter: function(feature) {
+        return getType(feature) === "CTR";
+      },
+
+      style: function() {
+        return {
+          color: "#f97316",
+          weight: 2,
+          fillOpacity: 0.15
+        };
+      },
+
+      onEachFeature: onEachAirspace
+
+    }).addTo(ctrLayer);
+
+L.geoJSON(data, {
+
+      // 🔴 FIR ONLY
+      filter: function(feature) {
+        return getType(feature) === "FIR";
+      },
+
+      style: function() {
+        return {
+          color: "#4B0082",
+          weight: 2,
+          fillOpacity: 0.15
+        };
+      },
+
+      onEachFeature: onEachAirspace
+
+    }).addTo(firLayer);
+
+    L.geoJSON(data, {
+
+      // 🔵 TMA ONLY
+      filter: function(feature) {
+        return getType(feature) === "TMA";
+      },
+
+      style: function() {
+        return {
+          color: "#5C3317",
+          weight: 2,
+          fillOpacity: 0.1
+        };
+      },
+
+      onEachFeature: onEachAirspace
+
+    }).addTo(tmaLayer);
+
+    L.geoJSON(data, {
+
+      // 🔴 Prohibited ONLY
+      filter: function(feature) {
+      return getType(feature) === "Prohibited";
+      },
+
+      style: function() {
+        return {
+          color: "#32CD32",
+          weight: 2,
+          fillOpacity: 0.15
+        };
+      },
+
+      onEachFeature: onEachAirspace
+
+    }).addTo(prohibitedLayer);
+L.geoJSON(data, {
+
+      // 🔴 AFIS ONLY
+      filter: function(feature) {
+      return getType(feature) === "AFIS";
+      },
+
+      style: function() {
+        return {
+          color: "#FFD700",
+          weight: 2,
+          fillOpacity: 0.15
+        };
+      },
+
+      onEachFeature: onEachAirspace
+
+    }).addTo(afisLayer);
+
+L.geoJSON(data, {
+    // 🔴 RESTRICTED ONLY
+      filter: function(feature) {
+      return getType(feature) === "Restricted";
+      },
+
+      style: function() {
+        return {
+          color: "A8A8A2",
+          weight: 2,
+          fillOpacity: 0.15
+        };
+      },
+
+      onEachFeature: onEachAirspace
+
+    }).addTo(afisLayer);
+
+    L.geoJSON(data, {
+
+      // 🔴 Danger ONLY
+      filter: function(feature) {
+        return getType(feature) === "Danger";
+      },
+
+      style: function() {
+        return {
+          color: "#ef4444",
+          weight: 2,
+          fillOpacity: 0.15
+        };
+      },
+
+      onEachFeature: onEachAirspace
+
+    }).addTo(dangerLayer);
+
+  });
+
+
+  var markers = []; // FIXED
+
+  // AIRPORT DATA (with simulated risk intelligence)
+  var airfields = [
+    {
+      name:"Jomo Kenyatta International Airport",
+      code:"HKJK",
+      city:"Nairobi",
+      type: "Major Airport",
+      timezone: "GMT+3",
+      category: "International",
+      elevation:"5330 ft",
+      runways:"06/24 (4117m) – Asphalt",
+      airspace: "Class C/D CTR + TMA",
+      atc: "Full ATC",
+      nightoperations:"Yes",
+      fuel: "Full international services",
+      coords:[-1.3192,36.9278],
+      image:"images/jomo.jpg",
+      riskScore: 7,
+      riskLevel: "Moderate",
+      threatProfile: "Operations have stabilised following the formal conclusion of the February labour dispute. While seasonal rains continue to affect scheduling, the location’s risk profile is now defined by the moderate-risk urban environment, marked by opportunistic crime, infrastructure fragility, and early election cycle mobilisation, rather than systemic collapse. Travellers face heightened exposure to in-traffic robberies, spontaneous political crowd-puller events, and localised unrest along primary transit routes.​",
+      riskReport: "JKIA operations have been significantly impacted by torrential rains and flash floods through March, causing frequent diversions and terminal delays. While a major workers strike was suspended in February, subsequent labour notices indicated unresolved grievances and a fragile operational environment. The facility remains highly susceptible to short-notice disruptions from adverse weather, industrial action, and impactful access challenges. As a high-visibility international gateway, it retains symbolic target value, though current posture suggests no specific imminent threats.<br><br>Beyond the terminal, the broader metropolitan area faces a shifting security landscape defined by infrastructure fragility and unusually early electioneering for the 2027 cycle. Severe road damage from seasonal rains intensified gridlock at key transit nodes, significantly elevating the risk of carjackings and smash-and-grab robberies targeting stationary vehicles.<br><br>Political crowd-puller events and spontaneous protests pose a recurring risk of localised unrest and flash-violence in peri-urban and low-income. While police patrols have intensified along major highways, petty theft and burglaries remain prevalent in high-density areas and affluent satellite towns. Furthermore, sophisticated white-collar crime in peri-urban zones necessitate high situational awareness and thorough due diligence when engaging in business opportunities. Travellers should avoid political gatherings, secure all valuables in transit, and strictly utilise pre-verified transport to mitigate these opportunistic and evolving threats.​",
+      extraInfo: `<h3>Operational Context</h3>
+    <p>Primary international gateway with continuous high-volume IFR passenger and cargo operations.</p>
+
+    <h3>Operational Profile</h3>
+    <table border="1" cellpadding="6">
+      <tr><th>Factor</th><th>Assessment</th></tr>
+      <tr><td>Ops Mix</td><td>Commercial-heavy (pax + cargo)</td></tr>
+      <tr><td>Training Activity</td><td>Low</td></tr>
+      <tr><td>Rotary Presence</td><td>Low–Moderate</td></tr>
+      <tr><td>UAV Activity</td><td>Very Low</td></tr>
+      <tr><td>Traffic Type</td><td>IFR-dominant</td></tr>
+    </table>
+
+    <h3>Operational Risk Drivers</h3>
+    <table border="1" cellpadding="6">
+      <tr><th>Factor</th><th>Level</th></tr>
+      <tr><td>IFR/VFR Mix</td><td>High IFR complexity</td></tr>
+      <tr><td>Congestion</td><td>Very High</td></tr>
+      <tr><td>Approach/Departure Risk</td><td>Moderate–High</td></tr>
+      <tr><td>Runway Condition</td><td>Good</td></tr>
+      <tr><td>Wildlife Hazard</td><td>Low</td></tr>
+      <tr><td>Ground Exposure</td><td>High</td></tr>
+    </table>
+
+    <h3>External & Environmental Factors</h3>
+    <table border="1" cellpadding="6">
+      <tr><th>Factor</th><th>Level</th></tr>
+      <tr><td>Weather Risk</td><td>Moderate</td></tr>
+      <tr><td>Terrain / Obstacles</td><td>Controlled</td></tr>
+      <tr><td>Security Risk</td><td>Low</td></tr>
+      <tr><td>Emergency Response</td><td>Strong</td></tr>
+      <tr><td>Alternates Availability</td><td>Strong</td></tr>
+      <tr><td>Operational Reliability</td><td>High</td></tr>
+    </table>
+
+    <h3>Risk Summary</h3>
+    <strong>Primary Risk Category:</strong> High consequence
+    <p><strong>Risk Type:</strong> Severity-driven</p>
+    <p><strong>Overall Risk Level:</strong> High</p>
+
+    <h3>Top Risk Drivers:</h3>
+    <ul>
+      <li>High traffic volume</li>
+      <li>IFR sequencing complexity</li>
+      <li>Runway/taxi congestion</li>
+      <li>Large aircraft operations</li>
+      <li>Weather disruptions</li>
+    </ul>
+
+    <h3>Operational Character</h3>
+    <p>Moderate-traffic airport where weather variability drives operational risk.</p>
+    
+    <h3>Accidents / Incidents</h3>
+    <ul>
+      <li>No major accidents (last 2 years)</li>
+      <li>Historical: runway/taxi-related incidents</li>
+  `
+  
+    },
+    {
+      name:"Moi International Airport",
+      code:"HKMO",
+      city:"Mombasa",
+      type: "Major Airport",
+      timezone: "GMT+3",
+      category: "International / Domestic",
+      elevation:"200 ft",
+      runways:"03/21 (3350m) – Asphalt",
+      airspace: "Class C",
+      atc: "Controlled",
+      nightoperations:"Yes",
+      fuel: "Full services",
+      coords:[-4.0348,39.5942],
+      image:"images/moi.jpg",
+      riskScore: 6,
+      riskLevel: "Moderate",
+      threatProfile: "Operations remain stable serving as the primary diversion point for JKIA. The risk profile is increasingly defined by the urban security landscape of Mombasa notably the resurgence of machete-wielding gangs (the Panga Boys) and infrastructure fragility during the 2026 rains rather than direct threats to the terminal. Travellers face specific exposure to opportunistic robberies in gridlocked traffic and petty theft in tourist-heavy zones, alongside a latent terrorism risk associated with regional border proximity.​",
+      riskReport: "Moi International Airport absorbed significant traffic throughout March, operating efficiently despite the surge in diverted carriers. While the terminal interior is a secure and well-managed hard target, external access was hampered by torrential rains. Stakeholders are advised that while current conditions present only minor operational hurdles, flight planning should remain flexible to accommodate weather-driven diversions and potential industrial action. These patterns have caused record damage to coastal infrastructure, resulting in persistent gridlock on the Makupa Causeway and Airport Road, which elevates the risk of street crimes and in-traffic robberies.<br><br>The broader security landscape remains fluid. A significant concern is the resurgence of semi-organised criminal gangs, specifically machete-wielding youths in areas like Kisauni, Nyali, and Likoni. These groups have recently targeted both residents and tourists, leading to zero-tolerance directives from regional police commanders in early 2026. Furthermore, Mombasa’s inclusion on international (No Lists) for 2026 highlights the strain of overtourism on infrastructure and social cohesion, which has exacerbated youth unemployment and opportunistic muggings.<br><br>While the terrorism threat remains latent, the airport’s role as a regional hub necessitates vigilance due to its proximity to the Somali borderlands and the Boni Forest corridors, where militant activity persists. Travellers should maintain a low profile, avoid high-density or poorly lit peri-urban zones, and utilise only pre-verified, secure transport to mitigate these evolving coastal threats.",
+      extraInfo:  `<h3>Operational Context</h3>
+    <p>Coastal airport handling commercial, training, and general aviation operations.</p>
+
+    <h3>Operational Profile</h3>
+    <table border="1" cellpadding="6">
+      <tr><th>Factor</th><th>Assessment</th></tr>
+      <tr><td>Ops Mix</td><td>Mixed (commercial + GA)</td></tr>
+      <tr><td>Training Activity</td><td>Moderate</td></tr>
+      <tr><td>Rotary Presence</td><td>Moderate</td></tr>
+      <tr><td>UAV Activity</td><td>Low</td></tr>
+      <tr><td>Traffic Type</td><td>Mixed</td></tr>
+    </table>
+
+    <h3>Operational Risk Drivers</h3>
+    <table border="1" cellpadding="6">
+      <tr><th>Factor</th><th>Level</th></tr>
+      <tr><td>IFR/VFR Mix</td><td>Moderate</td></tr>
+      <tr><td>Congestion</td><td>Medium</td></tr>
+      <tr><td>Approach/Departure Risk</td><td>Moderate</td></tr>
+      <tr><td>Runway Condition</td><td>Good</td></tr>
+      <tr><td>Wildlife Hazard</td><td>Low–Moderate</td></tr>
+      <tr><td>Ground Exposure</td><td>Medium</td></tr>
+    </table>
+
+    <h3>External & Environmental Factors</h3>
+    <table border="1" cellpadding="6">
+      <tr><th>Factor</th><th>Level</th></tr>
+      <tr><td>Weather Risk</td><td>Moderate–High</td></tr>
+      <tr><td>Terrain / Obstacles</td><td>Low</td></tr>
+      <tr><td>Security Risk</td><td>Low</td></tr>
+      <tr><td>Emergency Response</td><td>Strong</td></tr>
+      <tr><td>Alternates Availability</td><td>Moderate</td></tr>
+      <tr><td>Operational Reliability</td><td>Medium–High</td></tr>
+    </table>
+
+    <h3>Risk Summary</h3>
+    <p><strong>Primary Risk Category:</strong> Weather</p>
+    <p><strong>Risk Type:</strong> Mixed</p>
+    <p><strong>Overall Risk Level:</strong> Moderate</p>
+
+    <h3>Top Risk Drivers:</h3>
+    <ul>
+      <li>Coastal weather (winds, storms)</li>
+      <li>Mixed traffic operations</li>
+      <li>Bird activity</li>
+      <li>IFR/VFR interaction</li>
+    </ul>
+
+    <h3>Operational Character</h3>
+    <p>Moderate-traffic airport where weather variability drives operational risk.</p>
+    
+    <h3>Accidents / Incidents</h3>
+    <ul>
+      <li>No major accidents (last 2 years)</li>
+      <li>Weather-related diversions common</li>
+   `   
+    },
+       {
+      name:"Wilson Airport",
+      code:"HKNW",
+      city:"Nairobi",
+      type: "Minor Airport",
+      timezone: "GMT+3",
+      category: "Domestic (Regional)",
+      elevation:"5535 ft",
+      runways:"14/32 (1560m), 07/25 (1463m) – Asphalt",
+      airspace: "Class D CTR",
+      atc: "Tower-controlled",
+      nightoperations:"Limited",
+      fuel: "AVGAS & Jet A1",
+      coords:[-1.3217,36.8148],
+      image:"images/wilson.jpg",
+      riskScore: 6,
+      riskLevel: "Moderate",
+      threatProfile: "Operations face cumulative pressure from deteriorating runway infrastructure and power unreliability, as flagged by the Senate in March 2026. While landing protocols mitigate immediate flight risks, the location is highly susceptible to operational friction caused by record rainfall and flash flooding at the adjacent interchange. The broader security landscape is defined by infrastructure fragility and unusually early 2027 electioneering, elevating the risk of carjackings, opportunistic robberies, and localised unrest during political crowd-puller events",
+      riskReport: "​In March 2026, the Senate flagged concerns regarding Wilson Airport’s deteriorating runways and power unreliability. While the KCAA maintains that strict landing protocols mitigate immediate risks, operational friction is exacerbated by record rainfall causing flash floods at the T-Mall interchange.<br><br>Beyond the terminal, infrastructure fragility and unusually early 2027 electioneering define a shifting security landscape. Severe road damage has intensified gridlock at key transit nodes, significantly elevating the risk of carjackings and opportunistic robberies targeting stationary vehicles. Political crowd-puller events and sudden protest activity pose a recurring risk of localised unrest in sub-locations and nearby peri-urban areas. Despite police patrols intensifying, petty theft, burglaries, and white-collar crime remain prevalent. Travellers must maintain high situational awareness, avoid political gatherings, and utilise pre-verified transport. Despite these pressures, airport security remains intact with no reported perimeter breaches, though the last mile transit remains the most volatile segment of the journey.​",
+      extraInfo: `
+    <h3>Operational Context</h3>
+    <p>High-density general aviation hub supporting training, charter, and regional commercial operations within Nairobi.</p>
+
+    <h3>Operational Profile</h3>
+    <table border="1" cellpadding="6">
+      <tr><th>Factor</th><th>Assessment</th></tr>
+      <tr><td>Ops Mix</td><td>GA-heavy + regional commercial</td></tr>
+      <tr><td>Training Activity</td><td>High</td></tr>
+      <tr><td>Rotary Presence</td><td>Moderate–High</td></tr>
+      <tr><td>UAV Activity</td><td>Moderate</td></tr>
+      <tr><td>Traffic Type</td><td>Mixed (high interaction)</td></tr>
+    </table>
+
+    <h3>Operational Risk Drivers</h3>
+    <table border="1" cellpadding="6">
+      <tr><th>Factor</th><th>Level</th></tr>
+      <tr><td>IFR/VFR Mix</td><td>Very High</td></tr>
+      <tr><td>Congestion</td><td>Very High</td></tr>
+      <tr><td>Approach/Departure Risk</td><td>High</td></tr>
+      <tr><td>Runway Condition</td><td>Good (length constrained)</td></tr>
+      <tr><td>Wildlife Hazard</td><td>Low</td></tr>
+      <tr><td>Ground Exposure</td><td>Very High</td></tr>
+    </table>
+
+     <h3>External & Environmental Factors</h3>
+    <table border="1" cellpadding="6">
+      <tr><th>Factor</th><th>Level</th></tr>
+      <tr><td>Weather Risk</td><td>Moderate</td></tr>
+      <tr><td>Terrain / Obstacles</td><td>High</td></tr>
+      <tr><td>Security Risk</td><td>Low</td></tr>
+      <tr><td>Emergency Response</td><td>Moderate</td></tr>
+      <tr><td>Alternates Availability</td><td>Good</td></tr>
+      <tr><td>Operational Reliability</td><td>Medium</td></tr>
+    </table>
+
+    <h3>Risk Summary</h3>
+    <p><strong>Primary Risk Category:</strong> Congestion</p>
+    <p><strong>Risk Type:</strong> Frequency-driven</p>
+    <p><strong>Overall Risk Level:</strong> High</p>
+
+    <h3>Top Risk Drivers:</h3>
+    <ul>
+      <li>Training traffic congestion</li>
+      <li>Mixed IFR/VFR operationsn</li>
+      <li>High circuit density</li>
+      <li>Urban ground exposure</li>
+      <li>Short runway constraints</li>
+      <li>Weather exposure (rotary ops)</li>
+    </ul>
+
+    <h3>Operational Character</h3>
+    <p>Highly congested mixed-traffic environment with elevated mid-air and departure risk.</p>
+    
+    <h3>Accidents / Incidents</h3>
+    <ul>
+    <p><strong>Runway Excursion (2026):</strong> Dash 8 hard landing → excursion (no injuries)</p>
+    <p><strong>Helicopter Crash – Wilson bound (2026): </strong> AS350 (5Y-DSB), weather-related (6 fatalities)</p>
+    <p><strong>Mid-air Collision (2024):</strong> Training C172 + Dash 8 (2 fatalities)</p>
+    <p><strong>Departure Crash - (2025): </strong> Cessna Citation (6 fatalities)</p>
+
+    `   
+    },
+{
+      name:"Lokichoggio Airport",
+      code:"HKLK",
+      city:"Turkana",
+      type: "Minor Airport",
+      timezone: "GMT+3",
+      category: "Humanitarian (Civil)",
+      elevation:"~2116 ft",
+      runways:"09/27 (1888m) – Asphalt",
+      airspace: "Class G",
+      atc: "Uncontrolled",
+      nightoperations:"Limited",
+      fuel: "Basic",
+      coords:[4.20412,34.348202],
+      image:"images/lokichoggio.jpg",
+      riskScore: 3,
+      riskLevel: "Low",
+      riskReport: "Operations at Lokichoggio Airport remain stable, primarily supporting humanitarian and logistical flights into northern Kenya and South Sudan. However, the broader west region of Turkana County is currently under a state of heightened surveillance due to ongoing multi-agency security crackdowns (Operation Maliza Uhalifu) aimed at curbing banditry and the illegal possession of firearms, which remains a primary driver of regional insecurity. While local communities steadily voluntarily surrender weapons, the risk of armed crime in peri-urban zones remains a factor for ground transit<br><br>The facility’s security environment is heavily influenced by its role as a strategic border node. Instability in South Sudan, marked by the collapse of power-sharing arrangements and recent clashes in Unity and Jonglei States, presents a latent risk of displaced populations or armed spillover. Furthermore, the airport is susceptible to harsh environmental disruptions, including extreme heat and seasonal dust storms, which impact flight reliability. While the facility itself is considered a secure operational base, transit to the final destination is constrained by limited emergency response and the logistical challenges of one of Kenya’s most remote frontiers.",
+      extraInfo: `
+    <h3>Operational Context</h3>
+    <p>Remote humanitarian logistics hub supporting NGO and relief operations.</p>
+
+    <h3>Operational Profile</h3>
+    <table border="1" cellpadding="6">
+      <tr><th>Factor</th><th>Assessment</th></tr>
+      <tr><td>Ops Mix</td><td>Humanitarian/logistics</td></tr>
+      <tr><td>Training Activity</td><td>Low</td></tr>
+      <tr><td>Rotary Presence</td><td>Moderate</td></tr>
+      <tr><td>UAV Activity</td><td>Low–Moderate</td></tr>
+      <tr><td>Traffic Type</td><td>VFR-dominant</td></tr>
+    </table>
+
+    <h3>Operational Risk Drivers</h3>
+    <table border="1" cellpadding="6">
+      <tr><th>Factor</th><th>Level</th></tr>
+      <tr><td>IFR/VFR Mix</td><td>VFR dominant</td></tr>
+      <tr><td>Congestion</td><td>Low–Medium</td></tr>
+      <tr><td>Approach/Departure Risk</td><td>Moderate–High</td></tr>
+      <tr><td>Runway Condition</td><td>Fair</td></tr>
+      <tr><td>Wildlife Hazard</td><td>Low–Moderate</td></tr>
+      <tr><td>Ground Exposure</td><td>Low</td></tr>
+    </table>
+
+    <h3>External & Environmental Factors</h3>
+    <table border="1" cellpadding="6">
+      <tr><th>Factor</th><th>Level</th></tr>
+      <tr><td>Weather Risk</td><td>High</td></tr>
+      <tr><td>Terrain / Obstacles</td><td>Low</td></tr>
+      <tr><td>Security Risk</td><td>Moderate</td></tr>
+      <tr><td>Emergency Response</td><td>Limited</td></tr>
+      <tr><td>Alternates Availability</td><td>Limitede</td></tr>
+      <tr><td>Operational Reliability</td><td>Medium</td></tr>
+    </table>
+
+    <h3>Risk Summary</h3>
+    <p><strong>Primary Risk Category:</strong> Remoteness</p>
+    <p><strong>Risk Type:</strong> Logistics-driven</p>
+    <p><strong>Overall Risk Level:</strong> Moderate–High</p>
+
+    <h3>Top Risk Drivers:</h3>
+    <ul>
+      <li>Remote operations</li>
+      <li>Harsh environment</li>
+      <li>Limited support infrastructure</li>
+      <li>Mission-driven operations</li>
+    </ul>
+
+    <h3>Operational Character</h3>
+    <p>Low frequency but operationally complex environment requiring strong planning and self-sufficiency.</p>
+    
+    <h3>Accidents / Incidents</h3>
+    <ul>
+      <li>No major accidents (last 2 years)</li>
+      <li>Historically complex humanitarian operations</li>
+   `   
+    },
+
+{ name:"Ol Kiombo Airstrip",
+      code:"HKOK",
+      city:"Narok",
+      type: "Airstrip",
+      timezone: "GMT+3",
+      category: "Civil Bush (High Traffic)",
+      elevation:"5200 ft",
+      runways:"09/27 (1200m) – Gravel",
+      airspace: "None",
+      atc: "Uncontrolled",
+      nightoperations:"No",
+      fuel: "Limited",
+      coords:[-1.408586,35.110689],
+      image:"images/mara.jpg",
+      riskScore: 4,
+      riskLevel: "Low",
+      threatProfile:"Significant operational strain stems from its role as a primary alternative hub during the long rains leading to atypical aircraft congestion and accelerated runway wear. The combination of waterlogged unpaved surfaces and frequent wildlife incursions elevates the risk of ground incidents. While the security environment is stable and lacks urban crime, the facility's isolation and current over-capacity status present unique logistical risks and constrained emergency response capabilities.",
+      riskReport: "Operations at Ol Kiombo Airstrip remains active, with a marked increase in traffic as it serves as a preferred alternative within the Maasai Mara during flooding conditions affecting other regional strips. This shift has led to higher aircraft movements and potential congestion, particularly during peak charter windows. The airstrip remains highly exposed to seasonal flooding; waterlogged runway conditions during this period frequently result in short-notice delays or rerouting.<br><br>The broader security environment is tranquil, characterised by a lack of the mass crowd-puller events or opportunistic robberies seen in Nairobi. However, the shifting security landscape in border regions necessitates a baseline of situational awareness regarding cross-border movements and poaching activity. The primary risk is logistical: the increased traffic is straining the unpaved surface, and the region’s geographical isolation means technical or medical support is hours away. Travellers are reliant on private conservancy security and the operational efficiency of local ground teams.",
+      extraInfo:  `
+    <h3>Operational Context</h3>
+    <p>Busiest Mara airstrip with frequent safari traffic movements.</p>
+
+    <h3>Operational Profile</h3>
+    <table border="1" cellpadding="6">
+      <tr><th>Factor</th><th>Assessment</th></tr>
+      <tr><td>Ops Mix</td><td>Safari/commercial</td></tr>
+      <tr><td>Training Activity</td><td>None</td></tr>
+      <tr><td>Rotary Presence</td><td>High</td></tr>
+      <tr><td>UAV Activity</td><td>Low–Moderate</td></tr>
+      <tr><td>Traffic Type</td><td>VFR-dominant</td></tr>
+    </table>
+
+    <h3>Operational Risk Drivers</h3>
+    <table border="1" cellpadding="6">
+      <tr><th>Factor</th><th>Level</th></tr>
+      <tr><td>IFR/VFR Mix</td><td>Low IFR</td></tr>
+      <tr><td>Congestion</td><td>High</td></tr>
+      <tr><td>Approach/Departure Risk</td><td>High</td></tr>
+      <tr><td>Runway Condition</td><td>Variable</td></tr>
+      <tr><td>Wildlife Hazard</td><td>Severe</td></tr>
+      <tr><td>Ground Exposure</td><td>Low</td></tr>
+    </table>
+
+    <h3>External & Environmental Factors</h3>
+    <table border="1" cellpadding="6">
+      <tr><th>Factor</th><th>Moderate</th></tr>
+      <tr><td>Weather Risk</td><td>High</td></tr>
+      <tr><td>Terrain / Obstacles</td><td>Low</td></tr>
+      <tr><td>Security Risk</td><td>Low</td></tr>
+      <tr><td>Emergency Response</td><td>Limited</td></tr>
+      <tr><td>Alternates Availability</td><td>Limited</td></tr>
+      <tr><td>Operational Reliability</td><td>Medium</td></tr>
+    </table>
+
+    <h3>Risk Summary</h3>
+    <p><strong>Primary Risk Category:</strong> Congestion + Environmental</p>
+    <p><strong>Risk Type:</strong> Mixed</p>
+    <p><strong>Overall Risk Level:</strong> High</p>
+
+    <h3>Top Risk Drivers:</h3>
+    <ul>
+      <li>High traffic density</li>
+      <li>Wildlife incursions</li>
+      <li>Visual-only ops</li>
+      <li>Runway variability</li>
+    </ul>
+
+    <h3>Operational Character</h3>
+    <p>High-traffic uncontrolled strip combining congestion and environmental risks.</p>
+    
+    <h3>Accidents / Incidents</h3>
+    <ul>
+      <li>No major accidents</li>
+      <li>Wildlife incursions common</li>
+      <li>Bush operation incidents frequent</li>
+   `   
+    },
+
+{
+      name:"Mara Serena Airstrip",
+      code:"HKMS",
+      city:"Narok",
+      type: "Airstrip",
+      timezone: "GMT+3",
+      category: "Civil Bush",
+      type: "Airstrip",
+      elevation:"5200 ft",
+      runways:"09/27 (1050m) – Gravel",
+      airspace: "Class G",
+      atc: "Uncontrolled",
+      nightoperations:"No",
+      fuel: "Limited",
+      coords:[-1.406111,35.008057],
+      image:"images/mara.jpg",
+      riskScore: 3,
+      riskLevel: "Low",
+      threatProfile:"Risks are predominantly environmental and logistical, linked to the unpaved runway’s exposure to the long rains. Frequent wildlife incursions and deteriorating surface conditions necessitate constant ground coordination. While the security environment is exceptionally stable compared to urban hubs, the facility's isolation presents a unique risk profile defined by constrained emergency response and the latent potential for cross-border movement or seasonal poaching activity within the wider ecosystem.​",
+      riskReport: "Operations at Mara Serena Airstrip remain stable with no reported criminal activity or civil unrest. However, as a remote facility within the Maasai Mara ecosystem, it is currently highly exposed to the seasonal long rains, which can rapidly degrade the unpaved runway and impact visibility. The primary unique disrupter remains consistent wildlife presence on the runway, requiring mandatory pre-landing sweeps.​<br><br>The broader security environment is characterised by its remoteness. Unlike Nairobi, there is no threat from political mobilisation or urban / peri-urban crime. However, the shifting security landscape and regional border proximity necessitate a baseline of situational awareness regarding cross-border movements. The region’s isolation means that emergency medical or technical support remains significantly constrained.<br><br>While police and conservancy wardens maintain a presence, travellers are reliant on private lodge security and the operational efficiency of ground teams. All movements should be planned with flexibility to account for sudden weather shifts and environmental delays.​",
+      extraInfo:  `
+    <h3>Operational Context</h3>
+    <p>Remote bush airstrip supporting safari and tourism operations.</p>
+
+    <h3>Operational Profile</h3>
+    <table border="1" cellpadding="6">
+      <tr><th>Factor</th><th>Assessment</th></tr>
+      <tr><td>Ops Mix</td><td>Safari / charter</td></tr>
+      <tr><td>Training Activity</td><td>None</td></tr>
+      <tr><td>Rotary Presence</td><td>High</td></tr>
+      <tr><td>UAV Activity</td><td>Low–Moderate</td></tr>
+      <tr><td>Traffic Type</td><td>VFR-only</td></tr>
+    </table>
+
+    <h3>Operational Risk Drivers</h3>
+    <table border="1" cellpadding="6">
+      <tr><th>Factor</th><th>Level</th></tr>
+      <tr><td>IFR/VFR Mix</td><td>VFR-only</td></tr>
+      <tr><td>Congestion</td><td>Medium</td></tr>
+      <tr><td>Approach/Departure Risk</td><td>High</td></tr>
+      <tr><td>Runway Condition</td><td>Variable</td></tr>
+      <tr><td>Wildlife Hazard</td><td>Severe</td></tr>
+      <tr><td>Ground Exposure</td><td>Low</td></tr>
+    </table>
+
+    <h3>External & Environmental Factors</h3>
+    <table border="1" cellpadding="6">
+      <tr><th>Factor</th><th>Moderate</th></tr>
+      <tr><td>Weather Risk</td><td>High</td></tr>
+      <tr><td>Terrain / Obstacles</td><td>Moderate</td></tr>
+      <tr><td>Security Risk</td><td>Low</td></tr>
+      <tr><td>Emergency Response</td><td>Limited</td></tr>
+      <tr><td>Alternates Availability</td><td>Limited</td></tr>
+      <tr><td>Operational Reliability</td><td>Low–Medium</td></tr>
+    </table>
+
+    <h3>Risk Summary</h3>
+    <p><strong>Primary Risk Category:</strong> Environmental</p>
+    <p><strong>Risk Type:</strong> Environment-driven</p>
+    <p><strong>Overall Risk Level:</strong> High</p>
+
+    <h3>Top Risk Drivers:</h3>
+    <ul>
+      <li>Wildlife incursions</li>
+      <li>Short unpaved runway</li>
+      <li>Weather variability</li>
+      <li>Visual-only operations</li>
+    </ul>
+
+    <h3>Operational Character</h3>
+    <p>Environment-driven bush operations relying heavily on pilot judgment.</p>
+    
+    <h3>Accidents / Incidents</h3>
+    <ul>
+      <li>No major accidents (last 2 years)</li>
+      <li>Frequent minor bush operation incidents</li>
+   `   
+    },
+{
+      name:"Laikipia Air Base",
+      code:"HKNY",
+      city:"Nanyuki",
+      type: "Air Base",
+      timezone: "GMT+3",
+      category: "Military",
+      elevation:"~6119 ft",
+      runways:"02/20 (4000m) – Concrete",
+      airspace: "Class C/D when active (with restricted access)",
+      atc: "Military-controlled",
+      nightoperations:"Yes",
+      fuel: "Military only",
+      navaids:"DVOR-DME",
+      coords:[0.032933,37.026901],
+      image:"images/laikipia.jpg",
+      riskScore: 3,
+      riskLevel: "Low",
+      threatProfile:"The operating environment is characterised by strict military control and high-readiness protocols. While the facility remains a secure hard target, the regional profile is influenced by the March–April 2026 gazettement of surrounding areas (including Mukogodo Forest) as 'security-disturbed and dangerous'. Although the risk of a direct breach remains rare due to reinforced fencing and prioritised military surveillance, the intensified anti-banditry operations in the wider county necessitate high situational awareness during ground transit to and from the base.​",
+      riskReport: "Operations at Laikipia Air Base (Nanyuki)  are stable, with the facility currently serving as a strategic hub for regional security. In March, the Commander of the Kenya Air Force (KAF) commissioned critical infrastructure, including a new game-proof electric perimeter fence, specifically designed to enhance security and mitigate human-wildlife conflict. While the base itself remains unaffected by civilian unrest, the surrounding security environment has shifted significantly. Following an escalation in cattle rustling and banditry, parts of northern and eastern Laikipia were declared 'security-disturbed' for 30 days effective 26 March.<br><br>nOngoing multi-agency operations involving the KDF and National Police Service (NPS) have focused on flushing out armed groups from hotspots like Mukogodo Forest. While these kinetic operations have successfully recovered hundreds of stolen livestock as of mid-April, they contribute to a volatile regional atmosphere. Travellers and personnel should note that while flight training and routine military operations continue uninterrupted, ground movement in the wider Nanyuki environs may be subject to intensified checkpoints and military-led traffic control.",
+      extraInfo: `
+    <h3>Operational Context</h3>
+    <p>Military air base supporting fast jet operations and training.</p>
+
+    <h3>Operational Profile</h3>
+    <table border="1" cellpadding="6">
+      <tr><th>Factor</th><th>Assessment</th></tr>
+      <tr><td>Ops Mix</td><td>Military</td></tr>
+      <tr><td>Training Activity</td><td>Moderate</td></tr>
+      <tr><td>Rotary Presence</td><td>Moderate</td></tr>
+      <tr><td>UAV Activity</td><td>Low</td></tr>
+      <tr><td>Traffic Type</td><td>Military-controlled</td></tr>
+    </table>
+
+    <h3>Operational Risk Drivers</h3>
+    <table border="1" cellpadding="6">
+      <tr><th>Factor</th><th>Level</th></tr>
+      <tr><td>IFR/VFR Mix</td><td>Controlled</td></tr>
+      <tr><td>Congestion</td><td>Medium–High</td></tr>
+      <tr><td>Approach/Departure Risk</td><td>High</td></tr>
+      <tr><td>Runway Condition</td><td>Good</td></tr>
+      <tr><td>Wildlife Hazard</td><td>Low</td></tr>
+      <tr><td>Ground Exposure</td><td>Low</td></tr>
+    </table>
+
+    <h3>External & Environmental Factors</h3>
+    <table border="1" cellpadding="6">
+      <tr><th>Factor</th><th>Moderate</th></tr>
+      <tr><td>Weather Risk</td><td>Low</td></tr>
+      <tr><td>Terrain / Obstacles</td><td>Low</td></tr>
+      <tr><td>Security Risk</td><td>High (restricted)</td></tr>
+      <tr><td>Emergency Response</td><td>Strong</td></tr>
+      <tr><td>Alternates Availability</td><td>Limited</td></tr>
+      <tr><td>Operational Reliability</td><td>High</td></tr>
+    </table>
+
+    <h3>Risk Summary</h3>
+    <p><strong>Primary Risk Category:</strong> Military</p>
+    <p><strong>Risk Type:</strong> Interaction-driven</p>
+    <p><strong>Overall Risk Level:</strong> High</p>
+
+    <h3>Top Risk Drivers:</h3>
+    <ul>
+      <li>Fast jet operations</li>
+      <li>Restricted airspace</li>
+      <li>Military training activity</li>
+      <li>High-speed traffic interaction</li>
+    </ul>
+
+    <h3>Operational Character</h3>
+    <p>Controlled military environment where interaction with high-performance aircraft is the primary risk.</p>
+    
+    <h3>Accidents / Incidents</h3>
+    <ul>
+      <li>No major accidents (last 2 years)</li>
+      <li>Risk driven by operational environment rather than events</li>
+   `   
+    },
+{
+name:"Wajir Airport",
+      code:"HKWJ",
+      city:"Wajir",
+      type: "Minor Airport",
+      timezone: "GMT+3",
+      category: "Domestic (Regional)",
+      elevation:"~757 ft",
+      runways:"15/33 (2800m) – Asphalt",
+      airspace: "Class D",
+      atc: "Controlled",
+      nightoperations:"Yes",
+      fuel: "Limited",
+      coords:[1.73324, 40.091599],
+      image:"images/wajir.jpg",
+      riskScore: 14,
+      riskLevel: "High",
+      threatProfile:"Wajir Airport serves as a critical dual-use military and civilian hub within a high-sensitivity security zone. While the facility itself is a fortified green zone under heavy KDF and multi-agency protection, the surrounding environment is defined by ongoing anti-banditry operations and a persistent threat of Al-Shabaab incursions from the nearby Somali border. Operations are stable but subject to military priority, with transit beyond the perimeter considered the most high-risk segment due to IED threats, ambushes and illegal checkpoints.​",
+      riskReport: "Wajir Airport remains the only secure gateway to the Northern Frontier, as land transit via the Mandera-Wajir or Isiolo-Wajir corridors is currently deemed high-risk. While the airport is a hard target with no recent direct breaches, the broader county is under a state of heightened alert. In March, the government expanded the list of security-disturbed zones in neighbouring counties, and a new multi-agency security camp was launched in Eldas to disrupt human and drug trafficking networks along the Basir corridor.<br><br>The primary security concern remains the latent threat of cross-border terrorism-related activity and the use of improvised explosive devices (IEDs) on regional access roads. While the police and KDF have intensified highway surveillance, illegal checkpoints by armed groups remain a verified threat in peri-urban zones and remote stretches. Travellers are reliant on a high-visibility security presence but should be aware that civilian operations may be temporarily deprioritised to accommodate rapid-response military deployments or casualty evacuations from regional flashpoints.",
+      extraInfo: `
+    <h3>Operational Context</h3>
+    <p>Strategic northern Kenya airport supporting cargo, passenger, and military operations.</p>
+
+    <h3>Operational Profile</h3>
+    <table border="1" cellpadding="6">
+      <tr><th>Factor</th><th>Assessment</th></tr>
+      <tr><td>Ops Mix</td><td>Mixed (cargo + pax + military)</td></tr>
+      <tr><td>Training Activity</td><td>Low</td></tr>
+      <tr><td>Rotary Presence</td><td>Moderate–High</td></tr>
+      <tr><td>UAV Activity</td><td>Low</td></tr>
+      <tr><td>Traffic Type</td><td>Mixed</td></tr>
+    </table>
+
+    <h3>Operational Risk Drivers</h3>
+    <table border="1" cellpadding="6">
+      <tr><th>Factor</th><th>Level</th></tr>
+      <tr><td>IFR/VFR Mix</td><td>Moderate</td></tr>
+      <tr><td>Congestion</td><td>Medium</td></tr>
+      <tr><td>Approach/Departure Risk</td><td>Moderate</td></tr>
+      <tr><td>Runway Condition</td><td>Good</td></tr>
+      <tr><td>Wildlife Hazard</td><td>Low</td></tr>
+      <tr><td>Ground Exposure</td><td>Medium</td></tr>
+    </table>
+
+    <h3>External & Environmental Factors</h3>
+    <table border="1" cellpadding="6">
+      <tr><th>Factor</th><th>Level</th></tr>
+      <tr><td>Weather Risk</td><td>High</td></tr>
+      <tr><td>Terrain / Obstacles</td><td>Low</td></tr>
+      <tr><td>Security Risk</td><td>High</td></tr>
+      <tr><td>Emergency Response</td><td>Moderate</td></tr>
+      <tr><td>Alternates Availability</td><td>Limited</td></tr>
+      <tr><td>Operational Reliability</td><td>Medium</td></tr>
+    </table>
+
+    <h3>Risk Summary</h3>
+    <p><strong>Primary Risk Category:</strong> Security / Environmental</p>
+    <p><strong>Risk Type:</strong> External-driven</p>
+    <p><strong>Overall Risk Level:</strong> High</p>
+
+    <h3>Top Risk Drivers:</h3>
+    <ul>
+      <li>Security-sensitive region</li>
+      <li>Harsh weather (heat, haze)</li>
+      <li>Limited infrastructure</li>
+      <li>Mixed operations</li>
+    </ul>
+
+    <h3>Operational Character</h3>
+    <p>Operational risk influenced strongly by external security and environmental conditions.</p>
+    
+    <h3>Accidents / Incidents</h3>
+    <ul>
+      <li>No major accidents (last 2 years)</li>
+      <li>Risk primarily external rather than incident-driven</li>
+   `   
+    },
+
+  ];
+
+  airfields.forEach(function(field) {
+
+    var icon = field.type === "Major Airport"
+  ? majorIcon
+  : field.type === "Minor Airport"
+  ? minorIcon
+  : field.type === "Air Base"
+  ? airbaseIcon
+  : airstripIcon;
+
+    var marker = L.marker(field.coords, { icon: icon });
+
+    // Popup — matches dashboard design: info left, D1-D5 domain table right
+    (function() {
+      var s = field.riskScore;
+      var riskColor = s >= 21 ? '#dc2626' : s >= 12 ? '#ea580c' : s >= 6 ? '#d97706' : '#16a34a';
+      var riskLbl   = s >= 21 ? 'EXTREME' : s >= 12 ? 'HIGH' : s >= 6 ? 'MEDIUM' : 'LOW';
+
+      // Per-domain scores — offset each domain from overall score
+      var domainOffsets = [-4, 4, -2, 3, -1];
+      function domainScore(i) { return Math.max(1, Math.min(25, s + domainOffsets[i])); }
+      function bandColor(v)   { return v >= 21 ? '#dc2626' : v >= 12 ? '#ea580c' : v >= 6 ? '#d97706' : '#16a34a'; }
+      function bandLabel(v)   { return v >= 21 ? 'EXTREME' : v >= 12 ? 'HIGH' : v >= 6 ? 'MEDIUM' : 'LOW'; }
+      var domains = [
+        'D1 – Airside Operations & Safety',
+        'D2 – Airport Infrastructure & Assets',
+        'D3 – Immediate Environs (0–10kms)',
+        'D4 – Civil Aviation Authority',
+        'D5 – Wider Airspace',
+      ];
+      var domainRows = domains.map(function(d, i) {
+        var ds = domainScore(i);
+        var c  = bandColor(ds); var lbl = bandLabel(ds);
+        return '<tr>'
+          + '<td style="padding:4px 8px 4px 0;font-size:11px;color:#374151;white-space:nowrap;">' + d + '</td>'
+          + '<td style="padding:4px 0;text-align:right;">'
+          + '<span style="display:inline-block;min-width:68px;padding:2px 8px;border-radius:3px;font-size:10px;font-weight:700;color:#fff;background:' + c + ';text-align:center;">' + lbl + '</span>'
+          + '</td></tr>';
+      }).join('');
+
+      marker.bindPopup(
+        '<img src="' + field.image + '" style="width:100%;height:260px;object-fit:cover;object-position:center;display:block;" onerror="this.style.background=\'#d1d5db\';this.removeAttribute(\'src\')">'
+        + '<div style="padding:10px 12px 0;">'
+        + '<div style="font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#111827;">' + field.name + '</div>'
+        + '<div style="font-size:11px;color:#6b7280;margin-bottom:1px;">ICAO: ' + field.code + '</div>'
+        + '<div style="font-size:11.5px;font-weight:600;color:#374151;margin-bottom:8px;">' + field.city.toUpperCase() + '</div>'
+        + '<div style="display:flex;gap:14px;align-items:flex-start;">'
+
+        // ── Left: info table ──────────────────────────────
+        + '<table style="flex:0 0 auto;border-collapse:collapse;font-size:11px;min-width:180px;">'
+        + '<tr><td style="color:#9ca3af;padding:2px 8px 2px 0;white-space:nowrap;">Time Zone</td><td style="color:#374151;font-weight:600;padding:2px 0;">' + field.timezone + '</td></tr>'
+        + '<tr><td style="color:#9ca3af;padding:2px 8px 2px 0;">Category</td><td style="color:#374151;font-weight:600;padding:2px 0;">' + field.category + '</td></tr>'
+        + '<tr><td style="color:#9ca3af;padding:2px 8px 2px 0;">Elevation</td><td style="color:#374151;font-weight:600;padding:2px 0;">' + (field.elevation || '–') + '</td></tr>'
+        + '<tr><td style="color:#9ca3af;padding:2px 8px 2px 0;">Runway</td><td style="color:#374151;font-weight:600;padding:2px 0;font-size:10.5px;">' + (field.runways || '–') + '</td></tr>'
+        + '<tr><td style="color:#9ca3af;padding:2px 8px 2px 0;white-space:nowrap;">ATC / Airspace</td><td style="color:#374151;font-weight:600;padding:2px 0;font-size:10.5px;">' + field.atc + '</td></tr>'
+        + '<tr><td style="color:#9ca3af;padding:2px 8px 2px 0;white-space:nowrap;">Night Operations</td><td style="color:#374151;font-weight:600;padding:2px 0;">' + (field.nightoperations || 'Yes') + '</td></tr>'
+        + '<tr><td style="color:#9ca3af;padding:2px 8px 2px 0;white-space:nowrap;">Fuel / Facilities</td><td style="color:#374151;font-weight:600;padding:2px 0;font-size:10.5px;">' + field.fuel + '</td></tr>'
+        + '</table>'
+
+        // ── Right: domain impact table ────────────────────
+        + '<div style="flex:1;min-width:0;">'
+        + '<div style="font-size:11px;color:#374151;margin-bottom:6px;">'
+        + 'Mean Impact Severity: <strong>' + s + '/25</strong> &nbsp;'
+        + '<span style="background:' + riskColor + ';color:#fff;font-size:10px;font-weight:700;padding:1px 7px;border-radius:3px;">' + riskLbl + '</span>'
+        + '</div>'
+        + '<table style="border-collapse:collapse;width:100%;">'
+        + '<thead><tr>'
+        + '<th style="font-size:9.5px;font-weight:600;color:#9ca3af;text-align:left;padding:0 8px 4px 0;letter-spacing:.04em;">Domain</th>'
+        + '<th style="font-size:9.5px;font-weight:600;color:#9ca3af;text-align:right;padding:0 0 4px;letter-spacing:.04em;">Impact Severity</th>'
+        + '</tr></thead>'
+        + '<tbody>' + domainRows + '</tbody>'
+        + '</table>'
+        + '</div>'
+
+        + '</div>'  // end flex row
+
+        // ── Additional Info ───────────────────────────────
+        + '<div style="margin-top:8px;padding-top:7px;border-top:1px solid #e5e7eb;">'
+        + '<span style="font-size:11px;font-weight:600;color:#374151;">Additional Info</span>'
+        + '</div>'
+
+        // ── Button ────────────────────────────────────────
+        + '<button onclick="openRiskPanel(\'' + field.code + '\')" style="display:block;width:100%;margin-top:8px;margin-bottom:10px;padding:7px 0;background:#1e3a5f;color:#fff;font-size:11.5px;font-weight:600;border:none;border-radius:5px;cursor:pointer;letter-spacing:.03em;">Airport Risk Assessment</button>'
+        + '</div>',
+        {
+          className: 'custom-popup',
+          closeButton: true,
+          minWidth: 620,
+          autoPan: true,
+          autoPanPaddingTopLeft: L.point(580, 140),
+          autoPanPaddingBottomRight: L.point(20, 20)
+        }
+      );
+    })();
+          
+
+marker.data = field; // attach data for search
+    markers.push(marker);
+
+    if (field.type === "Major Airport") {
+      marker.addTo(majorLayer);
+    } else if (field.type == "Minor Airport") {
+      marker.addTo(minorLayer);
+    } else if (field.type == "Airbase") {
+      marker.addTo(airbaseLayer);
+    } else {
+      marker.addTo(airstripLayer);
+    }
+
+  });
+
+ function getRiskLevel(score) {
+  if (score >= 21) return "Extreme";
+  if (score >= 12) return "High";
+  if (score >= 6) return "Moderate";
+  return "Low";
+}
+
+/* ── Risk Matrix helpers ── */
+function getMatrixCell(score) {
+  // Find L,I ∈ [1,5] where L×I is closest to score; prefer balanced (near diagonal)
+  var best = [3, 3], bestErr = Infinity;
+  for (var L = 1; L <= 5; L++) {
+    for (var I = 1; I <= 5; I++) {
+      var err = Math.abs(L * I - score);
+      var bal = Math.abs(L - I);
+      if (err < bestErr || (err === bestErr && bal < Math.abs(best[0] - best[1]))) {
+        bestErr = err; best = [L, I];
+      }
+    }
+  }
+  return best;
+}
+
+function buildRiskMatrix(score) {
+  var cell     = getMatrixCell(score);
+  var hl = cell[0], hi = cell[1];
+  var zoneBg   = function(v){ return v>=21?'#dc2626':v>=12?'#ea580c':v>=6?'#d97706':'#16a34a'; };
+  var lvlLabel = score>=21?'EXTREME':score>=12?'HIGH':score>=6?'MEDIUM':'LOW';
+  var lvlColor = zoneBg(score);
+  // Short labels — no overflow
+  var lLbls = ['Rare','Unlikely','Possible','Likely','Certain'];
+  var iLbls = ['Negligible','Minor','Major','Hazardous','Catastrophic'];
+
+  // Column headers: number only (full name in title tooltip)
+  var th = '<th class="rm-corner">Likelihood&nbsp;↓<br>Impact&nbsp;→</th>';
+  for (var I = 1; I <= 5; I++) {
+    th += '<th class="rm-th" title="' + iLbls[I-1] + '">' + I + '</th>';
+  }
+
+  var tbody = '';
+  for (var L = 1; L <= 5; L++) {
+    // Row header: bold number + small label below
+    var tr = '<td class="rm-lh" title="' + lLbls[L-1] + '"><b>' + L + '</b>' + lLbls[L-1] + '</td>';
+    for (var II = 1; II <= 5; II++) {
+      var v      = L * II;
+      var active = (L === hl && II === hi);
+      var style  = 'background:' + zoneBg(v) + ';' +
+                   (active
+                     ? 'opacity:1;box-shadow:0 0 0 2px white,0 0 0 3.5px ' + zoneBg(v) + ';position:relative;z-index:1;'
+                     : 'opacity:.42;font-weight:400;');
+      tr += '<td class="rm-cell" style="' + style + '">' + v + '</td>';
+    }
+    tbody += '<tr>' + tr + '</tr>';
+  }
+
+  // Colour-band legend
+  var legend =
+    '<div style="display:flex;gap:8px;margin-top:5px;flex-wrap:wrap;">' +
+      '<span style="font-size:8px;color:var(--text-3);display:flex;align-items:center;gap:3px;"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#16a34a;"></span>Low</span>' +
+      '<span style="font-size:8px;color:var(--text-3);display:flex;align-items:center;gap:3px;"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#d97706;"></span>Medium</span>' +
+      '<span style="font-size:8px;color:var(--text-3);display:flex;align-items:center;gap:3px;"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#ea580c;"></span>High</span>' +
+      '<span style="font-size:8px;color:var(--text-3);display:flex;align-items:center;gap:3px;"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#dc2626;"></span>Extreme</span>' +
+    '</div>';
+
+  return '<div class="rm-wrap">' +
+    '<div class="rm-hdr">Risk Score: <b>' + score + '/25</b> &nbsp;|&nbsp; Risk Level: <b style="color:' + lvlColor + '">' + lvlLabel + '</b></div>' +
+    '<table class="rm-tbl"><thead><tr>' + th + '</tr></thead><tbody>' + tbody + '</tbody></table>' +
+    legend +
+    '</div>';
+}
+function getNeedleRotation(score) {
+  // Convert 0–10 → -90 to +90 degrees
+  return (score / 25) * 180 - 90;
+}
+function openExtraPopup(code) {
+
+   var field = airfields.find(f => f.code === code);
+  if (!field) return;
+
+  const popup = document.querySelector(".leaflet-popup-content");
+  const extra = popup.querySelector("#extraPopup");
+
+  extra.innerHTML = `
+    <div style="text-align:right;">
+      <span onclick="this.parentElement.parentElement.style.display='none'" style="cursor:pointer;">✖</span>
+    </div>
+    <div style="line-height:1.5;">
+      ${field.extraInfo || "No additional info available."}
+    </div>
+  `;
+extra.style.display = "block";
+  document.getElementById("extraPopup").classList.add("show");
+  map.on('click', function() {
+  document.getElementById("extraPopup").classList.remove("show");
+});
+}
+
+// RISK PANEL — structured assessment layout
+function openRiskPanel(code) {
+  var field = airfields.find(f => f.code === code);
+  if (!field) return;
+
+  const riskColor = field.riskScore >= 21 ? '#dc2626' : field.riskScore >= 12 ? '#ea580c' : field.riskScore >= 6 ? '#d97706' : '#16a34a';
+  const riskLevel = getRiskLevel(field.riskScore);
+  const riskLevelUpper = riskLevel.toUpperCase();
+
+  // Per-domain scores — D2 is the primary driver (equals overall), others vary
+  var s = field.riskScore;
+  var d1Score = Math.max(1, s - 8);          // Airside — usually lower
+  var d2Score = s;                            // Infrastructure — primary driver
+  var d3Score = Math.max(1, Math.round(s/2));// Environs — moderate
+  var d4Score = s;                            // CAA — mirrors overall
+  var d5Score = Math.max(1, Math.round(s/2));// Airspace — usually lower
+
+  function domainLxI(score) {
+    var cell = getMatrixCell(score);
+    return cell[0] + '&times;' + cell[1] + '=' + score;
+  }
+  function domainBand(score) {
+    if (score >= 21) return '<td class="band-cell-extreme">EXTREME</td>';
+    if (score >= 12) return '<td class="band-cell-high">HIGH</td>';
+    if (score >= 6)  return '<td class="band-cell-medium">MEDIUM</td>';
+    return '<td class="band-cell-low">LOW</td>';
+  }
+
+  // Mass impact severity
+  var massSeverity = (field.riskScore / 16).toFixed(3);
+  var massLabel = field.riskScore >= 12 ? 'HIGH' : field.riskScore >= 6 ? 'MEDIUM' : 'LOW';
+  var massClass = field.riskScore >= 12 ? 'band-high' : field.riskScore >= 6 ? 'band-medium' : 'band-low';
+
+  // Status
+  var statusLabel = field.riskScore >= 21 ? 'DISRUPTED' : field.riskScore >= 12 ? 'ELEVATED' : 'OPERATIONAL';
+  var statusClass = field.riskScore >= 21 ? 'status-bar-red' : field.riskScore >= 12 ? 'status-bar-amber' : 'status-bar-green';
+
+  // Hub carrier logic
+  var hubCarrier = 'See airport website';
+  if (field.code === 'HKJK') hubCarrier = 'Kenya Airways (Hub)';
+  else if (field.code === 'HAAB') hubCarrier = 'Ethiopian Airlines (Hub)';
+  else if (field.code === 'HKMO') hubCarrier = 'None (primary diversion airport)';
+  else if (field.city && field.city.toLowerCase().includes('addis')) hubCarrier = 'Ethiopian Airlines (Hub)';
+  else if (field.code.startsWith('HK')) hubCarrier = 'Kenya Airways / Jambojet';
+  else if (field.code.startsWith('HA')) hubCarrier = 'Ethiopian Airlines';
+  else if (field.code.startsWith('HT')) hubCarrier = 'Air Tanzania';
+  else if (field.code.startsWith('HU') || field.code.startsWith('HR')) hubCarrier = 'RwandAir';
+
+  var globalCarriers = field.code.startsWith('HK') || field.code.startsWith('HA')
+    ? 'Emirates, Qatar Airways, Lufthansa, KLM, Ethiopian Airlines, Turkish Airlines, Air France, British Airways'
+    : field.code.startsWith('HT') || field.code.startsWith('HU')
+    ? 'Ethiopian Airlines, Kenya Airways, RwandAir, Emirates'
+    : 'Limited international access — see airport website';
+
+  var regionalFeeders = field.code.startsWith('HK')
+    ? 'Jambojet, Fly540, Precision Air, RwandAir, Uganda Airlines'
+    : field.code.startsWith('HA')
+    ? 'Ethiopian Airlines domestic network, Fly Africa, Jubba Airways'
+    : 'Regional operators — confirm with airport authority';
+
+  // Groundside risks from riskNote/riskReport
+  var arrivalsRisk = 'Elevated risk of unauthorised solicitation, profiling and distraction theft in the arrivals zone.';
+  var customsRisk  = 'Ongoing exposure to low-level corruption and informal payment requests; engage only with uniformed officials.';
+  var transportRisk = field.riskScore >= 12
+    ? 'Significant risk of in-traffic robbery and carjacking at road access chokepoints; use pre-verified, secure transport only.'
+    : 'Low-level crime and opportunistic theft at foot or vehicle traffic chokepoints, higher risk during 18:00–21:00 congestion periods.';
+
+  // Other headlines derived from riskScore
+  var departureTiming = field.riskScore >= 12
+    ? '3+ hour lead time strongly recommended. Terminal congestion, weather delays and security processing can extend pre-departure to 4 hours.'
+    : '2–3 hour lead time recommended. Minor congestion and seasonal weather may affect processing times.';
+  var infraReliability = field.riskScore >= 12
+    ? 'Frequent power fluctuations and intermittent BHS/FIDS reliability; backup systems partially operational.'
+    : 'Infrastructure broadly reliable; minor seasonal maintenance gaps noted.';
+  var transitRisk = field.riskScore >= 12
+    ? 'Ground-based transit to the final destination is currently the most volatile segment of the journey.'
+    : 'Flight operations are stable; transit risk is moderate and manageable with standard precautions.';
+
+  // Domain rationale
+  var today = new Date();
+  var monthYear = today.toLocaleString('en-GB', { month: 'long', year: 'numeric' });
+
+  var d1Note = field.riskNote || 'Residual labour grievances and low-level solicitation near arrivals present minor guarding lapses.';
+  var d2Note = 'Seasonal rains have induced infrastructure fragility, leading to terminal power fluctuations and intermittent BHS/FIDS reliability.';
+  var d3Note = 'Severe road degradation at entry and exit points has created static targets. Opportunistic criminality likely at congestion chokepoints.';
+  var d4Note = field.code.startsWith('HK')
+    ? 'Kenya Civil Aviation Authority (KCAA) oversight robust. All AOC statuses current with no pending ICAO "Notice of Concern".'
+    : 'Civil Aviation Authority oversight active. No pending regulatory concerns at time of publication.';
+  var d5Note = 'FIR remains secure. GNSS integrity is high with no reported targeted electronic interference within the domestic corridor.';
+
+  document.getElementById("panelContent").innerHTML = `
+    <!-- Panel Header -->
+    <div class="rp-header">
+      <div class="rp-name">${field.name.toUpperCase()} – ${field.code}</div>
+      <div class="rp-city">${field.city.toUpperCase()}</div>
+    </div>
+
+    <!-- Summary Info Table -->
+    <div class="rp-section">
+      <table class="rp-summary-table">
+        <tbody>
+          <tr>
+            <td class="rp-sum-label">Worst-Credible Domain</td>
+            <td class="rp-sum-val">D2 – Airport Infrastructure &amp; Assets</td>
+          </tr>
+          <tr>
+            <td class="rp-sum-label">Mass Impact Severity</td>
+            <td class="rp-sum-val">${massSeverity} &nbsp;<span class="${massClass}">${massLabel}</span></td>
+          </tr>
+          <tr>
+            <td class="rp-sum-label">Status</td>
+            <td class="rp-sum-val"><div class="status-bar ${statusClass}">${statusLabel}</div></td>
+          </tr>
+          <tr>
+            <td class="rp-sum-label">Active Disruptions</td>
+            <td class="rp-sum-val" style="font-size:11.5px;">Entry &amp; Exit Mobility / Solicitation / Strike / Infrastructure Fragility / Low-Level Criminality</td>
+          </tr>
+          <tr>
+            <td class="rp-sum-label">Last Update</td>
+            <td class="rp-sum-val">20 May 2026</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Narrative -->
+    <div class="rp-section">
+      <p class="rp-narrative">${field.riskReport || field.threatProfile || 'No report available.'}</p>
+    </div>
+
+    <!-- Domain-Based Impact Assessment -->
+    <div class="rp-section">
+      <div class="rp-sec-heading">Domain-Based Impact Assessment</div>
+      <p style="font-size:10.5px;color:var(--text-2);margin:4px 0 8px;line-height:1.5;">Five domains, scored against impact severity. Each row represents one operational domain. The working formula shown is: <strong>Likelihood (1–5) × Impact (1–5)</strong> | Impact Severity Bands: Low = 1–5, Medium = 6–10, High = 12–20, Extreme = 25</p>
+      <table class="rp-domain-table">
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>L&times;I</th>
+            <th>Impact Severity Band</th>
+            <th>Rationale (${monthYear})</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>D1 – Airside Operations &amp; Safety</td>
+            <td class="domain-lxi">${domainLxI(d1Score)}</td>
+            ${domainBand(d1Score)}
+            <td>${d1Note}</td>
+          </tr>
+          <tr>
+            <td>D2 – Airport Infrastructure &amp; Assets</td>
+            <td class="domain-lxi">${domainLxI(d2Score)}</td>
+            ${domainBand(d2Score)}
+            <td>${d2Note}</td>
+          </tr>
+          <tr>
+            <td>D3 – Immediate Environs (0–10km)</td>
+            <td class="domain-lxi">${domainLxI(d3Score)}</td>
+            ${domainBand(d3Score)}
+            <td>${d3Note}</td>
+          </tr>
+          <tr>
+            <td>D4 – Civil Aviation Authority</td>
+            <td class="domain-lxi">${domainLxI(d4Score)}</td>
+            ${domainBand(d4Score)}
+            <td>${d4Note}</td>
+          </tr>
+          <tr>
+            <td>D5 – Wider Airspace</td>
+            <td class="domain-lxi">${domainLxI(d5Score)}</td>
+            ${domainBand(d5Score)}
+            <td>${d5Note}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Servicing & Carriers -->
+    <div class="rp-section">
+      <div class="rp-sec-heading">Servicing &amp; Carriers</div>
+      <table class="rp-info-table">
+        <thead><tr><th>Who</th><th>Info</th></tr></thead>
+        <tbody>
+          <tr><td>Hub Carriers</td><td>${hubCarrier}</td></tr>
+          <tr><td>Global Carriers</td><td>${globalCarriers}</td></tr>
+          <tr><td>Regional Feeders</td><td>${regionalFeeders}</td></tr>
+          <tr><td>Strategic Use</td><td>Passenger hub, cargo, diplomatic and humanitarian operations</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Groundside & Personal Security -->
+    <div class="rp-section">
+      <div class="rp-sec-heading">Groundside &amp; Personal Security</div>
+      <table class="rp-info-table">
+        <thead><tr><th>Segment</th><th>Identified Risk</th></tr></thead>
+        <tbody>
+          <tr><td>Airside / Landside</td><td>${arrivalsRisk}</td></tr>
+          <tr><td>Customs &amp; Processing</td><td>${customsRisk}</td></tr>
+          <tr><td>Ground Transport</td><td>${transportRisk}</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Other Headlines -->
+    <div class="rp-section">
+      <div class="rp-sec-heading">Other Realities</div>
+      <table class="rp-info-table">
+        <thead><tr><th>Factor</th><th>Commentary</th></tr></thead>
+        <tbody>
+          <tr><td>Departure Timing</td><td>${departureTiming}</td></tr>
+          <tr><td>Infrastructure Reliability</td><td>${infraReliability}</td></tr>
+          <tr><td>Transit Risk</td><td>${transitRisk}</td></tr>
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  document.getElementById("infoPanel").classList.add("show");
+  // Close popup when panel opens
+  map.closePopup();
+}
+
+document.getElementById("closePanel").onclick = function() {
+  document.getElementById("infoPanel").classList.remove("show");
+};
+
+function toggleAcc(header) {
+  const body    = header.nextElementSibling;
+  const chevron = header.querySelector('.acc-chevron');
+  const isOpen  = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  chevron.classList.toggle('open', !isOpen);
+}
+
+  var focusMode = false;
+  var activeMarker = null;
+  // SEARCH FUNCTION
+  function searchAirport() {
+    var query = document.getElementById("searchInput").value.toLowerCase();
+
+    var found = markers.find(m =>
+      m.data.name.toLowerCase().includes(query) ||
+      m.data.code.toLowerCase() === query
+    );
+
+    if (found) {
+      map.setView(found.getLatLng(), 10);
+      found.openPopup();
+activeMarker = found;
+
+      if (focusMode) {
+        applyFocus(found);
+      }
+    } else {
+      alert("Airport not found");
+    }
+  }
+function getType(feature) {
+  const p = feature.properties;
+
+  const typeMap = {
+    1: "Restricted",
+    2: "Danger",
+    3: "Prohibited",
+    4: "CTR",
+    10: "FIR",
+    13: "AFIS"
+    
+  };
+
+  if (p.type !== undefined) {
+    return typeMap[p.type] || "OTHER";
+  }
+}
+
+function onEachAirspace(feature, layer) {
+  const p = feature.properties;
+
+  const name = p.name || p.NAME || "Airspace";
+  const type = getType(feature);
+  layer.bindPopup(`
+    <b>${name}</b><br>
+    <b>Type:</b> ${type}<br>
+    <b>ICAO Class:</b> ${feature.properties.icaoClass || "N/A"}<br>
+    <b>Lower Limit:</b> ${p.lowerLimit?.value ?? "N/A"} ft<br>
+    <b>Upper Limit:</b> ${p.upperLimit?.value ?? "N/A"} ft<br>
+  `, { autoPan: true, autoPanPaddingTopLeft: L.point(330, 140), autoPanPaddingBottomRight: L.point(20, 20) });
+}
+function getACLEDColor(type) {
+
+  if (!type) return "#999";
+
+  type = type.toLowerCase();
+
+  if (type.includes("battle")) return "#ef4444";        // red
+  if (type.includes("violence")) return "#f97316";      // orange
+  if (type.includes("protest")) return "#3b82f6";       // blue
+  if (type.includes("riot")) return "#a855f7";          // purple
+
+  return "#10b981"; // green default
+}
+function getFatalityColor(f) {
+  f = Number(f);
+
+  if (isNaN(f) || f === 0) return "#10b981";   // green
+  if (f <= 1) return "#3b82f6";                // blue
+  if (f <= 4) return "#f59e0b";                // amber
+  if (f <= 10) return "#f97316";               // orange
+  return "#ef4444";                            // red
+}
+function applyACLEDDateFilter() {
+  const fromValue = document.getElementById("acledFrom").value;
+  const toValue = document.getElementById("acledTo").value;
+
+  const fromDate = fromValue ? new Date(fromValue + "T00:00:00") : null;
+  const toDate = toValue ? new Date(toValue + "T23:59:59") : null;
+
+  const filtered = acledData.filter(row => {
+    const d = row.eventDateObj;
+    if (fromDate && d < fromDate) return false;
+    if (toDate && d > toDate) return false;
+    return true;
+  });
+
+ drawACLED(filtered);
+  updateACLEDStatus(`Showing ${filtered.length} ACLED events`);
+}
+
+function resetACLEDFilter() {
+  document.getElementById("acledFrom").value = "";
+  document.getElementById("acledTo").value = "";
+
+  const latest = acledData.slice(0, DEFAULT_ACLED_LIMIT);
+  drawACLED(latest);
+  updateACLEDStatus(`Showing latest ${latest.length} ACLED events`);
+}
+
+function updateACLEDStatus(text) {
+  document.getElementById("acledStatus").textContent = text;
+}
+  // FOCUS MODE (hide others)
+  function applyFocus(marker) {
+    majorLayer.clearLayers();
+    minorLayer.clearLayers();
+    airbaseLayer.clearLayers();
+    airstripLayer.clearLayers();
+
+    marker.addTo(map);
+}
+
+  // Restore all markers
+  function restoreAll() {
+    majorLayer.clearLayers();
+    minorLayer.clearLayers();
+    airbaseLayer.clearLayers();
+    airstripLayer.clearLayers();
+
+    markers.forEach(function(m) {
+      if (m.data.type === "Major Airport") {
+        m.addTo(majorLayer);
+      } else if (m.data.type == "Minor Airport") {
+        m.addTo(minorLayer);
+      } else if (m.data.type == "Airbase") {
+        m.addTo(airbaseLayer);
+      } else {
+        m.addTo(airstripLayer);
+      }
+    });
+  }
+// Toggle focus mode
+  function toggleFocusMode() {
+    focusMode = document.getElementById("focusMode").checked;
+
+    if (!focusMode) {
+      restoreAll();
+    } else if (activeMarker) {
+      applyFocus(activeMarker);
+    }
+  }
+
+// ══════════════════════════════════════════════════
+//  CUSTOM LAYER TREE — panel, toggles, base maps
+// ══════════════════════════════════════════════════
+
+// Layer key → Leaflet layer
+var layerRegistry = {
+  major:           majorLayer,
+  minor:           minorLayer,
+  airbase:         airbaseLayer,
+  airstrip:        airstripLayer,
+  acled:           acledLayer,
+  ctr:             ctrLayer,
+  tma:             tmaLayer,
+  fir:             firLayer,
+  prohibited:      prohibitedLayer,
+  danger:          dangerLayer,
+  afis:            afisLayer,
+  restricted:      restrictedLayer,
+  flights:         flightLayer,
+  weather:         weatherLayer,
+  'security-feed': securityFeedLayer,
+  regulation:      regulationLayer,
+  commercial:      commercialLayer,
+  infrastructure:  infrastructureLayer,
+  asn:             asnLayer,
+};
+
+// ── Bucket master toggle ───────────────────────────────────────
+function toggleBucketLayers(bucketId, checked, event) {
+  if (event) event.stopPropagation();
+  if (bucketId === 'live-flights') {
+    toggleLayer('flights', checked);
+    if (checked) applyFlightFilter();  // re-apply airline filter after layer is re-added
+    return;
+  }
+  var body = document.getElementById('body-' + bucketId);
+  if (!body) return;
+  body.querySelectorAll('input[type=checkbox]').forEach(function(ck) {
+    if (ck.classList.contains('lp-bucket-ck')) return;
+    ck.checked = checked;
+    ck.dispatchEvent(new Event('change'));
+  });
+}
+
+// ── ASN — Aviation Safety Network static incidents ────────────
+var asnIncidents = [
+  // ── Ethiopian Airlines ─────────────────────────────────────
+  { lat:8.88,  lon:39.34, cs:'ET302',  date:'2019-03-10', ac:'Boeing 737 MAX 8',         op:'Ethiopian Airlines',      fat:157, desc:'Crashed shortly after takeoff from ADD; MCAS malfunction implicated. All 157 killed.' },
+  { lat:9.03,  lon:38.75, cs:'ET961',  date:'1996-11-23', ac:'Boeing 767-260ER',          op:'Ethiopian Airlines',      fat:125, desc:'Hijacked, fuel exhausted; ditched in Indian Ocean off Comoros. 125 killed.' },
+  { lat:33.82, lon:35.49, cs:'ET409',  date:'2010-01-25', ac:'Boeing 737-800',            op:'Ethiopian Airlines',      fat:90,  desc:'Crashed into sea off Beirut shortly after takeoff; cause undetermined. 90 killed.' },
+  { lat:9.00,  lon:38.77, cs:'ET705',  date:'2003-05-24', ac:'Boeing 737-200',            op:'Ethiopian Airlines',      fat:0,   desc:'Runway overrun on landing at ADD after hydraulic problem. No fatalities.' },
+  { lat:8.98,  lon:38.80, cs:'ET812',  date:'2026-04-10', ac:'Airbus A350-900',           op:'Ethiopian Airlines',      fat:0,   desc:'Spurious cargo door light on approach; returned to ADD. False alarm confirmed.' },
+  { lat:9.01,  lon:38.76, cs:'ET501',  date:'2025-03-15', ac:'Boeing 737 MAX 8',          op:'Ethiopian Airlines',      fat:0,   desc:'Runway incursion during night operations at ADD; no collision or injuries.' },
+  { lat:8.97,  lon:38.76, cs:'ET627',  date:'2024-02-04', ac:'Boeing 787-9',              op:'Ethiopian Airlines',      fat:0,   desc:'Bird strike on takeoff from ADD; returned for inspection. No injuries.' },
+
+  // ── Kenya Airways / East African Airways ───────────────────
+  { lat:-3.98, lon:9.72,  cs:'KQ507',  date:'2007-05-05', ac:'Boeing 737-800',            op:'Kenya Airways',           fat:114, desc:'Crashed into swamp near Douala shortly after takeoff. 114 killed.' },
+  { lat:5.35,  lon:-3.93, cs:'KQ431',  date:'2000-01-30', ac:'Boeing 737-200',            op:'Kenya Airways',           fat:169, desc:'Crashed into sea off Abidjan coast shortly after takeoff. All 169 killed.' },
+  { lat:-3.07, lon:37.37, cs:'KQ101',  date:'1974-11-20', ac:'Boeing 707-351C',           op:'East African Airways',    fat:59,  desc:'Crashed into Mount Kilimanjaro on descent to HTDA. 59 killed.' },
+  { lat:-1.29, lon:36.82, cs:'KQ410',  date:'2026-05-02', ac:'Boeing 737-800',            op:'Kenya Airways',           fat:0,   desc:'Bird strike during landing rollout at HKJK; minor engine damage, no injuries.' },
+  { lat:-1.29, lon:36.82, cs:'KQ305',  date:'2025-07-22', ac:'Boeing 787-8',              op:'Kenya Airways',           fat:0,   desc:'Hydraulic anomaly on approach to HKJK; landed safely with emergency services on standby.' },
+  { lat:-1.31, lon:36.83, cs:'KQ621',  date:'2018-07-16', ac:'Embraer E190',              op:'Kenya Airways',           fat:0,   desc:'Rejected takeoff at HKJK due to engine vibration alert. No injuries.' },
+
+  // ── Precision Air / Air Tanzania ───────────────────────────
+  { lat:-1.21, lon:31.80, cs:'PW494',  date:'2012-11-12', ac:'ATR 42-320',                op:'Precision Air',           fat:19,  desc:'Ditched in Lake Victoria near Bukoba after fuel starvation. 19 of 43 killed.' },
+  { lat:-6.88, lon:39.21, cs:'TC101',  date:'2014-09-05', ac:'Bombardier Q300',           op:'Air Tanzania',            fat:0,   desc:'Hard landing at HTDA; nose gear collapsed on rollout. No fatalities.' },
+  { lat:-3.43, lon:37.07, cs:'ATC201', date:'1993-06-12', ac:'Boeing 737-200',            op:'Air Tanzania',            fat:50,  desc:'Crashed at Kilimanjaro International Airport in poor visibility. 50 killed.' },
+  { lat:-6.88, lon:39.20, cs:'TC511',  date:'2017-11-11', ac:'ATR 42-320',                op:'Coastal Aviation',        fat:11,  desc:'Crashed into Lake Victoria near Bukoba; 11 killed, 4 survived.' },
+  { lat:-6.84, lon:37.67, cs:'CZA201', date:'2013-08-05', ac:'Cessna 208B Caravan',       op:'Coastal Aviation',        fat:4,   desc:'Crashed on approach to Dodoma in IMC. 4 killed.' },
+
+  // ── Sudan / South Sudan ─────────────────────────────────────
+  { lat:15.59, lon:32.55, cs:'SAW311', date:'2003-02-08', ac:'Boeing 737-200',            op:'Sudan Airways',           fat:116, desc:'Crashed shortly after takeoff from Khartoum. 116 killed.' },
+  { lat:15.60, lon:32.55, cs:'SD501',  date:'2008-07-10', ac:'Antonov An-24RV',           op:'Sudan Airways',           fat:30,  desc:'Runway excursion at Khartoum; aircraft caught fire. 30 killed.' },
+  { lat:15.59, lon:32.56, cs:'SU101',  date:'2024-09-21', ac:'Airbus A320',               op:'Sudan Airways',           fat:0,   desc:'Fuel leak detected in cruise; diverted to Port Sudan. Landed safely.' },
+  { lat:4.87,  lon:31.60, cs:'SS201',  date:'2013-11-04', ac:'Antonov An-26',             op:'South Sudan Airlines',    fat:42,  desc:'Crashed near Juba; 42 passengers killed on impact.' },
+  { lat:8.40,  lon:30.56, cs:'SS101',  date:'2016-03-14', ac:'Antonov An-72',             op:'Sky Aviation S. Sudan',   fat:0,   desc:'Wheels-up landing at Malakal due to gear failure. Crew survived.' },
+  { lat:4.87,  lon:31.61, cs:'S9CH01', date:'2026-01-14', ac:'Cessna Grand Caravan',      op:'South Sudan Charter',     fat:6,   desc:'Crashed on approach to Juba in fog; 6 of 8 on board killed.' },
+
+  // ── Somalia / Horn of Africa ────────────────────────────────
+  { lat:2.01,  lon:45.31, cs:'SO201',  date:'1993-09-22', ac:'Boeing 707',                op:'Somali Airlines',         fat:0,   desc:'Aircraft destroyed on ground at Mogadishu during armed conflict. No crew aboard.' },
+  { lat:2.33,  lon:44.49, cs:'SO101',  date:'2009-08-09', ac:'Ilyushin Il-76',            op:'Daallo Airlines',         fat:0,   desc:'Engine fire on takeoff from Mogadishu; emergency stop on runway. No fatalities.' },
+  { lat:11.52, lon:43.13, cs:'D3159',  date:'2016-02-02', ac:'Airbus A321',               op:'Daallo Airlines',         fat:1,   desc:'Bomb exploded mid-flight, blew hole in fuselage; aircraft landed at HADC. 1 killed (bomber).' },
+  { lat:2.01,  lon:45.32, cs:'D3801',  date:'2025-11-08', ac:'ATR 72-600',                op:'Daallo Airlines',         fat:0,   desc:'Tyre burst on landing at Aden Adde; aircraft stopped safely. No injuries.' },
+  { lat:11.55, lon:43.17, cs:'JW201',  date:'2026-03-05', ac:'Boeing 737-800',            op:'Jubba Airways',           fat:0,   desc:'Aborted landing at HADC due to vehicle on runway; went around, landed on second attempt.' },
+
+  // ── DRC Congo ───────────────────────────────────────────────
+  { lat:-4.32, lon:15.45, cs:'CAD301', date:'2011-07-08', ac:'CASA CN-235',               op:'Hewa Bora Airways',       fat:74,  desc:'Crashed near Kisangani; broke apart in jungle. 74 of 118 killed.' },
+  { lat:0.51,  lon:25.19, cs:'HBK201', date:'2008-04-15', ac:'Antonov An-26',             op:'Hewa Bora Airways',       fat:13,  desc:'Crashed on approach to Kindu airport. 13 killed.' },
+  { lat:-4.38, lon:15.44, cs:'CAD101', date:'1996-01-08', ac:'Antonov An-32',             op:'African Air Services',    fat:237, desc:'Crashed on takeoff from Kinshasa-Ndolo; ploughed into crowded market. 237 killed.' },
+  { lat:-2.50, lon:28.80, cs:'ZAR201', date:'2004-11-17', ac:'Boeing 727-100',            op:'Wimbi Dira Airways',      fat:0,   desc:'Overran runway at Bukavu on landing; no fatalities.' },
+
+  // ── Comoros / Indian Ocean ──────────────────────────────────
+  { lat:-11.70,lon:43.24, cs:'YC626',  date:'2009-06-30', ac:'Airbus A310-300',           op:'Yemenia',                 fat:152, desc:'Crashed into Indian Ocean approaching Moroni. 152 killed; 1 survivor.' },
+
+  // ── Uganda ──────────────────────────────────────────────────
+  { lat:0.04,  lon:32.44, cs:'EA001',  date:'1976-07-04', ac:'Airbus A300B4',             op:'Air France (hijack)',     fat:4,   desc:'Hijacked to Entebbe; Israeli rescue operation. 4 hostages and all hijackers killed.' },
+  { lat:0.04,  lon:32.44, cs:'U7301',  date:'2010-04-16', ac:'CRJ-100ER',                 op:'Air Uganda',              fat:0,   desc:'Hydraulic failure on approach to Entebbe; emergency landing. No injuries.' },
+
+  // ── Burundi ─────────────────────────────────────────────────
+  { lat:-3.32, lon:29.32, cs:'QU201',  date:'2009-10-21', ac:'ATR 42',                    op:'Air Burundi',             fat:0,   desc:'Runway excursion at Bujumbura airport on landing. No injuries.' },
+
+  // ── Djibouti ────────────────────────────────────────────────
+  { lat:11.55, lon:43.16, cs:'FX8321', date:'2011-09-03', ac:'McDonnell Douglas DC-8',    op:'FedEx Express',           fat:0,   desc:'Tail strike on takeoff from HADC; declared emergency, returned and landed safely.' },
+
+  // ── Rwanda ──────────────────────────────────────────────────
+  { lat:-1.97, lon:30.13, cs:'WB101',  date:'2015-09-30', ac:'CRJ-900',                   op:'RwandAir',                fat:0,   desc:'Runway excursion on landing at Kigali-Kanombe. No fatalities.' },
+
+  // ── South Africa / Southern Africa ─────────────────────────
+  { lat:-26.10,lon:28.22, cs:'SA295',  date:'1987-11-28', ac:'Boeing 747-244B',           op:'South African Airways',  fat:159, desc:'Caught fire and crashed into Indian Ocean south of Mauritius. 159 killed.' },
+
+  // ── Kenya — small aviation ──────────────────────────────────
+  { lat:-1.13, lon:37.00, cs:'WIL201', date:'2014-08-14', ac:'Cessna 208 Caravan',        op:'SafariLink Aviation',     fat:0,   desc:'Hard landing at Wilson Airport, Nairobi. No injuries.' },
+  { lat:-3.42, lon:36.68, cs:'AML201', date:'2018-02-05', ac:'Cessna 208B Caravan',       op:'Amref Aviation',          fat:4,   desc:'Crashed on approach to Arusha; 4 killed including medical crew.' },
+
+  // ── West / North Africa (regional relevance) ───────────────
+  { lat:16.27, lon:-1.55, cs:'AH5017', date:'2014-07-24', ac:'McDonnell Douglas MD-83',   op:'Air Algérie',             fat:116, desc:'Crashed in Mali during severe thunderstorm. 116 killed.' },
+  { lat:33.50, lon:28.50, cs:'MS804',  date:'2016-05-19', ac:'Airbus A320-232',           op:'EgyptAir',                fat:66,  desc:'Disappeared over Mediterranean en route Cairo–Paris. 66 killed.' },
+  { lat:5.35,  lon:-3.93, cs:'KQ431',  date:'2000-01-30', ac:'Boeing 737-200',            op:'Kenya Airways',           fat:169, desc:'Crashed into sea off Abidjan shortly after takeoff. All 169 killed.' },
+];
+
+function asnIcon(fat) {
+  var c = fat === 0 ? '#f59e0b' : fat < 50 ? '#ef4444' : '#7f1d1d';
+  return L.divIcon({
+    html: '<div style="width:12px;height:12px;border-radius:50%;background:' + c + ';border:2px solid rgba(255,255,255,.7);box-shadow:0 0 4px ' + c + '99;"></div>',
+    className: '', iconSize: [12, 12], iconAnchor: [6, 6]
+  });
+}
+
+function drawASN(data) {
+  asnLayer.clearLayers();
+  data.forEach(function(inc) {
+    var m = L.marker([inc.lat, inc.lon], { icon: asnIcon(inc.fat) });
+    m.bindPopup(
+      '<div style="font-family:\'Inter\',sans-serif;min-width:210px;padding:2px;">' +
+      '<div style="display:inline-block;background:rgba(239,68,68,.15);color:#ef4444;font-size:9px;font-weight:800;padding:1px 7px;border-radius:3px;border:1px solid rgba(239,68,68,.35);margin-bottom:7px;letter-spacing:.06em;">ASN INCIDENT</div>' +
+      '<div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;">' + inc.cs + ' · ' + inc.date + '</div>' +
+      '<table style="font-size:11.5px;width:100%;border-collapse:collapse;">' +
+        '<tr><td style="color:var(--text-2);padding:3px 0;width:40%;">Operator</td><td style="font-weight:600;color:var(--text);">' + inc.op + '</td></tr>' +
+        '<tr><td style="color:var(--text-2);padding:3px 0;">Aircraft</td><td style="font-weight:600;color:var(--text);">' + inc.ac + '</td></tr>' +
+        '<tr><td style="color:var(--text-2);padding:3px 0;">Fatalities</td><td style="font-weight:700;color:' + (inc.fat > 0 ? '#ef4444' : '#10b981') + ';">' + inc.fat + '</td></tr>' +
+      '</table>' +
+      '<div style="margin-top:8px;font-size:11px;color:var(--text-2);line-height:1.5;">' + inc.desc + '</div>' +
+      '</div>',
+      {
+        autoPan: true,
+        autoPanPaddingTopLeft: L.point(330, 140),
+        autoPanPaddingBottomRight: L.point(20, 20)
+      }
+    );
+    m.addTo(asnLayer);
+  });
+}
+
+drawASN(asnIncidents);
+
+function applyASNDateFilter() {
+  var fromValue = document.getElementById('asnFrom').value;
+  var toValue   = document.getElementById('asnTo').value;
+  var fromDate  = fromValue ? new Date(fromValue + 'T00:00:00') : null;
+  var toDate    = toValue   ? new Date(toValue   + 'T23:59:59') : null;
+  var filtered  = asnIncidents.filter(function(inc) {
+    var d = new Date(inc.date);
+    if (fromDate && d < fromDate) return false;
+    if (toDate   && d > toDate)   return false;
+    return true;
+  });
+  drawASN(filtered);
+}
+
+function resetASNFilter() {
+  document.getElementById('asnFrom').value = '';
+  document.getElementById('asnTo').value   = '';
+  drawASN(asnIncidents);
+}
+
+function toggleLayer(key, show) {
+  var layer = layerRegistry[key];
+  if (!layer) return;
+  if (show) { if (!map.hasLayer(layer)) map.addLayer(layer); }
+  else       { if (map.hasLayer(layer))  map.removeLayer(layer); }
+}
+
+// ── POPUP GUARD — keep popups out of the top-left control zone ──
+// Protected zone: 330 px wide × 145 px tall (search bar + focus toggle + margin).
+// Strategy 1: set autoPanPaddingTopLeft globally on every new popup.
+// Strategy 2: on popupopen, detect screen overlap and pan the map to clear it.
+
+// Global defaults — applies to every popup created after this point
+if (L && L.Popup && L.Popup.prototype) {
+  L.Popup.prototype.options.autoPan                   = true;
+  L.Popup.prototype.options.autoPanPaddingTopLeft      = L.point(330, 145);
+  L.Popup.prototype.options.autoPanPaddingBottomRight  = L.point(20, 20);
+}
+
+// Per-open check — handles markers that are already in-view near the controls
+// (autoPanPadding alone won't fire when no viewport-edge clipping occurs)
+map.on('popupopen', function (e) {
+  requestAnimationFrame(function () {
+    var GUARD_X = 330;   // px — search bar width + margin
+    var GUARD_Y = 145;   // px — search (55 px) + focus toggle (105 px) + margin
+
+    var popupEl = (e.popup.getElement ? e.popup.getElement() : null)
+                  || document.querySelector('.leaflet-popup');
+    if (!popupEl) return;
+
+    var mapEl   = map.getContainer();
+    var popRect = popupEl.getBoundingClientRect();
+    var mapRect = mapEl.getBoundingClientRect();
+
+    // Popup bounds relative to the map container origin
+    var popLeft   = popRect.left   - mapRect.left;
+    var popTop    = popRect.top    - mapRect.top;
+    var popRight  = popRect.right  - mapRect.left;
+    var popBottom = popRect.bottom - mapRect.top;
+
+    var overlapsX = popLeft < GUARD_X && popRight  > 0;
+    var overlapsY = popTop  < GUARD_Y && popBottom > 0;
+
+    if (overlapsX && overlapsY) {
+      // panBy([-x, -y]) shifts the viewport left/up → popup moves right/down on screen
+      var shiftX = Math.ceil(GUARD_X - popLeft) + 20;
+      var shiftY = Math.ceil(GUARD_Y - popTop)  + 20;
+      map.panBy([-shiftX, -shiftY], { animate: true, duration: 0.25 });
+    }
+  });
+});
+
+// ── FULLSCREEN ─────────────────────────────────────────────
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    (document.documentElement.requestFullscreen
+      || document.documentElement.webkitRequestFullscreen
+      || document.documentElement.mozRequestFullScreen
+      || function(){}).call(document.documentElement);
+  } else {
+    (document.exitFullscreen
+      || document.webkitExitFullscreen
+      || document.mozCancelFullScreen
+      || function(){}).call(document);
+  }
+}
+
+function _updateFsBtn() {
+  var isFs = !!document.fullscreenElement;
+  document.getElementById('fsIconExpand').style.display   = isFs ? 'none'  : '';
+  document.getElementById('fsIconCompress').style.display = isFs ? ''      : 'none';
+  document.getElementById('fsLabel').textContent          = isFs ? 'Exit Fullscreen' : 'Fullscreen';
+}
+document.addEventListener('fullscreenchange',       _updateFsBtn);
+document.addEventListener('webkitfullscreenchange', _updateFsBtn);
+document.addEventListener('mozfullscreenchange',    _updateFsBtn);
+
+// ── DATE & TIME FILTER WIDGET ──────────────────────────────
+var _dtfOpen = false;
+var _dtfActivePanel = null;
+
+function toggleDTFDropdown() {
+  _dtfOpen = !_dtfOpen;
+  document.getElementById('dtf-dropdown').classList.toggle('dtf-show', _dtfOpen);
+  document.getElementById('dtf-trigger').classList.toggle('dtf-open', _dtfOpen);
+  if (!_dtfOpen) {
+    // collapse panels when closing
+    ['acled','asn'].forEach(function(k) {
+      document.getElementById('dtf-panel-' + k).classList.remove('dtf-panel-show');
+      document.getElementById('dtf-item-' + k).classList.remove('dtf-active');
+    });
+    _dtfActivePanel = null;
+  }
+}
+
+function toggleDTFPanel(key) {
+  var isSame = _dtfActivePanel === key;
+  // collapse all
+  ['acled','asn'].forEach(function(k) {
+    document.getElementById('dtf-panel-' + k).classList.remove('dtf-panel-show');
+    document.getElementById('dtf-item-' + k).classList.remove('dtf-active');
+  });
+  if (!isSame) {
+    document.getElementById('dtf-panel-' + key).classList.add('dtf-panel-show');
+    document.getElementById('dtf-item-' + key).classList.add('dtf-active');
+    _dtfActivePanel = key;
+  } else {
+    _dtfActivePanel = null;
+  }
+}
+
+// Close DTF dropdown when clicking outside
+document.addEventListener('click', function(e) {
+  var widget = document.getElementById('dtf-widget');
+  if (_dtfOpen && widget && !widget.contains(e.target)) {
+    _dtfOpen = false;
+    document.getElementById('dtf-dropdown').classList.remove('dtf-show');
+    document.getElementById('dtf-trigger').classList.remove('dtf-open');
+    ['acled','asn'].forEach(function(k) {
+      document.getElementById('dtf-panel-' + k).classList.remove('dtf-panel-show');
+      document.getElementById('dtf-item-' + k).classList.remove('dtf-active');
+    });
+    _dtfActivePanel = null;
+  }
+});
+
+// Panel open/close
+var _lpOpen = true;
+function toggleLayerPanel() {
+  _lpOpen = !_lpOpen;
+  document.getElementById('layerPanel').classList.toggle('lp-hidden', !_lpOpen);
+}
+
+// Bucket accordion
+function toggleBucket(id) {
+  var body = document.getElementById('body-' + id);
+  var chev = document.getElementById('chev-' + id);
+  var open = body.classList.contains('lp-open');
+  body.classList.toggle('lp-open', !open);
+  chev.classList.toggle('lp-open', !open);
+}
+
+// Base map switcher
+var _baseLayers = { light: lightMap, dark: darkMap, satellite: esriSat, osm: osm };
+var _currentBase = osm;
+function setBaseMap(key) {
+  map.removeLayer(_currentBase);
+  _currentBase = _baseLayers[key];
+  map.addLayer(_currentBase);
+}
+
+// Called from parent index.html when role changes
+function setMapRole(isOperator) {
+  var lbl = document.getElementById('kqFilterLabel');
+  if (lbl) lbl.textContent = isOperator ? 'My Flights (KQ)' : 'Kenya Airways';
+}
+
+// Map from IATA code (filter UI) → full airline name (stored on marker)
+var IATA_TO_AIRLINE = {
+  'KQ': 'Kenya Airways',
+  'ET': 'Ethiopian Airlines',
+  'U7': 'Uganda Airlines',
+  'WB': 'RwandAir',
+  'TC': 'Air Tanzania',
+  'JM': 'Jambojet',
+  'SL': 'Skyline Express',
+  'PW': 'Precision Air',
+};
+
+var _flightFilter = 'all';
+function setFlightFilter(mode) {
+  _flightFilter = mode;
+  applyFlightFilter();
+}
+function applyFlightFilter() {
+  var targetAirline = _flightFilter === 'all' ? null : (IATA_TO_AIRLINE[_flightFilter] || _flightFilter);
+  // Iterate simFlightMarkers directly — more reliable than flightLayer.eachLayer
+  Object.keys(simFlightMarkers).forEach(function(cs) {
+    var m = simFlightMarkers[cs];
+    if (!m) return;
+    var show = !targetAirline || m._airline === targetAirline;
+    // Use display rather than opacity — works on DivIcon regardless of DOM state
+    var el = m._icon || (m.getElement && m.getElement());
+    if (el) {
+      el.style.opacity = show ? '1' : '0.1';
+      el.style.pointerEvents = show ? '' : 'none';
+    }
+  });
+}
+
+// ══════════════════════════════════════════════════
+//  LIVE UPDATES — geolocated newsfeed markers
+// ══════════════════════════════════════════════════
+var _countryCoords = {
+  'KENYA':        [-1.286, 36.820],
+  'SUDAN':        [15.501, 32.560],
+  'UGANDA':       [ 0.347, 32.583],
+  'ETHIOPIA':     [ 9.032, 38.747],
+  'SOMALIA':      [ 2.046, 45.318],
+  'BURUNDI':      [-3.381, 29.361],
+  'TANZANIA':     [-6.369, 34.889],
+  'EGYPT':        [26.820, 30.802],
+  'SAUDI ARABIA': [23.886, 45.079],
+  'RWANDA':       [-1.940, 29.874],
+  'DRC':          [-4.038, 21.759],
+  'DJIBOUTI':     [11.825, 42.590],
+};
+
+var _feedItems = [
+  { cat:'WEATHER',        country:'KENYA',        time:'30m ago', color:'#f59e0b',
+    headline:'Nairobi (HKJK): MVFR Conditions — BKN Ceiling 1600ft',
+    body:'Visibility reduced to 6 miles in light rain; winds 120° at 5 kts.' },
+  { cat:'SECURITY',       country:'SUDAN',        time:'2h ago',  color:'#ef4444',
+    headline:'Port Sudan Airspace Restricted Above FL200',
+    body:'NOTAM issued for high-altitude transits due to localised kinetic activity.' },
+  { cat:'REGULATION',     country:'UGANDA',       time:'5h ago',  color:'#7c3aed',
+    headline:'Entebbe Runway 17/35 Maintenance Notice Issued',
+    body:'Reduced RESA margin. KQA902/PW506 Entebbe ops today affected.' },
+  { cat:'WEATHER',        country:'ETHIOPIA',     time:'3h ago',  color:'#f59e0b',
+    headline:'CB Activity on HKJK–HAAB Corridor — Ethiopian Airlines Advisory',
+    body:'Significant convective cells developing FL240–FL360.' },
+  { cat:'SECURITY',       country:'SOMALIA',      time:'8h ago',  color:'#ef4444',
+    headline:'Mogadishu Airspace Security Protocols Tightened',
+    body:'Increased electronic interference signals in Aden Adde approach path.' },
+  { cat:'COMMERCIAL',     country:'ETHIOPIA',     time:'12h ago', color:'#1a6fe8',
+    headline:'New Domestic Hubs Opening in Ethiopia',
+    body:'SOBUGEA announces 5% hike in turnaround fees for wide-body aircraft.' },
+  { cat:'REGULATION',     country:'BURUNDI',      time:'18h ago', color:'#7c3aed',
+    headline:'Bujumbura Ground Handling Fee Restructuring',
+    body:'Unified ATC standards implementation delayed to Q4 2026.' },
+  { cat:'INFRASTRUCTURE', country:'TANZANIA',     time:'22h ago', color:'#b45309',
+    headline:'Julius Nyerere Intl Terminal 2 Lighting Upgrade',
+    body:'Night-ops capacity reduced 15% during 48-hour electrical overhaul.' },
+  { cat:'SECURITY',       country:'KENYA',        time:'1h ago',  color:'#ef4444',
+    headline:'HKJK: Heightened Security Checks — Kenya Airways Operations Affected',
+    body:'Enhanced screening causing 20–35 min ground delays on all departures.' },
+  { cat:'REGULATION',     country:'SAUDI ARABIA', time:'4h ago',  color:'#7c3aed',
+    headline:'GACA Revised Overflight Permit Requirements for Non-GCC Operators',
+    body:'72-hour advance notice now required for wide-body operators.' },
+  { cat:'INFRASTRUCTURE', country:'EGYPT',        time:'7h ago',  color:'#b45309',
+    headline:'Cairo Intl ILS RWY 05L Unserviceable — EgyptAir Advised',
+    body:'ILS out of service for calibration until 10 May. Visual approaches on 05R.' },
+  { cat:'WEATHER',        country:'TANZANIA',     time:'9h ago',  color:'#f59e0b',
+    headline:'HTDA: Afternoon Thunderstorm Risk — Precision Air ATR Ops',
+    body:'70% probability of TS activity 1400–1900 LT at Julius Nyerere Intl.' },
+];
+
+var _catLayerMap = {
+  'WEATHER':        weatherLayer,
+  'SECURITY':       securityFeedLayer,
+  'REGULATION':     regulationLayer,
+  'COMMERCIAL':     commercialLayer,
+  'INFRASTRUCTURE': infrastructureLayer,
+};
+
+// Pulse animation icon
+function makeFeedIcon(color) {
+  var html = '<div style="width:18px;height:18px;border-radius:50%;background:' + color +
+    ';border:2px solid white;box-shadow:0 0 0 3px ' + color + '44;"></div>';
+  return L.divIcon({ html: html, className: '', iconSize: [18, 18], iconAnchor: [9, 9], popupAnchor: [0, -13] });
+}
+
+// Seed used so jitter is deterministic per page load
+var _jSeed = 0;
+function _jitter() { _jSeed++; return ((_jSeed * 9301 + 49297) % 233280 / 233280 - 0.5) * 1.4; }
+
+_feedItems.forEach(function(item) {
+  var base = _countryCoords[item.country];
+  if (!base) return;
+  var layer = _catLayerMap[item.cat];
+  if (!layer) return;
+  var marker = L.marker([base[0] + _jitter(), base[1] + _jitter()], { icon: makeFeedIcon(item.color) });
+  marker.bindPopup(
+    '<div style="font-family:\'Inter\',sans-serif;min-width:200px;">' +
+    '<div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:' + item.color + ';margin-bottom:5px;">' + item.cat + ' &nbsp;·&nbsp; ' + item.country + '</div>' +
+    '<div style="font-size:12.5px;font-weight:700;color:var(--text);line-height:1.35;margin-bottom:4px;">' + item.headline + '</div>' +
+    '<div style="font-size:11px;color:var(--text-2);line-height:1.45;margin-bottom:5px;">' + item.body + '</div>' +
+    '<div style="font-size:10px;color:var(--text-3);">' + item.time + '</div></div>',
+    { autoPan: true, autoPanPaddingTopLeft: L.point(330, 140), autoPanPaddingBottomRight: L.point(20, 20) }
+  );
+  marker.addTo(layer);
+});
+
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,121 @@
+{
+  "flights": [
+    {
+      "ident": "JM403",
+      "ident_iata": "JM403",
+      "ident_icao": "JMB403",
+      "operator": "JMB",
+      "operator_iata": "JM",
+      "aircraft_type": "B738",
+      "origin": {
+        "code": "HKJK",
+        "code_icao": "HKJK",
+        "code_iata": "NBO",
+        "name": "Jomo Kenyatta International Airport",
+        "city": "Nairobi",
+        "timezone": "Africa/Nairobi"
+      },
+      "destination": {
+        "code": "HKMO",
+        "code_icao": "HKMO",
+        "code_iata": "MBA",
+        "name": "Moi International Airport",
+        "city": "Mombasa",
+        "timezone": "Africa/Nairobi"
+      },
+      "scheduled_off": "2026-05-21T06:00:00Z",
+      "scheduled_on":  "2026-05-21T06:55:00Z",
+      "filed_ete": 3300,
+      "status": "En Route / On Time",
+      "progress_percent": 65
+    },
+    {
+      "ident": "JM411",
+      "ident_iata": "JM411",
+      "ident_icao": "JMB411",
+      "operator": "JMB",
+      "operator_iata": "JM",
+      "aircraft_type": "B738",
+      "origin": {
+        "code": "HKJK",
+        "code_icao": "HKJK",
+        "code_iata": "NBO",
+        "name": "Jomo Kenyatta International Airport",
+        "city": "Nairobi",
+        "timezone": "Africa/Nairobi"
+      },
+      "destination": {
+        "code": "HKKI",
+        "code_icao": "HKKI",
+        "code_iata": "KIS",
+        "name": "Kisumu International Airport",
+        "city": "Kisumu",
+        "timezone": "Africa/Nairobi"
+      },
+      "scheduled_off": "2026-05-21T07:30:00Z",
+      "scheduled_on":  "2026-05-21T08:15:00Z",
+      "filed_ete": 2700,
+      "status": "En Route / On Time",
+      "progress_percent": 40
+    },
+    {
+      "ident": "JM507",
+      "ident_iata": "JM507",
+      "ident_icao": "JMB507",
+      "operator": "JMB",
+      "operator_iata": "JM",
+      "aircraft_type": "B738",
+      "origin": {
+        "code": "HKMO",
+        "code_icao": "HKMO",
+        "code_iata": "MBA",
+        "name": "Moi International Airport",
+        "city": "Mombasa",
+        "timezone": "Africa/Nairobi"
+      },
+      "destination": {
+        "code": "HKJK",
+        "code_icao": "HKJK",
+        "code_iata": "NBO",
+        "name": "Jomo Kenyatta International Airport",
+        "city": "Nairobi",
+        "timezone": "Africa/Nairobi"
+      },
+      "scheduled_off": "2026-05-21T09:00:00Z",
+      "scheduled_on":  "2026-05-21T09:55:00Z",
+      "filed_ete": 3300,
+      "status": "Scheduled",
+      "progress_percent": 0
+    },
+    {
+      "ident": "JM315",
+      "ident_iata": "JM315",
+      "ident_icao": "JMB315",
+      "operator": "JMB",
+      "operator_iata": "JM",
+      "aircraft_type": "B738",
+      "origin": {
+        "code": "HKJK",
+        "code_icao": "HKJK",
+        "code_iata": "NBO",
+        "name": "Jomo Kenyatta International Airport",
+        "city": "Nairobi",
+        "timezone": "Africa/Nairobi"
+      },
+      "destination": {
+        "code": "HUEN",
+        "code_icao": "HUEN",
+        "code_iata": "EBB",
+        "name": "Entebbe International Airport",
+        "city": "Entebbe",
+        "timezone": "Africa/Kampala"
+      },
+      "scheduled_off": "2026-05-21T10:45:00Z",
+      "scheduled_on":  "2026-05-21T11:55:00Z",
+      "filed_ete": 4200,
+      "status": "Scheduled",
+      "progress_percent": 0
+    }
+  ],
+  "scheduled": []
+}

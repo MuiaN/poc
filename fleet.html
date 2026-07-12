@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fleet Register — FRED BLACK Aviation</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+<script src="theme.js"></script>
+<link rel="stylesheet" href="styles.css">
+<style>
+body { padding: 0; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+
+/* ── Layout ─────────────────────────────────────── */
+.fl-header {
+  padding: 14px 20px 0;
+  flex-shrink: 0;
+}
+.fl-controls {
+  padding: 10px 20px 0;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  flex-shrink: 0;
+}
+.fl-body {
+  flex: 1; overflow: hidden; display: flex; position: relative;
+}
+.fl-table-wrap {
+  flex: 1; overflow-y: auto; padding: 0 20px 16px;
+  transition: margin-right .3s;
+}
+.fl-body.panel-open .fl-table-wrap {
+  margin-right: 420px;
+}
+
+/* ── KPI Strip ──────────────────────────────────── */
+.kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  padding: 12px 20px 0;
+  flex-shrink: 0;
+}
+.kpi-mini {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 14px;
+  display: flex; align-items: center; gap: 10px;
+  box-shadow: var(--shadow);
+  transition: box-shadow .2s, border-color .2s;
+  cursor: default;
+}
+.kpi-mini:hover { box-shadow: var(--shadow-md); border-color: var(--border-2); }
+.kpi-mini-icon {
+  width: 36px; height: 36px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.kpi-mini-icon svg { width: 18px; height: 18px; }
+.kpi-mini-icon.blue   { background: var(--accent-dim); }
+.kpi-mini-icon.green  { background: var(--success-dim); }
+.kpi-mini-icon.amber  { background: var(--warn-dim); }
+.kpi-mini-icon.red    { background: var(--danger-dim); }
+.kpi-mini-icon.purple { background: rgba(139,92,246,.12); }
+.kpi-mini-val  { font-size: 22px; font-weight: 700; line-height: 1; color: var(--text); }
+.kpi-mini-lbl  { font-size: 10px; font-weight: 600; color: var(--text-2); margin-top: 2px; text-transform: uppercase; letter-spacing: .04em; }
+
+/* ── Tab bar ────────────────────────────────────── */
+.fl-tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--border); }
+.fl-tab {
+  font-size: 12px; font-weight: 600; font-family: var(--font-body);
+  padding: 7px 16px; border: none; background: transparent;
+  color: var(--text-2); cursor: pointer;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+  transition: color .15s, border-color .15s; white-space: nowrap;
+}
+.fl-tab:hover { color: var(--text); }
+.fl-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.fl-tab .tc { font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 8px; margin-left: 4px; background: var(--bg-3); color: var(--text-3); }
+.fl-tab.active .tc { background: var(--accent-dim); color: var(--accent); }
+
+/* ── View toggle ────────────────────────────────── */
+.view-toggle { display: flex; background: var(--bg-3); border-radius: 7px; padding: 2px; gap: 2px; margin-left: auto; }
+.vt-btn {
+  width: 30px; height: 26px; border: none; border-radius: 5px; background: transparent;
+  color: var(--text-3); cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background .15s, color .15s;
+}
+.vt-btn svg { width: 14px; height: 14px; }
+.vt-btn.active { background: var(--bg-2); color: var(--accent); box-shadow: 0 1px 3px rgba(0,0,0,.3); }
+
+/* ── Add button ─────────────────────────────────── */
+.add-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 14px; background: var(--accent); color: #fff;
+  border: none; border-radius: 7px; font-size: 12px; font-weight: 600;
+  font-family: var(--font-body); cursor: pointer; transition: background .15s; white-space: nowrap;
+}
+.add-btn:hover { background: var(--accent-h); }
+.add-btn svg { width: 13px; height: 13px; fill: none; stroke: #fff; stroke-width: 2.5; }
+
+/* ── Main Table ─────────────────────────────────── */
+.fleet-table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 12px; }
+.fleet-table thead th {
+  background: var(--bg-3); color: var(--text-2); font-size: 10px;
+  font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  padding: 9px 12px; border-bottom: 1px solid var(--border);
+  text-align: left; white-space: nowrap; position: sticky; top: 0; z-index: 2;
+}
+.fleet-table thead th.sort-active { color: var(--accent); }
+.fleet-table thead th.sortable { cursor: pointer; user-select: none; }
+.fleet-table thead th.sortable:hover { color: var(--text); }
+.sort-arrow { opacity: .4; font-size: 9px; margin-left: 2px; }
+.fleet-table tbody td {
+  padding: 10px 12px; border-bottom: 1px solid var(--border);
+  color: var(--text); vertical-align: middle;
+}
+.fleet-table tbody tr:last-child td { border-bottom: none; }
+.fleet-table tbody tr { cursor: pointer; transition: background .12s; }
+.fleet-table tbody tr:hover td { background: var(--bg-hover); }
+.fleet-table tbody tr.selected td { background: var(--accent-dim); }
+
+.reg { font-weight: 700; font-family: 'Courier New', monospace; color: var(--accent); font-size: 12px; letter-spacing: .04em; }
+.ac-type { font-weight: 600; color: var(--text); line-height: 1.3; }
+.ac-type-sub { font-size: 10.5px; color: var(--text-3); margin-top: 1px; }
+.op-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 2px 8px 2px 4px; border-radius: 12px; font-size: 10.5px; font-weight: 700;
+  letter-spacing: .03em; white-space: nowrap;
+}
+.op-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.fl-num { font-size: 12px; font-weight: 600; color: var(--text); }
+.fl-num-sub { font-size: 10px; color: var(--text-3); }
+
+/* Status badges */
+.st-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 9px; border-radius: 20px; font-size: 10.5px; font-weight: 600; white-space: nowrap;
+}
+.st-badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.st-active   { background: var(--success-dim); color: var(--success); }
+.st-maint    { background: var(--warn-dim);    color: var(--warn); }
+.st-grounded { background: var(--danger-dim);  color: var(--danger); }
+.st-ferry    { background: var(--accent-dim);  color: var(--accent); }
+
+/* Days countdown */
+.days-pill {
+  display: inline-block; padding: 2px 8px; border-radius: 4px;
+  font-size: 11px; font-weight: 700; white-space: nowrap;
+}
+.days-ok   { background: var(--success-dim); color: var(--success); }
+.days-warn { background: var(--warn-dim);    color: var(--warn); }
+.days-red  { background: var(--danger-dim);  color: var(--danger); }
+
+/* Risk score pill */
+.risk-pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;
+}
+.risk-low  { background: rgba(16,185,129,.12); color: #10b981; }
+.risk-mod  { background: rgba(245,158,11,.12); color: #f59e0b; }
+.risk-high { background: rgba(249,115,22,.12); color: #f97316; }
+.risk-ext  { background: rgba(239,68,68,.12);  color: #ef4444; }
+
+/* Action button */
+.row-act {
+  width: 26px; height: 26px; border-radius: 5px; border: 1px solid var(--border);
+  background: none; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--text-3); transition: all .15s;
+}
+.row-act:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+.row-act svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+/* Empty state */
+.fl-empty { text-align: center; padding: 52px 20px; }
+.fl-empty-icon { width: 44px; height: 44px; margin: 0 auto 12px; opacity: .25; }
+.fl-empty-icon svg { width: 44px; height: 44px; fill: var(--text-3); }
+.fl-empty-title { font-size: 13px; font-weight: 600; color: var(--text-2); margin-bottom: 4px; }
+.fl-empty-sub   { font-size: 11.5px; color: var(--text-3); }
+
+/* ── Card Grid View ─────────────────────────────── */
+.ac-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; margin-top: 12px; }
+.ac-card {
+  background: var(--bg-2); border: 1px solid var(--border); border-radius: 10px;
+  padding: 14px 15px; cursor: pointer; transition: box-shadow .15s, border-color .15s;
+  box-shadow: var(--shadow);
+}
+.ac-card:hover { box-shadow: var(--shadow-md); border-color: var(--border-2); }
+.ac-card.selected { border-color: var(--accent); background: rgba(26,111,232,.05); }
+.ac-card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
+.ac-card-reg { font-family: 'Courier New', monospace; font-size: 14px; font-weight: 700; color: var(--accent); letter-spacing: .04em; }
+.ac-card-type { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+.ac-card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; margin-top: 8px; border-top: 1px solid var(--border); padding-top: 8px; }
+.ac-card-field { font-size: 10px; color: var(--text-3); margin-bottom: 1px; }
+.ac-card-val   { font-size: 11.5px; font-weight: 600; color: var(--text); }
+.ac-card-bottom { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border); }
+
+/* ── Detail Panel ───────────────────────────────── */
+.detail-panel {
+  position: fixed; right: 0; top: 0; bottom: 0; width: 420px;
+  background: var(--bg-2); border-left: 1px solid var(--border);
+  box-shadow: -4px 0 24px rgba(0,0,0,.5);
+  z-index: 50; overflow-y: auto;
+  transform: translateX(100%);
+  transition: transform .3s ease;
+}
+.detail-panel.open { transform: translateX(0); }
+.dp-close {
+  position: absolute; top: 12px; right: 14px; width: 28px; height: 28px;
+  border-radius: 50%; border: 1px solid var(--border); background: var(--bg-3);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--text-2); transition: all .15s; z-index: 2;
+}
+.dp-close:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-dim); }
+.dp-close svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 2.5; }
+
+.dp-hero {
+  padding: 18px 18px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-3);
+}
+.dp-reg  { font-family: 'Courier New', monospace; font-size: 22px; font-weight: 700; color: var(--accent); letter-spacing: .05em; margin-bottom: 2px; }
+.dp-type { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.dp-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+/* Detail tabs */
+.dp-tabs { display: flex; border-bottom: 1px solid var(--border); padding: 0 18px; }
+.dp-tab {
+  font-size: 12px; font-weight: 600; font-family: var(--font-body);
+  padding: 9px 14px; border: none; background: transparent;
+  color: var(--text-2); cursor: pointer;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+  transition: color .15s, border-color .15s;
+}
+.dp-tab:hover { color: var(--text); }
+.dp-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+.dp-body { padding: 16px 18px; }
+
+.dp-section { margin-bottom: 20px; }
+.dp-section-title {
+  font-size: 9.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--text-3); margin-bottom: 10px; padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+.dp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; }
+.dp-field-lbl { font-size: 10px; color: var(--text-3); margin-bottom: 2px; font-weight: 500; }
+.dp-field-val { font-size: 12.5px; font-weight: 600; color: var(--text); }
+.dp-note {
+  font-size: 12px; line-height: 1.65; color: var(--text-2);
+  background: var(--bg-3); border-radius: 8px; padding: 11px 13px;
+  border-left: 3px solid var(--border-2); margin-top: 4px;
+}
+.dp-note.warn-note { border-left-color: var(--warn); background: var(--warn-dim); color: var(--text); }
+.dp-note.danger-note { border-left-color: var(--danger); background: var(--danger-dim); color: var(--text); }
+
+/* Maintenance timeline */
+.maint-row {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 12px;
+}
+.maint-row:last-child { border-bottom: none; }
+.maint-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px;
+}
+.maint-type { font-weight: 600; color: var(--text); margin-bottom: 1px; }
+.maint-date { font-size: 10.5px; color: var(--text-3); }
+.maint-info { flex: 1; }
+
+/* Policy detail rows */
+.pol-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+.pol-row:last-child { border-bottom: none; }
+.pol-lbl { color: var(--text-2); }
+.pol-val { font-weight: 600; color: var(--text); }
+
+/* History timeline */
+.hist-item { display: flex; gap: 11px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+.hist-item:last-child { border-bottom: none; }
+.hist-line { display: flex; flex-direction: column; align-items: center; gap: 2px; flex-shrink: 0; }
+.hist-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.hist-vline { width: 1px; flex: 1; background: var(--border); margin-top: 2px; }
+.hist-body { flex: 1; }
+.hist-title { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+.hist-desc  { font-size: 11px; color: var(--text-2); line-height: 1.5; }
+.hist-date  { font-size: 10.5px; color: var(--text-3); margin-top: 3px; }
+
+/* Risk mini-matrix inside panel */
+.panel-rm { margin-top: 4px; }
+.panel-rm .rm-hdr { font-size: 9.5px; color: var(--text-2); margin-bottom: 5px; font-weight: 500; }
+.panel-rm .rm-tbl { border-collapse: separate; border-spacing: 2px; }
+.panel-rm .rm-corner { font-size: 7px; font-weight: 500; color: var(--text-3); text-align: center; line-height: 1.3; padding: 0 2px 2px 0; vertical-align: bottom; width: 46px; }
+.panel-rm .rm-th { font-size: 10px; font-weight: 700; color: var(--text-2); text-align: center; padding: 0 0 3px; }
+.panel-rm .rm-lh { font-size: 8.5px; color: var(--text-2); text-align: right; padding-right: 4px; vertical-align: middle; line-height: 1.3; white-space: nowrap; width: 48px; }
+.panel-rm .rm-lh b { display: block; font-size: 10px; font-weight: 700; color: var(--text); line-height: 1.1; }
+.panel-rm .rm-cell { font-size: 10px; font-weight: 600; text-align: center; padding: 4px 2px; color: white; border-radius: 3px; vertical-align: middle; }
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+.fleet-table tbody tr { animation: fadeUp .2s ease both; }
+</style>
+</head>
+<body>
+
+<!-- ── Page Header ──────────────────────────────────────────────── -->
+<div class="fl-header">
+  <div class="page-header" style="margin-bottom:0;">
+    <div>
+      <div class="page-title" id="pageTitle">Fleet Register</div>
+      <div style="font-size:11.5px;color:var(--text-2);margin-top:2px;">Aircraft under management across all client operators</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button class="btn" style="font-size:11.5px;" onclick="exportCSV()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export CSV
+      </button>
+      <button class="add-btn">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Aircraft
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── KPI Strip ────────────────────────────────────────────────── -->
+<div class="kpi-strip" id="kpiStrip"></div>
+
+<!-- ── Controls ─────────────────────────────────────────────────── -->
+<div class="fl-controls">
+  <div class="fl-tabs" id="filterTabs" style="border-bottom:none;flex:1;flex-wrap:wrap;"></div>
+  <div class="search-wrap">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input class="search-input" id="searchInput" placeholder="Search registration, type, operator…" oninput="applyFilters()">
+  </div>
+  <div class="view-toggle">
+    <button class="vt-btn active" id="vt-table" onclick="setView('table')" title="Table view">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <button class="vt-btn" id="vt-cards" onclick="setView('cards')" title="Card view">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+    </button>
+  </div>
+</div>
+<div style="height:1px;background:var(--border);margin:8px 20px 0;flex-shrink:0;"></div>
+
+<!-- ── Body ─────────────────────────────────────────────────────── -->
+<div class="fl-body" id="flBody">
+  <div class="fl-table-wrap" id="flTableWrap">
+    <!-- Table view -->
+    <div id="viewTable">
+      <table class="fleet-table" id="fleetTable">
+        <thead>
+          <tr>
+            <th class="sortable" onclick="sortBy('reg')">Registration <span class="sort-arrow">↕</span></th>
+            <th class="sortable" onclick="sortBy('type')">Type <span class="sort-arrow">↕</span></th>
+            <th id="thOperator" class="sortable" onclick="sortBy('op')">Operator <span class="sort-arrow">↕</span></th>
+            <th class="sortable" onclick="sortBy('yr')">Mfg Yr <span class="sort-arrow">↕</span></th>
+            <th>Hours / Cycles</th>
+            <th class="sortable" onclick="sortBy('status')">Status <span class="sort-arrow">↕</span></th>
+            <th class="sortable" onclick="sortBy('maintDays')">Next Maint <span class="sort-arrow">↕</span></th>
+            <th id="thPolicyExpiry" class="sortable" onclick="sortBy('polDays')">Policy Expiry <span class="sort-arrow">↕</span></th>
+            <th class="sortable" onclick="sortBy('risk')">Risk <span class="sort-arrow">↕</span></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="fleetBody"></tbody>
+      </table>
+      <div class="fl-empty" id="flEmpty" style="display:none;">
+        <div class="fl-empty-icon"><svg viewBox="0 0 24 24"><path d="M21 16v-2l-8-5V3.5A1.5 1.5 0 0 0 11.5 2A1.5 1.5 0 0 0 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg></div>
+        <div class="fl-empty-title">No aircraft match your search</div>
+        <div class="fl-empty-sub">Try adjusting the filters or search term</div>
+      </div>
+    </div>
+    <!-- Card view -->
+    <div id="viewCards" style="display:none;">
+      <div class="ac-grid" id="cardGrid"></div>
+    </div>
+  </div>
+
+  <!-- Detail Panel -->
+  <div class="detail-panel" id="detailPanel">
+    <button class="dp-close" onclick="closePanel()">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div id="dpContent"></div>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════════════════════ */
+const OP_META = {
+  KQ: { name:'Kenya Airways',      color:'#1A6FE8', bg:'rgba(26,111,232,.12)'  },
+  ET: { name:'Ethiopian Airlines', color:'#10B981', bg:'rgba(16,185,129,.12)'  },
+  WB: { name:'RwandAir',           color:'#f97316', bg:'rgba(249,115,22,.12)'   },
+  UR: { name:'Uganda Airlines',    color:'#F59E0B', bg:'rgba(245,158,11,.12)'   },
+  TC: { name:'Air Tanzania',       color:'#1BB4E8', bg:'rgba(27,180,232,.12)'   },
+  PW: { name:'Precision Air',      color:'#8B5CF6', bg:'rgba(139,92,246,.12)'   },
+  JM: { name:'Jambojet',           color:'#06B6D4', bg:'rgba(6,182,212,.12)'    },
+  FL: { name:'Flightlink',         color:'#38BDF8', bg:'rgba(56,189,248,.12)'   },
+  AX: { name:'African Express',    color:'#EF4444', bg:'rgba(239,68,68,.12)'    },
+};
+
+const fleet = [
+  /* ── Kenya Airways ─────────────────────────────────────────── */
+  { reg:'5Z-KQA', type:'Boeing 787-8 Dreamliner', short:'B787-8',    op:'KQ', country:'Kenya',    yr:2014, msn:'35069',   engines:'GEnx-1B',      seats:234, status:'active',      lastInsp:'02 Apr 2026', nextMaint:'15 Jul 2026', maintDays:57,  polId:'KQ-HULL-2024-001', polExp:'30 Nov 2026', polDays:195, hullVal:'$122M', liabVal:'$500M', hours:28450, cycles:4820, risk:6,
+    riskNote:'Routine hull policy in force. No open claims. Last C-check completed on schedule.',
+    history:[ {date:'02 Apr 2026',type:'success',title:'C-Check Complete',desc:'Full C-check passed at Nairobi MRO. All items cleared.'},{date:'14 Jan 2026',type:'info',title:'A-Check',desc:'Routine A-check completed. No discrepancies.'},{date:'Nov 2025',type:'success',title:'Policy Renewed',desc:'Hull & liability policy renewed for 2025–2026 cycle.'} ] },
+  { reg:'5Z-KQC', type:'Boeing 787-8 Dreamliner', short:'B787-8',    op:'KQ', country:'Kenya',    yr:2016, msn:'37924',   engines:'GEnx-1B',      seats:234, status:'active',      lastInsp:'18 Mar 2026', nextMaint:'22 Aug 2026', maintDays:95,  polId:'KQ-HULL-2024-002', polExp:'30 Nov 2026', polDays:195, hullVal:'$118M', liabVal:'$500M', hours:24100, cycles:4120, risk:5,
+    riskNote:'No incidents on record. Policy current. Modern airframe with strong maintenance record.',
+    history:[ {date:'18 Mar 2026',type:'success',title:'B-Check',desc:'Scheduled B-check completed ahead of time.'},{date:'Oct 2025',type:'info',title:'Engine Borescope',desc:'Routine borescope inspection — no findings.'} ] },
+  { reg:'5Z-KQD', type:'Boeing 737-800',          short:'B737-800',  op:'KQ', country:'Kenya',    yr:2011, msn:'40918',   engines:'CFM56-7B',     seats:158, status:'active',      lastInsp:'10 Apr 2026', nextMaint:'28 Jun 2026', maintDays:40,  polId:'KQ-HULL-2024-003', polExp:'30 Nov 2026', polDays:195, hullVal:'$42M',  liabVal:'$300M', hours:38200, cycles:7940, risk:8,
+    riskNote:'High cycle count. Additional AD compliance check recommended before next heavy maintenance.',
+    history:[ {date:'10 Apr 2026',type:'warn',title:'AD Compliance Review',desc:'AD 2026-07-10 reviewed. Compliance due at next maint slot.'},{date:'Feb 2026',type:'success',title:'A-Check',desc:'Routine A-check — no issues.'} ] },
+  { reg:'5Z-KQE', type:'Boeing 737-800',          short:'B737-800',  op:'KQ', country:'Kenya',    yr:2012, msn:'40919',   engines:'CFM56-7B',     seats:158, status:'maintenance', lastInsp:'12 May 2026', nextMaint:'04 Jun 2026', maintDays:16,  polId:'KQ-HULL-2024-004', polExp:'30 Nov 2026', polDays:195, hullVal:'$40M',  liabVal:'$300M', hours:36700, cycles:7680, risk:9,
+    riskNote:'Currently in B-check at Nairobi MRO. Return to service expected 04 June 2026.',
+    history:[ {date:'12 May 2026',type:'warn',title:'B-Check Started',desc:'Aircraft inducted into MRO for scheduled B-check. ETA 04 Jun.'},{date:'Jan 2026',type:'success',title:'Hydraulic Repair',desc:'Minor hydraulic actuator replaced — returned to service.'} ] },
+  { reg:'5Z-KQF', type:'Boeing 737-800',          short:'B737-800',  op:'KQ', country:'Kenya',    yr:2013, msn:'41200',   engines:'CFM56-7B',     seats:158, status:'active',      lastInsp:'22 Feb 2026', nextMaint:'14 Sep 2026', maintDays:118, polId:'KQ-HULL-2024-005', polExp:'30 Nov 2026', polDays:195, hullVal:'$44M',  liabVal:'$300M', hours:34900, cycles:7210, risk:7,
+    riskNote:'No open items. Policy in force. Maintenance tracking on schedule.',
+    history:[ {date:'22 Feb 2026',type:'success',title:'A-Check',desc:'Routine A-check passed. No discrepancies logged.'} ] },
+  { reg:'5Z-KQH', type:'Embraer E190',            short:'E190',      op:'KQ', country:'Kenya',    yr:2017, msn:'19000660', engines:'CF34-10E',    seats:96,  status:'active',      lastInsp:'28 Apr 2026', nextMaint:'01 Oct 2026', maintDays:135, polId:'KQ-HULL-2024-006', polExp:'30 Nov 2026', polDays:195, hullVal:'$28M',  liabVal:'$200M', hours:18300, cycles:5120, risk:5,
+    riskNote:'E190 regional operations. No significant incidents. Policy current.',
+    history:[ {date:'28 Apr 2026',type:'success',title:'C-Check',desc:'Scheduled C-check completed on time at NBO.'} ] },
+  /* ── Ethiopian Airlines ─────────────────────────────────────── */
+  { reg:'ET-ASJ', type:'Boeing 787-9 Dreamliner', short:'B787-9',    op:'ET', country:'Ethiopia', yr:2015, msn:'38751',   engines:'GEnx-1B',      seats:271, status:'active',      lastInsp:'15 Apr 2026', nextMaint:'10 Aug 2026', maintDays:83,  polId:'ET-HULL-2024-101', polExp:'31 Dec 2026', polDays:226, hullVal:'$155M', liabVal:'$750M', hours:32100, cycles:4950, risk:7,
+    riskNote:'Policy active. Addis Ababa base maintained by Ethiopian Aviation Academy MRO.',
+    history:[ {date:'15 Apr 2026',type:'success',title:'B-Check',desc:'Scheduled B-check cleared at ADD MRO.'},{date:'Dec 2025',type:'success',title:'Policy Renewed',desc:'Annual policy renewal completed without changes.'} ] },
+  { reg:'ET-ATJ', type:'Boeing 787-9 Dreamliner', short:'B787-9',    op:'ET', country:'Ethiopia', yr:2017, msn:'61729',   engines:'GEnx-1B',      seats:271, status:'active',      lastInsp:'30 Mar 2026', nextMaint:'22 Sep 2026', maintDays:126, polId:'ET-HULL-2024-102', polExp:'31 Dec 2026', polDays:226, hullVal:'$152M', liabVal:'$750M', hours:26800, cycles:3880, risk:6,
+    riskNote:'No open incidents or claims. Aircraft on long-haul intercontinental routes.',
+    history:[ {date:'30 Mar 2026',type:'success',title:'A-Check',desc:'Routine A-check — no findings.'} ] },
+  { reg:'ET-AWM', type:'Boeing 737 MAX 8',        short:'B737MAX8',  op:'ET', country:'Ethiopia', yr:2022, msn:'65774',   engines:'LEAP-1B',      seats:162, status:'active',      lastInsp:'20 Apr 2026', nextMaint:'15 Oct 2026', maintDays:149, polId:'ET-HULL-2024-103', polExp:'31 Dec 2026', polDays:226, hullVal:'$58M',  liabVal:'$350M', hours:8200,  cycles:2610, risk:7,
+    riskNote:'MAX fleet returned to service post-2022 grounding. MCAS updates verified. Enhanced underwriter monitoring protocol active.',
+    history:[ {date:'20 Apr 2026',type:'info',title:'MCAS Verification',desc:'Annual MCAS software verification confirmed compliant.'},{date:'2022',type:'warn',title:'Delivery Post-Grounding',desc:'Aircraft delivered after MAX grounding lifted. All directives complied with.'} ] },
+  { reg:'ET-AVO', type:'Boeing 737-800',          short:'B737-800',  op:'ET', country:'Ethiopia', yr:2010, msn:'37100',   engines:'CFM56-7B',     seats:158, status:'maintenance', lastInsp:'08 May 2026', nextMaint:'31 May 2026', maintDays:12,  polId:'ET-HULL-2024-104', polExp:'31 Dec 2026', polDays:226, hullVal:'$38M',  liabVal:'$300M', hours:44100, cycles:8920, risk:11,
+    riskNote:'High-cycle aircraft. Undergoing mandatory structural inspection. Fatigue crack detection AD in compliance.',
+    history:[ {date:'08 May 2026',type:'warn',title:'Structural Inspection',desc:'Induced into MRO for mandatory fatigue inspection. ETA 31 May.'},{date:'Mar 2026',type:'warn',title:'AD Notice',desc:'AD 2026-05-R issued for structural frame. Compliance in progress.'} ] },
+  { reg:'ET-AMZ', type:'Boeing 777-200LR',        short:'B777-200LR',op:'ET', country:'Ethiopia', yr:2013, msn:'40769',   engines:'GE90-110B1',   seats:294, status:'active',      lastInsp:'12 Mar 2026', nextMaint:'30 Jul 2026', maintDays:72,  polId:'ET-HULL-2024-105', polExp:'31 Dec 2026', polDays:226, hullVal:'$168M', liabVal:'$1B',   hours:36400, cycles:3710, risk:8,
+    riskNote:'Wide-body long-haul. Policy in force. No open claims. Operates Addis–Dubai–London routes.',
+    history:[ {date:'12 Mar 2026',type:'success',title:'C-Check',desc:'C-check completed at ADD. All items cleared.'},{date:'Nov 2025',type:'success',title:'Policy Renewed',desc:'Hull and liability renewed. No changes to premium basis.'} ] },
+  /* ── Uganda Airlines — A330-800neo fleet ───────────────────── */
+  { reg:'5X-NIL', type:'Airbus A330-800neo',       short:'A330-800',  op:'UR', country:'Uganda',   yr:2021, msn:'1988',    engines:'RR Trent 7000',seats:272, status:'active',      lastInsp:'22 Apr 2026', nextMaint:'30 Oct 2026', maintDays:164, polId:'UG-HULL-2024-303', polExp:'31 Aug 2026', polDays:104, hullVal:'$138M', liabVal:'$600M', hours:8900,  cycles:1450, risk:6,
+    riskNote:'Long-haul widebody. Policy renewal required before 31 Aug. Hull value exposure significant — prioritise renewal.',
+    history:[ {date:'22 Apr 2026',type:'success',title:'B-Check',desc:'Scheduled B-check completed at EBB. All items cleared.'},{date:'Mar 2026',type:'info',title:'Renewal Warning',desc:'Policy renewal notice issued. Renewal due 31 Aug 2026.'} ] },
+  /* ── Precision Air ──────────────────────────────────────────── */
+  { reg:'5H-PWA', type:'ATR 72-500',              short:'ATR72-500', op:'PW', country:'Tanzania', yr:2015, msn:'1128',    engines:'PW127F',       seats:70,  status:'active',      lastInsp:'20 Mar 2026', nextMaint:'12 Jul 2026', maintDays:27,  polId:'PW-HULL-2024-401', polExp:'30 Sep 2026', polDays:107, hullVal:'$14M',  liabVal:'$150M', hours:19400, cycles:6820, risk:8,
+    riskNote:'Coastal Tanzania operations including Zanzibar and Kilimanjaro routes. Propeller AD compliance current.',
+    history:[ {date:'20 Mar 2026',type:'success',title:'Propeller AD Compliance',desc:'AD 2026-02-14 complied with. Propeller inspection passed.'},{date:'Jan 2026',type:'success',title:'C-Check',desc:'C-check completed at DAR.'} ] },
+  { reg:'5H-PWB', type:'ATR 72-500',              short:'ATR72-500', op:'PW', country:'Tanzania', yr:2016, msn:'1182',    engines:'PW127F',       seats:70,  status:'active',      lastInsp:'01 Apr 2026', nextMaint:'20 Aug 2026', maintDays:66,  polId:'PW-HULL-2024-402', polExp:'30 Sep 2026', polDays:107, hullVal:'$15M',  liabVal:'$150M', hours:17600, cycles:6200, risk:7,
+    riskNote:'Active. Routine inspection schedule maintained. No open claims.',
+    history:[ {date:'01 Apr 2026',type:'success',title:'B-Check',desc:'Scheduled B-check passed.'} ] },
+  { reg:'5H-PWC', type:'ATR 72-500',              short:'ATR72-500', op:'PW', country:'Tanzania', yr:2013, msn:'978',     engines:'PW127F',       seats:70,  status:'maintenance', lastInsp:'14 Feb 2026', nextMaint:'20 Jun 2026', maintDays:5,   polId:'PW-HULL-2024-403', polExp:'30 Sep 2026', polDays:107, hullVal:'$12M',  liabVal:'$150M', hours:24200, cycles:8840, risk:10,
+    riskNote:'In scheduled C-check at DAR. Hull coverage active. Expected return to service mid-June.',
+    history:[ {date:'14 Feb 2026',type:'danger',title:'GROUNDED',desc:'CAA Tanzania issued groundstop pending gearbox inspection and TCAS upgrade.'},{date:'Nov 2025',type:'warn',title:'TCAS Overdue',desc:'TCAS upgrade deferred — compliance deadline breached.'} ] },
+  /* ── Flightlink ─────────────────────────────────────────────── */
+  { reg:'5H-FHL', type:'De Havilland Dash 8-400', short:'DHC-8-400', op:'FL', country:'Tanzania', yr:2009, msn:'4254',    engines:'PW150A',       seats:74,  status:'active',      lastInsp:'18 Apr 2026', nextMaint:'10 Sep 2026', maintDays:114, polId:'FL-HULL-2024-601', polExp:'31 Oct 2026', polDays:165, hullVal:'$12M',  liabVal:'$120M', hours:22800, cycles:7480, risk:9,
+    riskNote:'Bush and regional operations across Tanzania. Policy in force. No open claims.',
+    history:[ {date:'18 Apr 2026',type:'success',title:'B-Check',desc:'B-check completed at Dar es Salaam.'} ] },
+  /* ── African Express ────────────────────────────────────────── */
+  { reg:'5Y-AXX', type:'Boeing 737-300',          short:'B737-300',  op:'AX', country:'Kenya',    yr:2003, msn:'32356',   engines:'CFM56-3C1',    seats:149, status:'grounded',    lastInsp:'22 Jan 2026', nextMaint:'01 Apr 2026', maintDays:-49, polId:'AX-HULL-2024-701', polExp:'14 Jun 2026', polDays:26,  hullVal:'$5M',   liabVal:'$100M', hours:48200, cycles:11800, risk:22,
+    riskNote:'GROUNDED — airworthiness certificate lapsed. Policy expires in 26 days with OPEN CLAIM (runway excursion, Feb 2026). Immediate regulatory and legal engagement required.',
+    history:[ {date:'Feb 2026',type:'danger',title:'OPEN CLAIM — Runway Excursion',desc:'Aircraft departed runway at Wilson Airport. Damage assessment in progress. Claim filed.'},{date:'22 Jan 2026',type:'danger',title:'C of A Lapsed',desc:'Certificate of Airworthiness not renewed. Aircraft grounded by KCAA.'},{date:'Dec 2025',type:'warn',title:'Renewal Overdue',desc:'Policy renewal not completed. Risk exposure active.'} ] },
+];
+
+/* ════════════════════════════════════════════════════════════
+   BULK FLEET GENERATOR  (expands total to 200 aircraft)
+   Adds 175 aircraft across all insured operators.
+═══════════════════════════════════════════════════════════ */
+(function expandFleet() {
+  // Aircraft type templates
+  const T = {
+    'B788': { name:'Boeing 787-8 Dreamliner', engines:'GEnx-1B',     seats:234, hull:115, liab:500, base_risk:6 },
+    'B789': { name:'Boeing 787-9 Dreamliner', engines:'GEnx-1B',     seats:294, hull:140, liab:500, base_risk:6 },
+    'B77W': { name:'Boeing 777-300ER',         engines:'GE90-115B',   seats:400, hull:165, liab:600, base_risk:7 },
+    'B738': { name:'Boeing 737-800',           engines:'CFM56-7B',    seats:158, hull:42,  liab:300, base_risk:8 },
+    'B38M': { name:'Boeing 737 MAX 8',         engines:'LEAP-1B',     seats:162, hull:58,  liab:350, base_risk:7 },
+    'A35K': { name:'Airbus A350-900XWB',        engines:'Trent XWB-84',seats:348, hull:155, liab:600, base_risk:6 },
+    'A333': { name:'Airbus A330-300',          engines:'Trent 700',   seats:270, hull:88,  liab:400, base_risk:7 },
+    'A332': { name:'Airbus A330-200',          engines:'CF6-80E',     seats:248, hull:82,  liab:400, base_risk:8 },
+    'A338': { name:'Airbus A330-800neo',       engines:'RR Trent 7000',seats:260, hull:175, liab:650, base_risk:6 },
+    'A320': { name:'Airbus A320-200',          engines:'CFM56-5B',    seats:150, hull:36,  liab:250, base_risk:8 },
+    'A20N': { name:'Airbus A320neo',           engines:'LEAP-1A',     seats:150, hull:44,  liab:250, base_risk:7 },
+    'A223': { name:'Airbus A220-300',          engines:'PW1500G',     seats:130, hull:38,  liab:250, base_risk:7 },
+    'CRJ9': { name:'Bombardier CRJ-900',       engines:'CF34-8C5',    seats:76,  hull:24,  liab:200, base_risk:7 },
+    'AT76': { name:'ATR 72-600',               engines:'PW127M',      seats:70,  hull:18,  liab:150, base_risk:8 },
+    'AT75': { name:'ATR 72-500',               engines:'PW127F',      seats:70,  hull:16,  liab:150, base_risk:8 },
+    'AT45': { name:'ATR 42-500',               engines:'PW127E',      seats:48,  hull:9,   liab:120, base_risk:9 },
+    'AT46': { name:'ATR 42-600',               engines:'PW127M',      seats:50,  hull:12,  liab:130, base_risk:8 },
+    'DH8D': { name:'De Havilland Dash 8-400',  engines:'PW150A',      seats:74,  hull:14,  liab:130, base_risk:9 },
+    'D228': { name:'Dornier Do 228-212',       engines:'TPE331-5A',   seats:19,  hull:4,   liab:80,  base_risk:9 },
+    'D328': { name:'Dornier Do 328-110',       engines:'PW119B',      seats:32,  hull:7,   liab:100, base_risk:9 },
+    'D32J': { name:'Dornier Do 328JET',        engines:'PW306B',      seats:32,  hull:9,   liab:100, base_risk:8 },
+    'E190': { name:'Embraer E190',             engines:'CF34-10E',    seats:98,  hull:22,  liab:180, base_risk:8 },
+    'B733F':{ name:'Boeing 737-300 Freighter', engines:'CFM56-3C1',   seats:0,   hull:7,   liab:100, base_risk:9 },
+    'A351': { name:'Airbus A350-1000',          engines:'Trent XWB-97',seats:369, hull:320, liab:750, base_risk:5 },
+    'B77L': { name:'Boeing 777-200LR',          engines:'GE90-110B1',  seats:272, hull:155, liab:600, base_risk:7 },
+    'B77F': { name:'Boeing 777-200LRF',         engines:'GE90-110B1',  seats:0,   hull:140, liab:300, base_risk:7 },
+    'B737N7':{ name:'Boeing 737-700NG',         engines:'CFM56-7B',    seats:128, hull:28,  liab:250, base_risk:8 },
+    'B738J': { name:'Boeing 737-800BBJ',        engines:'CFM56-7B',    seats:50,  hull:60,  liab:150, base_risk:7 },
+    'B76F':  { name:'Boeing 767-300 Freighter', engines:'CF6-80C2',    seats:0,   hull:48,  liab:200, base_risk:8 },
+    'B738F': { name:'Boeing 737-800 Freighter', engines:'CFM56-7B',    seats:0,   hull:32,  liab:150, base_risk:8 },
+    'B39M':  { name:'Boeing 737 MAX 9',         engines:'LEAP-1B',     seats:178, hull:62,  liab:350, base_risk:7 },
+  };
+
+  // Months for realistic inspection dates
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function rndDate(yr, bias) { return MONTHS[(bias||3) % 12] + ' ' + yr; }
+  function inspDate(i) { const m = MONTHS[(i*3)%12]; return m + ' 2026'; }
+  function maintDate(i) { const m = MONTHS[(i*2+3)%12]; return m + ' 2026'; }
+
+  // [op, country, reg_prefix, start_num, pad, count, type, yr_start, msn_start, pol_prefix, status_pattern]
+  // status_pattern: array index mod length → status
+  const BATCHES = [
+    // ── Kenya Airways — B788 x7 (+ 2 explicit = 9), B738 x5 (+ 3 explicit = 8), B733F x2, E190 x12 (+ 1 explicit = 13) ──
+    ['KQ','Kenya',   '5Y-KZD', 4, 1,  7, 'B788', 2015, 38200, 'KQ', [0,0,0,0,0,0,1]],
+    ['KQ','Kenya',   '5Y-KQH', 8, 1,  5, 'B738', 2012, 44100, 'KQ', [0,0,0,0,1]],
+    ['KQ','Kenya',   '5Y-KCA', 1, 0,  2, 'B733F',2004, 28100, 'KQ', [0,0]],
+    ['KQ','Kenya',   '5Y-KYA', 1, 0, 12, 'E190', 2016, 19100, 'KQ', [0,0,0,0,0,0,0,0,0,0,0,1]],
+    // ── Ethiopian Airlines — exact fleet (5 explicit + 166 bulk = 171 aircraft) ──
+    // A350-1000 x4, A350-900XWB x22, B787-8 x20, B787-9 x8(+2 expl=10),
+    // B777-300ER x5, B777-200LR x5(+1 expl=6), B737-800 x18(+1 expl=19),
+    // B737MAX x28(+1 expl=29), B737-700NG x4, B737-800BBJ x1,
+    // Q400 x30, B777-200LRF x12, B767-300F x3, B737-800F x4, ATR72 x2
+    ['ET','Ethiopia','ET-AQA', 1, 0,  4, 'A351',  2022,  570,  'ET', [0,0,0,0]],
+    ['ET','Ethiopia','ET-ASS', 1, 0, 22, 'A35K',  2018,  381,  'ET', [0,0,0,0,0,0,0,0,0,0,1,0]],
+    ['ET','Ethiopia','ET-ATL', 1, 0, 20, 'B788',  2014, 38500, 'ET', [0,0,0,0,0,0,0,0,0,1,0,0]],
+    ['ET','Ethiopia','ET-AQL', 1, 0,  8, 'B789',  2016, 41200, 'ET', [0,0,0,0,0,0,0,1]],
+    ['ET','Ethiopia','ET-AWA', 1, 0,  5, 'B77W',  2015, 61100, 'ET', [0,0,0,0,0]],
+    ['ET','Ethiopia','ET-AMN', 1, 0,  5, 'B77L',  2012, 40700, 'ET', [0,0,0,0,1]],
+    ['ET','Ethiopia','ET-ANA', 1, 0, 18, 'B738',  2010, 37100, 'ET', [0,0,0,0,0,0,0,0,0,1,0,0]],
+    ['ET','Ethiopia','ET-AWP', 1, 0, 28, 'B38M',  2020, 64800, 'ET', [0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0]],
+    ['ET','Ethiopia','ET-ATG', 1, 0,  4, 'B737N7',2014, 38900, 'ET', [0,0,0,0]],
+    ['ET','Ethiopia','ET-ANF', 1, 0,  1, 'B738J', 2018, 43200, 'ET', [0]],
+    ['ET','Ethiopia','ET-AQC', 1, 0, 30, 'DH8D',  2016,  4600, 'ET', [0,0,0,0,0,0,0,0,0,1,0,0,0,0,0]],
+    ['ET','Ethiopia','ET-ARS', 1, 0, 12, 'B77F',  2016, 44100, 'ET', [0,0,0,0,0,0,0,0,0,0,0,1]],
+    ['ET','Ethiopia','ET-ARC', 1, 0,  3, 'B76F',  2012, 34100, 'ET', [0,0,0]],
+    ['ET','Ethiopia','ET-ANZ', 1, 0,  4, 'B738F', 2014, 38200, 'ET', [0,0,0,0]],
+    ['ET','Ethiopia','ET-ATR', 1, 0,  2, 'AT76',  2020,  1520, 'ET', [0,0]],
+    // ── RwandAir — A333 x1, A332 x2, B738 x8, DH8D x2 (13 total) ──
+    ['WB','Rwanda',  '9XR-WA', 1, 0,  1, 'A333', 2014, 1520,  'RW', [0]],
+    ['WB','Rwanda',  '9XR-WB', 1, 0,  2, 'A332', 2015, 1610,  'RW', [0,0]],
+    ['WB','Rwanda',  '9XR-WC', 1, 0,  8, 'B738', 2014, 38800, 'RW', [0,0,0,0,0,0,0,1]],
+    ['WB','Rwanda',  '9XR-WQ', 1, 0,  2, 'DH8D', 2018,  4900, 'RW', [0,0]],
+    // ── Uganda Airlines — 1x A330-800neo (5X-NIL, explicit) ──
+    // ── Air Tanzania — DH8D x3, A223 x4, B788 x3, B76F x1, B39M x2 (13 total) ──
+    ['TC','Tanzania','5H-TCL', 1, 0,  3, 'DH8D', 2018,  4900, 'TC', [0,0,0]],
+    ['TC','Tanzania','5H-TCA', 1, 0,  4, 'A223', 2022, 55200, 'TC', [0,0,0,0]],
+    ['TC','Tanzania','5H-TCG', 1, 0,  3, 'B788', 2021, 64200, 'TC', [0,0,0]],
+    ['TC','Tanzania','5H-TCF', 1, 0,  1, 'B76F', 2016, 42100, 'TC', [0]],
+    ['TC','Tanzania','5H-TCJ', 1, 0,  2, 'B39M', 2023, 71400, 'TC', [0,0]],
+    // ── Jambojet — DH8D x11 ──
+    ['JM','Kenya',   '5Y-JME', 1, 0, 11, 'DH8D', 2016, 4550,  'JM', [0,0,0,0,0,0,0,0,0,0,1]],
+    // ── Precision Air — AT75 x5, AT45 x3, AT46 x1 (9 total; 3 explicit above) ──
+    ['PW','Tanzania','5H-PWD', 1, 0,  2, 'AT75', 2017, 1420,  'PW', [0,0]],
+    ['PW','Tanzania','5H-PWG', 1, 0,  3, 'AT45', 2014,  880,  'PW', [0,0,0]],
+    ['PW','Tanzania','5H-PWK', 1, 0,  1, 'AT46', 2022, 1580,  'PW', [0]],
+    // ── Flightlink — DH8D x4, D228 x2 ──
+    ['FL','Tanzania','5H-FHM', 2, 0,  4, 'DH8D', 2010, 4280,  'FL', [0,0,0,1]],
+    ['FL','Tanzania','5H-FDA', 1, 0,  2, 'D228', 2008, 8180,  'FL', [0,0]],
+    // ── Top-up (other operators) ──
+  ];
+
+  const STATUSES = ['active','maintenance','grounded'];
+  let polSeq = 800;
+
+  BATCHES.forEach(function(b) {
+    const [op, country, regPfx, regStart, regPad, count, typeCode, yrStart, msnStart, polPfx, statusPat] = b;
+    const t = T[typeCode];
+    for (let i = 0; i < count; i++) {
+      const regNum = regStart + i;
+      const reg = regPfx.replace(/\d+$/, '') + (regPad ? String(regNum).padStart(2,'0') : regNum);
+      const yr = yrStart + (i % 4);
+      const hours = (2026 - yr) * 3000 + (i * 400) % 8000;
+      const cycles = Math.round(hours / 4.2);
+      const maintDaysVal = 30 + (i * 17) % 120;
+      const risk = Math.min(22, t.base_risk + (i % 4));
+      const statusIdx = statusPat[i % statusPat.length];
+      const status = STATUSES[statusIdx] || 'active';
+
+      fleet.push({
+        reg: reg,
+        type: t.name,
+        short: typeCode,
+        op: op,
+        country: country,
+        yr: yr,
+        msn: String(msnStart + i),
+        engines: t.engines,
+        seats: t.seats,
+        status: status,
+        lastInsp: inspDate(i),
+        nextMaint: maintDate(i + 2),
+        maintDays: maintDaysVal,
+        polId: polPfx + '-HULL-2024-' + String(polSeq++).padStart(3,'0'),
+        polExp: '31 Dec 2026',
+        polDays: 180 + (i * 11) % 80,
+        hullVal: '$' + (t.hull + (i % 5) * 2) + 'M',
+        liabVal: '$' + t.liab + 'M',
+        hours: hours,
+        cycles: cycles,
+        risk: risk,
+        riskNote: status === 'grounded' ? 'Aircraft grounded — awaiting maintenance clearance.'
+                 : status === 'maintenance' ? 'Scheduled maintenance in progress. Policy current.'
+                 : 'Policy current. No open claims. Routine operations.',
+        history: [],
+      });
+    }
+  });
+})();
+
+/* ════════════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════════ */
+let currentFilter = 'all';
+let currentView   = 'table';
+let currentSort   = { key: 'reg', dir: 1 };
+let selectedReg   = null;
+let operatorKQ    = false;   // true = show Kenya Airways aircraft only
+
+// Base fleet — respects operator filter
+function fleetBase() { return operatorKQ ? fleet.filter(a => a.op === 'KQ') : fleet; }
+
+// Called from parent index.html when role toggles
+function setFleetOperator(isOperator) {
+  operatorKQ = isOperator;
+  const h = document.getElementById('pageTitle');
+  if (h) h.textContent = isOperator ? 'Kenya Airways Fleet Register' : 'Fleet Register';
+  // Hide Policy Expiry and Operator columns for operator
+  const polTh = document.getElementById('thPolicyExpiry');
+  if (polTh) polTh.style.display = isOperator ? 'none' : '';
+  const opTh = document.getElementById('thOperator');
+  if (opTh) opTh.style.display = isOperator ? 'none' : '';
+  currentFilter = 'all';
+  applyFilters();
+}
+
+/* ════════════════════════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════════════════════ */
+function riskClass(r)  { return r>=21?'risk-ext':r>=12?'risk-high':r>=6?'risk-mod':'risk-low'; }
+function riskLabel(r)  { return r>=21?'Extreme':r>=12?'High':r>=6?'Medium':'Low'; }
+function riskColor(r)  { return r>=21?'#ef4444':r>=12?'#f97316':r>=6?'#f59e0b':'#10b981'; }
+function dayClass(d)   { return d<14?'days-red':d<45?'days-warn':'days-ok'; }
+function polDayClass(d){ return d<30?'days-red':d<60?'days-warn':'days-ok'; }
+function statusBadge(s){
+  const m = {active:'st-active Active',maintenance:'st-maint Maintenance',grounded:'st-grounded Grounded',ferry:'st-ferry Ferry'};
+  const p = (m[s]||'st-active Active').split(' ');
+  return `<span class="st-badge ${p[0]}">${p[1]}</span>`;
+}
+function opChip(code) {
+  const o = OP_META[code]||{name:code,color:'#64748b',bg:'rgba(100,116,139,.12)'};
+  return `<span class="op-chip" style="background:${o.bg};color:${o.color}"><span class="op-dot" style="background:${o.color}"></span>${code} · ${o.name}</span>`;
+}
+function fmtHours(h) { return h.toLocaleString()+'h'; }
+function fmtCyc(c)   { return c.toLocaleString()+'c'; }
+
+/* Risk matrix (self-contained) */
+function getCell(score) {
+  var best=[3,3],bestErr=Infinity;
+  for(var L=1;L<=5;L++) for(var I=1;I<=5;I++){
+    var e=Math.abs(L*I-score),b=Math.abs(L-I);
+    if(e<bestErr||(e===bestErr&&b<Math.abs(best[0]-best[1]))){bestErr=e;best=[L,I];}
+  }
+  return best;
+}
+function buildMatrix(score) {
+  var cell=getCell(score),hl=cell[0],hi=cell[1];
+  var zBg=function(v){return v>=21?'#dc2626':v>=12?'#ea580c':v>=6?'#d97706':'#16a34a';};
+  var lv=score>=21?'EXTREME':score>=12?'HIGH':score>=6?'MEDIUM':'LOW';
+  var lc=zBg(score);
+  var lLbls=['Rare','Unlikely','Possible','Likely','Certain'];
+  var iLbls=['Negligible','Minor','Major','Hazardous','Catastrophic'];
+  var th='<th class="rm-corner">Lkhd&nbsp;↓<br>Impact&nbsp;→</th>';
+  for(var I=1;I<=5;I++) th+='<th class="rm-th" title="'+iLbls[I-1]+'">'+I+'</th>';
+  var tb='';
+  for(var L=1;L<=5;L++){
+    var tr='<td class="rm-lh" title="'+lLbls[L-1]+'"><b>'+L+'</b>'+lLbls[L-1]+'</td>';
+    for(var II=1;II<=5;II++){
+      var v=L*II,a=(L===hl&&II===hi);
+      var st='background:'+zBg(v)+';'+(a?'opacity:1;box-shadow:0 0 0 2px white,0 0 0 3.5px '+zBg(v)+';position:relative;z-index:1;':'opacity:.42;font-weight:400;');
+      tr+='<td class="rm-cell" style="'+st+'">'+v+'</td>';
+    }
+    tb+='<tr>'+tr+'</tr>';
+  }
+  var legend='<div style="display:flex;gap:8px;margin-top:5px;flex-wrap:wrap;">'
+    +'<span style="font-size:8px;color:var(--text-3);display:flex;align-items:center;gap:3px;"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#16a34a;"></span>Low</span>'
+    +'<span style="font-size:8px;color:var(--text-3);display:flex;align-items:center;gap:3px;"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#d97706;"></span>Medium</span>'
+    +'<span style="font-size:8px;color:var(--text-3);display:flex;align-items:center;gap:3px;"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#ea580c;"></span>High</span>'
+    +'<span style="font-size:8px;color:var(--text-3);display:flex;align-items:center;gap:3px;"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#dc2626;"></span>Extreme</span>'
+    +'</div>';
+  return '<div class="panel-rm">'
+    +'<div class="rm-hdr">Risk Score: <b>'+score+'/25</b> &nbsp;|&nbsp; Risk Level: <b style="color:'+lc+'">'+lv+'</b></div>'
+    +'<table style="width:100%;border-collapse:separate;border-spacing:2px;table-layout:fixed;"><thead><tr>'+th+'</tr></thead><tbody>'+tb+'</tbody></table>'
+    +legend+'</div>';
+}
+
+/* ════════════════════════════════════════════════════════════
+   RENDER KPIs
+═══════════════════════════════════════════════════════════ */
+function renderKPIs() {
+  const base = fleetBase();
+  const total = base.length;
+  const active = base.filter(a=>a.status==='active').length;
+  const maint  = base.filter(a=>a.status==='maintenance').length;
+  const ground = base.filter(a=>a.status==='grounded').length;
+  const expiring = base.filter(a=>a.polDays<60).length;
+
+  document.getElementById('kpiStrip').innerHTML = `
+    <div class="kpi-mini"><div class="kpi-mini-icon blue"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M21 16v-2l-8-5V3.5A1.5 1.5 0 0 0 11.5 2A1.5 1.5 0 0 0 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg></div><div><div class="kpi-mini-val">${total}</div><div class="kpi-mini-lbl">${operatorKQ ? 'My Fleet' : 'Total Fleet'}</div></div></div>
+    <div class="kpi-mini"><div class="kpi-mini-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><div><div class="kpi-mini-val" style="color:var(--success)">${active}</div><div class="kpi-mini-lbl">Active</div></div></div>
+    <div class="kpi-mini"><div class="kpi-mini-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div><div class="kpi-mini-val" style="color:var(--warn)">${maint}</div><div class="kpi-mini-lbl">Maintenance</div></div></div>
+    ${operatorKQ ? '' : `<div class="kpi-mini"><div class="kpi-mini-icon red"><svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></div><div><div class="kpi-mini-val" style="color:var(--danger)">${ground}</div><div class="kpi-mini-lbl">Grounded</div></div></div>`}
+    ${operatorKQ ? '' : `<div class="kpi-mini"><div class="kpi-mini-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div><div class="kpi-mini-val" style="color:#8b5cf6">${expiring}</div><div class="kpi-mini-lbl">Policies Expiring</div></div></div>`}
+  `;
+}
+
+/* ════════════════════════════════════════════════════════════
+   RENDER FILTER TABS
+═══════════════════════════════════════════════════════════ */
+function renderTabs() {
+  const base = fleetBase();
+  const counts = {
+    all: base.length,
+    active:      base.filter(a=>a.status==='active').length,
+    maintenance: base.filter(a=>a.status==='maintenance').length,
+    grounded:    base.filter(a=>a.status==='grounded').length,
+    expiring:    base.filter(a=>a.polDays<60).length,
+  };
+  const tabs = [
+    {k:'all',        lbl: operatorKQ ? 'My Fleet' : 'All Fleet'},
+    {k:'active',     lbl:'Active'},
+    {k:'maintenance',lbl:'Maintenance'},
+    ...(operatorKQ ? [] : [{k:'grounded',  lbl:'Grounded'}]),
+    ...(operatorKQ ? [] : [{k:'expiring',  lbl:'Expiring Soon'}]),
+  ];
+  document.getElementById('filterTabs').innerHTML = tabs.map(t=>
+    `<button class="fl-tab${currentFilter===t.k?' active':''}" onclick="setFilter('${t.k}')">
+       ${t.lbl}<span class="tc">${counts[t.k]}</span>
+     </button>`
+  ).join('');
+}
+
+/* ════════════════════════════════════════════════════════════
+   FILTER + SORT + RENDER TABLE
+═══════════════════════════════════════════════════════════ */
+function getFiltered() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  return fleetBase().filter(a => {
+    const op = OP_META[a.op]||{name:a.op};
+    const matchFilter =
+      currentFilter === 'all'  ||
+      (currentFilter === 'active'      && a.status === 'active')      ||
+      (currentFilter === 'maintenance' && a.status === 'maintenance') ||
+      (currentFilter === 'grounded'    && a.status === 'grounded')    ||
+      (currentFilter === 'expiring'    && a.polDays < 60);
+    const matchSearch = !q || [a.reg, a.type, a.short, op.name, a.op, a.country, a.status].some(s=>s.toLowerCase().includes(q));
+    return matchFilter && matchSearch;
+  }).sort((a,b) => {
+    const k = currentSort.key;
+    let va, vb;
+    if(k==='reg')      { va=a.reg; vb=b.reg; }
+    else if(k==='type'){ va=a.short; vb=b.short; }
+    else if(k==='op')  { va=a.op; vb=b.op; }
+    else if(k==='yr')  { va=a.yr; vb=b.yr; }
+    else if(k==='status'){ va=a.status; vb=b.status; }
+    else if(k==='maintDays'){ va=a.maintDays; vb=b.maintDays; }
+    else if(k==='polDays'){ va=a.polDays; vb=b.polDays; }
+    else if(k==='risk'){ va=a.risk; vb=b.risk; }
+    else { va=a.reg; vb=b.reg; }
+    if(typeof va==='string') return currentSort.dir * va.localeCompare(vb);
+    return currentSort.dir * (va - vb);
+  });
+}
+
+function applyFilters() {
+  renderTabs();
+  const data = getFiltered();
+  if(currentView==='table') renderTable(data);
+  else renderCards(data);
+}
+
+function renderTable(data) {
+  const tbody = document.getElementById('fleetBody');
+  const empty = document.getElementById('flEmpty');
+  if(!data.length){ tbody.innerHTML=''; empty.style.display=''; return; }
+  empty.style.display='none';
+  tbody.innerHTML = data.map((a,i) => {
+    const sel = selectedReg===a.reg ? ' selected' : '';
+    const maintColor = dayClass(a.maintDays);
+    const polColor   = polDayClass(a.polDays);
+    return `<tr class="${sel}" onclick="openPanel('${a.reg}')" style="animation-delay:${i*0.025}s">
+      <td><span class="reg">${a.reg}</span></td>
+      <td><div class="ac-type">${a.short}</div><div class="ac-type-sub">${a.type}</div></td>
+      ${operatorKQ ? '' : `<td>${opChip(a.op)}</td>`}
+      <td style="color:var(--text-2);font-size:12px;">${a.yr}</td>
+      <td><div class="fl-num">${fmtHours(a.hours)}</div><div class="fl-num-sub">${fmtCyc(a.cycles)}</div></td>
+      <td>${statusBadge(a.status)}</td>
+      <td><span class="days-pill ${maintColor}">${a.maintDays>0?a.maintDays+'d':'Overdue'}</span><div style="font-size:10px;color:var(--text-3);margin-top:2px;">${a.nextMaint}</div></td>
+      ${operatorKQ ? '' : `<td><span class="days-pill ${polColor}">${a.polDays>0?a.polDays+'d':'Expired'}</span><div style="font-size:10px;color:var(--text-3);margin-top:2px;">${a.polExp}</div></td>`}
+      <td><span class="risk-pill ${riskClass(a.risk)}">${a.risk}/25</span><div style="font-size:10px;color:${riskColor(a.risk)};margin-top:2px;font-weight:600;">${riskLabel(a.risk)}</div></td>
+      <td><button class="row-act" onclick="event.stopPropagation();openPanel('${a.reg}')" title="View details"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderCards(data) {
+  const grid = document.getElementById('cardGrid');
+  if(!data.length){ grid.innerHTML='<div class="fl-empty" style="grid-column:1/-1"><div class="fl-empty-icon"><svg viewBox="0 0 24 24"><path d="M21 16v-2l-8-5V3.5A1.5 1.5 0 0 0 11.5 2A1.5 1.5 0 0 0 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg></div><div class="fl-empty-title">No aircraft match</div></div>'; return; }
+  const o = OP_META;
+  grid.innerHTML = data.map(a => {
+    const op = o[a.op]||{name:a.op,color:'#64748b',bg:'rgba(100,116,139,.12)'};
+    const sel = selectedReg===a.reg ? ' selected' : '';
+    return `<div class="ac-card${sel}" onclick="openPanel('${a.reg}')">
+      <div class="ac-card-top">
+        <div>
+          <div class="ac-card-reg">${a.reg}</div>
+          <div class="ac-card-type">${a.type}</div>
+        </div>
+        ${statusBadge(a.status)}
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <span class="op-chip" style="background:${op.bg};color:${op.color}"><span class="op-dot" style="background:${op.color}"></span>${a.op} · ${op.name}</span>
+        <span class="risk-pill ${riskClass(a.risk)}" style="font-size:10.5px;">${a.risk}/25 ${riskLabel(a.risk)}</span>
+      </div>
+      <div class="ac-card-grid">
+        <div><div class="ac-card-field">Mfg Year</div><div class="ac-card-val">${a.yr}</div></div>
+        <div><div class="ac-card-field">Engines</div><div class="ac-card-val" style="font-size:10.5px">${a.engines}</div></div>
+        <div><div class="ac-card-field">Flight Hours</div><div class="ac-card-val">${fmtHours(a.hours)}</div></div>
+        <div><div class="ac-card-field">Cycles</div><div class="ac-card-val">${fmtCyc(a.cycles)}</div></div>
+      </div>
+      <div class="ac-card-bottom">
+        <div><div class="ac-card-field">Next Maint</div><span class="days-pill ${dayClass(a.maintDays)}" style="font-size:10px;">${a.maintDays>0?a.maintDays+'d':'Overdue'}</span></div>
+        <div style="text-align:right;"><div class="ac-card-field">Policy</div><span class="days-pill ${polDayClass(a.polDays)}" style="font-size:10px;">${a.polDays>0?a.polDays+'d':'Expired'}</span></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ════════════════════════════════════════════════════════════
+   DETAIL PANEL
+═══════════════════════════════════════════════════════════ */
+let dpTab = 'overview';
+
+function openPanel(reg) {
+  selectedReg = reg;
+  dpTab = 'overview';
+  const a = fleet.find(f=>f.reg===reg);
+  if(!a) return;
+  renderPanel(a);
+  document.getElementById('detailPanel').classList.add('open');
+  document.getElementById('flBody').classList.add('panel-open');
+  applyFilters(); // re-render to show selected state
+}
+
+function closePanel() {
+  selectedReg = null;
+  document.getElementById('detailPanel').classList.remove('open');
+  document.getElementById('flBody').classList.remove('panel-open');
+  applyFilters();
+}
+
+function switchDpTab(tab) {
+  dpTab = tab;
+  const a = fleet.find(f=>f.reg===selectedReg);
+  if(!a) return;
+  renderPanel(a);
+}
+
+function renderPanel(a) {
+  const op = OP_META[a.op]||{name:a.op,color:'#64748b',bg:'rgba(100,116,139,.12)'};
+  const noteClass = a.status==='grounded'?'danger-note': a.status==='maintenance'?'warn-note':'';
+
+  const tabs = ['overview','maintenance','policy','history'];
+  const tabLabels = ['Overview','Maintenance','Policy','History'];
+  const tabHtml = tabs.map((t,i)=>
+    `<button class="dp-tab${dpTab===t?' active':''}" onclick="switchDpTab('${t}')">${tabLabels[i]}</button>`
+  ).join('');
+
+  let body = '';
+  if(dpTab==='overview') {
+    body = `
+      <div class="dp-section">
+        <div class="dp-section-title">Aircraft Specifications</div>
+        <div class="dp-grid">
+          <div><div class="dp-field-lbl">MSN</div><div class="dp-field-val" style="font-family:monospace;">${a.msn}</div></div>
+          <div><div class="dp-field-lbl">Manufacture Year</div><div class="dp-field-val">${a.yr}</div></div>
+          <div><div class="dp-field-lbl">Engines</div><div class="dp-field-val">${a.engines}</div></div>
+          <div><div class="dp-field-lbl">Seating Config</div><div class="dp-field-val">${a.seats} seats</div></div>
+          <div><div class="dp-field-lbl">Total Flight Hours</div><div class="dp-field-val">${a.hours.toLocaleString()} h</div></div>
+          <div><div class="dp-field-lbl">Total Cycles</div><div class="dp-field-val">${a.cycles.toLocaleString()}</div></div>
+          <div><div class="dp-field-lbl">Country of Reg.</div><div class="dp-field-val">${a.country}</div></div>
+          <div><div class="dp-field-lbl">Aircraft Age</div><div class="dp-field-val">${2026-a.yr} years</div></div>
+        </div>
+      </div>
+      <div class="dp-section">
+        <div class="dp-section-title">Risk Assessment</div>
+        ${buildMatrix(a.risk)}
+        <div class="dp-note ${noteClass}" style="margin-top:10px;">${a.riskNote}</div>
+      </div>`;
+  } else if(dpTab==='maintenance') {
+    const mColor = dayClass(a.maintDays);
+    body = `
+      <div class="dp-section">
+        <div class="dp-section-title">Maintenance Status</div>
+        <div class="dp-grid">
+          <div><div class="dp-field-lbl">Last Inspection</div><div class="dp-field-val">${a.lastInsp}</div></div>
+          <div><div class="dp-field-lbl">Next Maintenance</div><div class="dp-field-val">${a.nextMaint}</div></div>
+          <div><div class="dp-field-lbl">Days Until Maint.</div><div class="dp-field-val"><span class="days-pill ${mColor}">${a.maintDays>0?a.maintDays+' days':'Overdue'}</span></div></div>
+          <div><div class="dp-field-lbl">Current Status</div><div class="dp-field-val">${statusBadge(a.status)}</div></div>
+        </div>
+      </div>
+      <div class="dp-section">
+        <div class="dp-section-title">Maintenance Schedule</div>
+        <div class="maint-row"><div class="maint-dot" style="background:${a.maintDays<14?'#ef4444':a.maintDays<45?'#f59e0b':'#10b981'}"></div><div class="maint-info"><div class="maint-type">Scheduled Maintenance</div><div class="maint-date">${a.nextMaint} &nbsp;·&nbsp; <span class="days-pill ${mColor}" style="font-size:10px;">${a.maintDays>0?a.maintDays+'d':'Overdue'}</span></div></div></div>
+        <div class="maint-row"><div class="maint-dot" style="background:var(--success)"></div><div class="maint-info"><div class="maint-type">Last Inspection</div><div class="maint-date">${a.lastInsp}</div></div></div>
+        <div class="maint-row"><div class="maint-dot" style="background:var(--text-3)"></div><div class="maint-info"><div class="maint-type">Total Flight Hours</div><div class="maint-date">${a.hours.toLocaleString()} hours &nbsp;·&nbsp; ${a.cycles.toLocaleString()} cycles</div></div></div>
+      </div>`;
+  } else if(dpTab==='policy') {
+    const pColor = polDayClass(a.polDays);
+    body = `
+      <div class="dp-section">
+        <div class="dp-section-title">Policy Details</div>
+        <div class="pol-row"><span class="pol-lbl">Policy ID</span><span class="pol-val" style="font-family:monospace;color:var(--accent);font-size:11.5px;">${a.polId}</span></div>
+        <div class="pol-row"><span class="pol-lbl">Policy Status</span><span class="pol-val">${statusBadge(a.polDays>0?'active':'grounded')}</span></div>
+        <div class="pol-row"><span class="pol-lbl">Expiry Date</span><span class="pol-val">${a.polExp}</span></div>
+        <div class="pol-row"><span class="pol-lbl">Days Remaining</span><span class="pol-val"><span class="days-pill ${pColor}">${a.polDays>0?a.polDays+' days':'Expired'}</span></span></div>
+      </div>
+      <div class="dp-section">
+        <div class="dp-section-title">Coverage & Values</div>
+        <div class="pol-row"><span class="pol-lbl">Hull Insured Value</span><span class="pol-val" style="color:var(--success);font-size:13px;">${a.hullVal}</span></div>
+        <div class="pol-row"><span class="pol-lbl">Liability Cover</span><span class="pol-val" style="color:var(--accent);font-size:13px;">${a.liabVal}</span></div>
+        <div class="pol-row"><span class="pol-lbl">Operator</span><span class="pol-val">${opChip(a.op)}</span></div>
+        <div class="pol-row"><span class="pol-lbl">Country</span><span class="pol-val">${a.country}</span></div>
+      </div>
+      ${a.polDays<60?`<div class="dp-note ${a.polDays<30?'danger-note':'warn-note'}">⚠ Policy expires in <b>${a.polDays} days</b>. Initiate renewal process immediately to avoid coverage gap.</div>`:''}`;
+  } else if(dpTab==='history') {
+    body = `
+      <div class="dp-section">
+        <div class="dp-section-title">Event History</div>
+        <div>${(a.history||[]).map((h,i)=>{
+          const dotCol = h.type==='danger'?'#ef4444':h.type==='warn'?'#f59e0b':h.type==='success'?'#10b981':'#1A6FE8';
+          const isLast = i===(a.history.length-1);
+          return `<div class="hist-item">
+            <div class="hist-line">
+              <div class="hist-dot" style="background:${dotCol}"></div>
+              ${!isLast?'<div class="hist-vline"></div>':''}
+            </div>
+            <div class="hist-body">
+              <div class="hist-title">${h.title}</div>
+              <div class="hist-desc">${h.desc}</div>
+              <div class="hist-date">${h.date}</div>
+            </div>
+          </div>`;
+        }).join('')}</div>
+      </div>`;
+  }
+
+  document.getElementById('dpContent').innerHTML = `
+    <div class="dp-hero">
+      <div class="dp-reg">${a.reg}</div>
+      <div class="dp-type">${a.type}</div>
+      <div class="dp-meta">
+        ${opChip(a.op)}
+        ${statusBadge(a.status)}
+        <span class="risk-pill ${riskClass(a.risk)}" style="font-size:10.5px;">${a.risk}/25 ${riskLabel(a.risk)}</span>
+      </div>
+    </div>
+    <div class="dp-tabs">${tabHtml}</div>
+    <div class="dp-body">${body}</div>`;
+}
+
+/* ════════════════════════════════════════════════════════════
+   SORT
+═══════════════════════════════════════════════════════════ */
+function sortBy(key) {
+  if(currentSort.key===key) currentSort.dir *= -1;
+  else { currentSort.key=key; currentSort.dir=1; }
+  document.querySelectorAll('.fleet-table thead th').forEach(th=>th.classList.remove('sort-active'));
+  applyFilters();
+}
+
+/* ════════════════════════════════════════════════════════════
+   FILTER + VIEW
+═══════════════════════════════════════════════════════════ */
+function setFilter(f) {
+  currentFilter = f;
+  applyFilters();
+}
+
+function setView(v) {
+  currentView = v;
+  document.getElementById('viewTable').style.display = v==='table' ? '' : 'none';
+  document.getElementById('viewCards').style.display = v==='cards' ? '' : 'none';
+  document.getElementById('vt-table').classList.toggle('active', v==='table');
+  document.getElementById('vt-cards').classList.toggle('active', v==='cards');
+  applyFilters();
+}
+
+/* ════════════════════════════════════════════════════════════
+   EXPORT CSV
+═══════════════════════════════════════════════════════════ */
+function exportCSV() {
+  const cols = ['Registration','Type','Operator','Country','Mfg Year','MSN','Engines','Seats','Status','Hours','Cycles','Last Inspection','Next Maintenance','Maint Days','Policy ID','Policy Expiry','Policy Days','Hull Value','Liability','Risk Score'];
+  const rows = fleet.map(a=>[a.reg,a.type,OP_META[a.op]?OP_META[a.op].name:a.op,a.country,a.yr,a.msn,a.engines,a.seats,a.status,a.hours,a.cycles,a.lastInsp,a.nextMaint,a.maintDays,a.polId,a.polExp,a.polDays,a.hullVal,a.liabVal,a.risk]);
+  const csv = [cols,...rows].map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'fleet-register-' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+}
+
+/* ════════════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════════ */
+// Read role from URL param (set by parent when navigating to fleet page)
+(function() {
+  const p = new URLSearchParams(window.location.search);
+  if (p.get('op') === 'KQ') {
+    operatorKQ = true;
+    const h = document.getElementById('pageTitle');
+    if (h) h.textContent = 'Kenya Airways Fleet Register';
+    const th = document.getElementById('thPolicyExpiry');
+    if (th) th.style.display = 'none';
+    const opTh = document.getElementById('thOperator');
+    if (opTh) opTh.style.display = 'none';
+  }
+})();
+renderKPIs();
+renderTabs();
+applyFilters();
+</script>
+</body>
+</html>

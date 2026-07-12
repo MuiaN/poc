@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ethiopia — Country Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="../theme.js"></script>
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-body); font-size: 12px; background: var(--bg); color: var(--text); }
+    .page-header { background: var(--bg-2); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 10px 18px; }
+    .header-title { color: var(--text); font-size: 16px; font-weight: 700; letter-spacing: 0.2px; }
+    .header-tz    { color: var(--accent); font-size: 13px; font-weight: 700; }
+    .tab-bar { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--bg-3); border-bottom: 1px solid var(--border); }
+    .tab-btn { padding: 10px 14px; text-align: center; font-size: 12px; font-weight: 600; color: var(--text-2); background: var(--bg-3); border: none; cursor: pointer; border-right: 1px solid var(--border); transition: background 0.15s, color 0.15s; white-space: nowrap; font-family: var(--font-body); }
+    .tab-btn:last-child { border-right: none; }
+    .tab-btn:hover { background: var(--bg-hover); color: var(--text); }
+    .tab-btn.t-overview { background: var(--accent); color: #fff; }
+    .tab-btn.t-threat   { background: var(--danger); color: #fff; }
+    .tab-btn.t-weather  { background: var(--warn); color: #0B0F1A; }
+    .tab-btn.t-history  { background: var(--bg-hover); color: var(--text); }
+    .tab-panel { display: none; padding: 12px 14px 18px; }
+    .tab-panel.active { display: block; }
+    .kpi-strip { display: grid; grid-template-columns: repeat(5, 1fr); border: 1px solid var(--border); margin-bottom: 12px; background: var(--bg-2); }
+    .kpi-card { padding: 9px 13px; border-right: 1px solid var(--border); }
+    .kpi-card:last-child { border-right: none; }
+    .kpi-label { font-size: 9.5px; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 3px; }
+    .kpi-val   { font-size: 18px; font-weight: 700; line-height: 1.2; }
+    .kpi-sub   { font-size: 10px; color: var(--text-2); margin-top: 3px; line-height: 1.4; }
+    .c-orange  { color: var(--warn); }
+    .c-green   { color: var(--success); }
+    .c-navy    { color: var(--text); }
+    .c-red     { color: var(--danger); }
+    .c-amber   { color: var(--warn); }
+    .three-col { display: grid; grid-template-columns: 27% 1fr 28%; gap: 12px; }
+    .two-col   { display: grid; grid-template-columns: 56% 1fr; gap: 12px; }
+    .panel { background: var(--bg-2); border: 1px solid var(--border); }
+    .ph { padding: 6px 11px; font-size: 11.5px; font-weight: 700; border-bottom: 1px solid var(--border); }
+    .ph-blue   { background: var(--bg-3); color: var(--accent);   border-left: 3px solid var(--accent); }
+    .ph-navy   { background: var(--bg-3); color: var(--text);     border-left: 3px solid var(--text-2); }
+    .ph-maroon { background: rgba(239,68,68,0.08);  color: var(--danger);  border-left: 3px solid var(--danger); }
+    .ph-amber  { background: rgba(245,158,11,0.08); color: var(--warn);    border-left: 3px solid var(--warn); }
+    .ph-slate  { background: var(--bg-3); color: var(--text-2);   border-left: 3px solid var(--text-2); }
+    .ph-green  { background: rgba(16,185,129,0.08); color: var(--success); border-left: 3px solid var(--success); }
+    .ph-red    { background: rgba(239,68,68,0.08);  color: var(--danger);  border-left: 3px solid var(--danger); }
+    .pb { padding: 11px 12px; font-size: 11.5px; line-height: 1.58; color: var(--text); }
+    .pb p { margin-bottom: 8px; }
+    .pb p:last-child { margin-bottom: 0; }
+    .dt { width: 100%; border-collapse: collapse; font-size: 11px; }
+    .dt thead th { background: var(--bg-3); padding: 5px 8px; text-align: left; font-weight: 700; border-bottom: 2px solid var(--border); white-space: nowrap; color: var(--text-2); }
+    .dt tbody tr:nth-child(even) { background: var(--bg-3); }
+    .dt tbody tr:hover { background: var(--bg-hover); }
+    .dt tbody td { padding: 5px 8px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.45; color: var(--text); }
+    .dt-sm td { font-size: 10.5px; }
+    .dt tbody td.note { font-size: 10.5px; color: var(--text-2); }
+    .risk { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 2px; white-space: nowrap; }
+    .r-low      { background: rgba(16,185,129,0.15);  color: var(--success); }
+    .r-mod      { background: rgba(245,158,11,0.15);  color: var(--warn); }
+    .r-mod-el   { background: rgba(249,115,22,0.15);  color: #f97316; font-style: italic; }
+    .r-el       { background: rgba(239,68,68,0.12);   color: #f97316; }
+    .r-high     { background: var(--danger);           color: #fff; }
+    .r-seasonal { background: rgba(139,92,246,0.15);  color: #a78bfa; }
+    .r-monitor  { background: var(--accent-dim);       color: var(--accent); }
+    .kv { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid var(--border); font-size: 11px; gap: 6px; align-items: flex-start; }
+    .kv:last-child { border-bottom: none; }
+    .kv-k { color: var(--text-2); flex-shrink: 0; }
+    .kv-v { text-align: right; font-weight: 600; color: var(--text); font-size: 10.5px; }
+    .kv-v.blue  { color: var(--accent); }
+    .kv-v.red   { color: var(--danger); }
+    .kv-v.green { color: var(--success); font-weight: 700; }
+    .kv-v.amber { color: var(--warn); }
+    .threat-card { border: 1px solid var(--border); margin-bottom: 10px; }
+    .threat-card:last-child { margin-bottom: 0; }
+    .tc-head { display: flex; align-items: center; gap: 10px; padding: 7px 11px; border-bottom: 1px solid var(--border); }
+    .tc-badge { display: inline-block; font-size: 9.5px; font-weight: 800; padding: 2px 8px; border-radius: 2px; white-space: nowrap; letter-spacing: 0.5px; }
+    .tc-high  { background: var(--danger);  color: #fff; }
+    .tc-mod   { background: var(--warn);    color: #0B0F1A; }
+    .tc-watch { background: var(--success); color: #0B0F1A; }
+    .tc-title { font-size: 12px; font-weight: 700; color: var(--text); }
+    .tc-body  { padding: 9px 11px; font-size: 11px; line-height: 1.55; color: var(--text); }
+    .tc-body p { margin-bottom: 5px; }
+    .tc-body p:last-child { margin-bottom: 0; }
+    .tc-italic { font-style: italic; color: var(--text-2); margin-top: 6px; }
+    .tc-border-high  { border-left: 3px solid var(--danger); }
+    .tc-border-mod   { border-left: 3px solid var(--warn); }
+    .tc-border-watch { border-left: 3px solid var(--success); }
+    .season-card { display: flex; border: 1px solid var(--border); background: var(--bg-2); margin-bottom: 8px; }
+    .season-card:last-child { margin-bottom: 0; }
+    .season-label { width: 58px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 8px 6px; font-size: 10px; font-weight: 700; text-align: center; }
+    .s-active { background: var(--warn);   color: #0B0F1A; }
+    .s-dry    { background: var(--accent); color: #fff; }
+    .s-short  { background: #475569;       color: #fff; }
+    .season-label .s-date  { font-size: 11px; font-weight: 800; line-height: 1.3; }
+    .season-label .s-badge { font-size: 8px; background: rgba(255,255,255,0.25); border-radius: 2px; padding: 1px 4px; margin-top: 3px; }
+    .season-body { padding: 9px 11px; font-size: 11px; line-height: 1.5; color: var(--text-2); }
+    .season-name { font-weight: 700; font-size: 11.5px; color: var(--text); margin-bottom: 4px; }
+    .wx-section { margin-bottom: 10px; }
+    .wx-head { font-size: 10.5px; font-weight: 700; color: var(--text-2); background: var(--bg-3); padding: 4px 10px; }
+    .wx-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 10px; border-bottom: 1px solid var(--border); font-size: 11px; }
+    .wx-row:last-child { border-bottom: none; }
+    .wx-key { color: var(--text-2); }
+    .wx-val { font-weight: 600; color: var(--text); }
+    .wx-val.elevated   { color: var(--danger); }
+    .wx-val.possible   { color: var(--warn); }
+    .wx-val.active     { color: var(--warn); }
+    .wx-val.soft       { color: var(--warn); }
+    .wx-val.normal     { color: var(--success); }
+    .wx-val.full       { color: var(--success); }
+    .wx-val.high       { color: var(--danger); font-weight: 800; }
+    .wx-val.inter      { color: var(--warn); }
+    .wx-val.moderate-c { color: var(--warn); }
+    .key-event { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); padding: 8px 11px; margin: 8px 0; font-size: 11px; line-height: 1.5; color: var(--text); }
+    .key-event-title { font-weight: 800; font-size: 11px; color: var(--danger); margin-bottom: 3px; }
+    .airport-adv { border: 1px solid var(--border); background: var(--bg-2); margin-bottom: 6px; }
+    .airport-adv:last-child { margin-bottom: 0; }
+    .adv-head { background: var(--bg-3); padding: 5px 10px; font-size: 11px; font-weight: 700; color: var(--text); border-bottom: 1px solid var(--border); }
+    .adv-body { padding: 7px 10px; font-size: 11px; color: var(--text-2); line-height: 1.5; }
+    .month-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 2px; margin-bottom: 2px; }
+    .mg-cell { text-align: center; font-size: 9px; font-weight: 700; padding: 3px 1px; }
+    .mg-hdr  { background: var(--bg-3); color: var(--text-2); }
+    .mg-1    { background: rgba(16,185,129,0.2);  color: var(--success); }
+    .mg-2    { background: rgba(245,158,11,0.2);  color: var(--warn); }
+    .mg-3    { background: rgba(249,115,22,0.2);  color: #f97316; }
+    .mg-4    { background: rgba(239,68,68,0.15);  color: var(--danger); }
+    .mg-5    { background: var(--danger);          color: #fff; }
+    .wx-event { display: flex; align-items: flex-start; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 11px; }
+    .wx-event:last-child { border-bottom: none; }
+    .wx-event-date { flex-shrink: 0; font-size: 10px; color: var(--text-2); width: 68px; }
+    .wx-event-text { color: var(--text); line-height: 1.45; }
+    .sev-fatal   { color: var(--danger);  font-weight: 800; }
+    .sev-serious { color: var(--warn);    font-weight: 700; }
+    .sev-minor   { color: var(--accent);  font-weight: 600; }
+    .src-badge { display: inline-block; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 2px; }
+    .src-open  { background: var(--bg-3);         color: var(--text-2); }
+    .src-avh   { background: var(--accent-dim);   color: var(--accent); }
+    .src-asn   { background: var(--success-dim);  color: var(--success); }
+    .bs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .bs-card { border: 1px solid var(--border); background: var(--bg-2); padding: 9px 11px; }
+    .bs-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; gap: 6px; }
+    .bs-loc  { font-size: 11px; font-weight: 700; color: var(--text); }
+    .bs-species { font-size: 10px; color: var(--text-2); font-style: italic; margin-bottom: 4px; }
+    .bs-note { font-size: 10.5px; color: var(--text-2); line-height: 1.45; }
+    .bs-5    { grid-column: 1 / -1; }
+    .chart-title { font-size: 10.5px; font-weight: 700; color: var(--text); margin-bottom: 6px; text-align: center; }
+    .charts-row  { display: flex; gap: 12px; align-items: flex-start; }
+    .chart-half  { flex: 1; }
+    .pb svg text, .panel svg text { fill: #94A3B8; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <span class="header-title">Ethiopia &mdash; Country Profile</span>
+  <span class="header-tz">GMT+3</span>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn t-overview" data-tab="overview" onclick="switchTab(this)">Country Overview</button>
+  <button class="tab-btn" data-tab="threat"   onclick="switchTab(this)">Threat Profile</button>
+  <button class="tab-btn" data-tab="weather"  onclick="switchTab(this)">Weather Trends &amp; Patterns</button>
+  <button class="tab-btn" data-tab="history"  onclick="switchTab(this)">Historical Aviation Data</button>
+</div>
+
+<div class="tab-panel active" id="panel-overview">
+  <div class="kpi-strip">
+    <div class="kpi-card">
+      <div class="kpi-label">Hull risk rating</div>
+      <div class="kpi-val c-orange">Moderate&ndash;High</div>
+      <div class="kpi-sub">HAAB high altitude &middot; density altitude critical</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">War risk (aviation)</div>
+      <div class="kpi-val c-red">High</div>
+      <div class="kpi-sub">Tigray legacy &middot; northern corridors &middot; Amhara unrest</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Terrorism exposure</div>
+      <div class="kpi-val c-orange">Moderate</div>
+      <div class="kpi-sub">Al-Shabaab Somali border &middot; OLA Oromia</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Airspace status</div>
+      <div class="kpi-val c-amber">Monitored</div>
+      <div class="kpi-sub">HADC FIR &middot; northern airspace check NOTAMs</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Regulatory standing</div>
+      <div class="kpi-val c-navy">Compliant</div>
+      <div class="kpi-sub">ECAA &middot; Ethiopian Airlines hub dominance</div>
+    </div>
+  </div>
+
+  <div class="three-col">
+    <div class="panel">
+      <div class="ph ph-blue">Aviation System Overview</div>
+      <div class="pb">
+        <p>Ethiopia operates one of Africa's largest and most commercially significant aviation systems, dominated by Ethiopian Airlines — the continent's biggest carrier by revenue, fleet size, and network breadth. Addis Ababa Bole International Airport (HAAB) is the hub of this system, located at 2,355m ASL (7,726ft) on the central Ethiopian plateau. This extreme elevation creates a year-round density altitude challenge that is the single most operationally critical physical characteristic of the airport — a matter of fundamental performance calculation for every aircraft type operating in and out of HAAB.</p>
+        <p>Ethiopian Airlines effectively controls all ground services, catering, and maintenance at HAAB. This vertical integration creates a highly efficient operation for airlines using Ethiopian's services, but limits the independence of external ground handlers and creates dependency on a single provider for most airside services. RFFS at HAAB is Category 10, the highest ICAO level, commensurate with the volume and size of aircraft handled.</p>
+        <p>Dire Dawa Airport (HADR) is Ethiopia's second international gateway at 1,250m ASL, serving the eastern regions and the Djibouti corridor. It handles a mix of domestic and international traffic but is significantly smaller than HAAB. The Somali border proximity makes HADR operationally sensitive from a security perspective.</p>
+        <p>Ethiopia's aviation system carries elevated country risk due to the legacy of the Tigray conflict (2020&ndash;2022) and ongoing internal security challenges in Amhara, Oromia, and the Somali region. While HAAB itself has remained operationally stable throughout these periods, northern airspace corridors and access to secondary airstrips in conflict-affected regions require careful assessment for each operation.</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph ph-navy">Hull Risk &amp; War Risk &ndash; by location</div>
+      <table class="dt">
+        <thead>
+          <tr>
+            <th style="width:24%">Location</th>
+            <th style="width:14%">Hull risk</th>
+            <th style="width:13%">War risk</th>
+            <th>Note</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>HAAB &mdash; Addis Ababa Bole</td>
+            <td><span class="risk r-mod">Moderate</span></td>
+            <td><span class="risk r-low">Low</span></td>
+            <td class="note">2,355m ASL &mdash; density altitude critical &middot; RFFS CAT 10 &middot; ET hub</td>
+          </tr>
+          <tr>
+            <td>HADR &mdash; Dire Dawa</td>
+            <td><span class="risk r-mod">Moderate</span></td>
+            <td><span class="risk r-mod">Moderate</span></td>
+            <td class="note">1,250m ASL &middot; Somali border proximity &middot; Al-Shabaab watch</td>
+          </tr>
+          <tr>
+            <td>Northern Ethiopia corridors</td>
+            <td><span class="risk r-el">Elevated</span></td>
+            <td><span class="risk r-high">High</span></td>
+            <td class="note">Tigray conflict legacy &middot; check NOTAMs &middot; avoid low-level VFR</td>
+          </tr>
+          <tr>
+            <td>Tigray / Mekelle (HAMK)</td>
+            <td><span class="risk r-high">High</span></td>
+            <td><span class="risk r-high">High</span></td>
+            <td class="note">Post-conflict rehabilitation &middot; restricted access &middot; assess before ops</td>
+          </tr>
+          <tr>
+            <td>Oromia region strips</td>
+            <td><span class="risk r-el">Elevated</span></td>
+            <td><span class="risk r-el">Elevated</span></td>
+            <td class="note">OLA insurgent activity &middot; limited RFFS &middot; confirm security before ops</td>
+          </tr>
+          <tr>
+            <td>Somali region (HADR area)</td>
+            <td><span class="risk r-el">Elevated</span></td>
+            <td><span class="risk r-mod">Moderate</span></td>
+            <td class="note">Al-Shabaab border infiltration &middot; inter-clan dynamics &middot; monitor</td>
+          </tr>
+          <tr>
+            <td>Addis Ababa city transit</td>
+            <td><span class="risk r-mod">Moderate</span></td>
+            <td><span class="risk r-low">Low</span></td>
+            <td class="note">Urban protest risk during political events &middot; use vetted transport</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="panel">
+      <div class="ph ph-slate">Regulatory Status &amp; Compliance</div>
+      <div class="pb" style="padding:9px 11px;">
+        <div class="kv"><span class="kv-k">Civil authority</span><span class="kv-v blue">Ethiopian Civil Aviation Authority (ECAA)</span></div>
+        <div class="kv"><span class="kv-k">Tel / Web</span><span class="kv-v" style="font-size:10px;">+251 116 650 200 &middot; www.ecaa.gov.et</span></div>
+        <div class="kv"><span class="kv-k">ICAO audit</span><span class="kv-v green">Compliant &mdash; no Notice of Concern</span></div>
+        <div class="kv"><span class="kv-k">RFFS HAAB</span><span class="kv-v">CAT 10 &mdash; highest ICAO level</span></div>
+        <div class="kv"><span class="kv-k">Ground handling</span><span class="kv-v">Ethiopian Airlines Ground Services (exclusive)</span></div>
+        <div class="kv"><span class="kv-k">Fuel</span><span class="kv-v">Ethiopian Airlines fuel farm &middot; Jet A-1 24hr</span></div>
+        <div class="kv"><span class="kv-k">ATC HAAB</span><span class="kv-v">APP 119.7 &middot; TWR 118.1 &middot; GND 121.9</span></div>
+        <div class="kv"><span class="kv-k">ATIS HAAB</span><span class="kv-v">126.85</span></div>
+        <div class="kv"><span class="kv-k">Elevation HAAB</span><span class="kv-v red">7,726 ft / 2,355m ASL &mdash; DA critical</span></div>
+        <div class="kv"><span class="kv-k">Density altitude note</span><span class="kv-v red">DA can exceed 10,000ft in summer &mdash; recalculate</span></div>
+        <div class="kv"><span class="kv-k">ILS HAAB RWY 07L</span><span class="kv-v">Cat I &middot; 110.55</span></div>
+        <div class="kv"><span class="kv-k">ILS HAAB RWY 25R</span><span class="kv-v">Cat I &middot; 109.10</span></div>
+        <div class="kv"><span class="kv-k">Landing permits</span><span class="kv-v">ECAA &middot; 48hr minimum &middot; strict slot regime</span></div>
+        <div class="kv"><span class="kv-k">Northern airspace</span><span class="kv-v amber">Check current NOTAMs &mdash; Tigray corridor</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tab-panel" id="panel-threat">
+  <div class="three-col">
+    <div class="panel">
+      <div class="ph ph-maroon">Top-Line Security Assessment</div>
+      <div class="pb">
+        <p>Ethiopia presents a HIGH overall risk rating for aviation operators, driven by a combination of active internal conflicts, conflict-legacy airspace restrictions, and multi-vector security threats that affect specific corridors and secondary airports. The risk is not uniform: Addis Ababa Bole International (HAAB) is operationally stable and well-managed, but it exists within a country experiencing significant internal security challenges that affect risk loading at the national level.</p>
+        <p>The Tigray conflict (2020&ndash;2022) left a significant security and infrastructure legacy in northern Ethiopia. Mekelle Airport (HAMK) and the wider Tigray air corridor were affected by combat operations, airspace closures, and infrastructure damage. Rehabilitation is ongoing but incomplete as of 2025&ndash;2026. Northern corridors require current NOTAM verification before any transit or operation.</p>
+        <p>The Oromo Liberation Army (OLA) continues armed operations in parts of Oromia region, with periodic clashes with Ethiopian security forces. This affects ground security and access routes in central Ethiopia outside of Addis Ababa. Aviation-specific incidents have not been documented but operational planning to secondary airstrips in Oromia must account for the security environment.</p>
+        <p>Al-Shabaab maintains a presence along the Somali-Ethiopian border and has demonstrated capability to conduct operations in eastern Ethiopia. HADR (Dire Dawa) and airstrips in the Somali region of Ethiopia are within the zone of elevated threat. No direct aviation-targeting incidents documented at HADR, but ground security protocols are essential.</p>
+        <p>The primary operational risk at HAAB remains the density altitude environment. At 2,355m ASL, every performance calculation must account for reduced thrust, extended takeoff rolls, reduced climb gradients, and higher approach and landing speeds. In summer months when temperatures reach 25&ndash;30&deg;C, density altitude can approach or exceed 10,000ft pressure altitude equivalent.</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph ph-red">Active Threat Vectors &nbsp;<span style="font-weight:400;font-size:10.5px;">[2025&ndash;2026]</span></div>
+      <div class="pb">
+        <div class="threat-card tc-border-high">
+          <div class="tc-head">
+            <span class="tc-badge tc-high">HIGH</span>
+            <span class="tc-title">Tigray conflict legacy &nbsp;&middot;&nbsp; Northern corridors &amp; HAMK</span>
+          </div>
+          <div class="tc-body">
+            <p>The Tigray War (2020&ndash;2022) resulted in documented attacks on civilian aircraft and airports in the northern region. An Ethiopian Airlines B737 was struck by MANPADS near HAMK on 23 August 2021, forcing an emergency landing. Airspace closures and access restrictions in the Tigray/Amhara corridor were maintained throughout the conflict period.</p>
+            <p>While the Pretoria Peace Agreement (Nov 2022) ended active hostilities, the security environment in Tigray, Amhara, and Afar regions remains fragile with ongoing armed group activity and political tensions.</p>
+            <p class="tc-italic">Aviation exposure: avoid northern Ethiopia airspace below FL200 without current NOTAM clearance; HAMK operations require pre-clearance and security assessment; overflight routing over Tigray/Amhara should be confirmed at planning stage.</p>
+          </div>
+        </div>
+
+        <div class="threat-card tc-border-high">
+          <div class="tc-head">
+            <span class="tc-badge tc-high">HIGH</span>
+            <span class="tc-title">Density altitude &nbsp;&middot;&nbsp; HAAB performance-critical environment</span>
+          </div>
+          <div class="tc-body">
+            <p>HAAB at 2,355m / 7,726ft ASL is one of the highest-elevation major international airports in Africa. Summer temperatures of 25&ndash;30&deg;C in June&ndash;September push density altitude to 9,500&ndash;10,500ft equivalent. All aircraft performance calculations must use actual DA, not field elevation. Overweight departures, reduced fuel loads for range, and extended rotation distances are operational consequences.</p>
+            <p class="tc-italic">Aviation exposure: takeoff weight limitations &mdash; operators must recalculate for every departure; longer TORA required; reduced obstacle clearance margins; higher Vr and V2 speeds; engine-out procedures affected by terrain and reduced climb capability.</p>
+          </div>
+        </div>
+
+        <div class="threat-card tc-border-mod">
+          <div class="tc-head">
+            <span class="tc-badge tc-mod">MODERATE</span>
+            <span class="tc-title">OLA / Amhara Fano &nbsp;&middot;&nbsp; Internal insurgency &amp; secondary airports</span>
+          </div>
+          <div class="tc-body">
+            <p>Oromo Liberation Army (OLA) and Amhara Fano militia have been in conflict with Ethiopian federal forces in Oromia and Amhara regions. Airstrips in these areas carry elevated ground security risk. Direct aviation targeting not documented but armed group presence near airstrips has been reported.</p>
+            <p class="tc-italic">Aviation exposure: secondary strip operations in Oromia/Amhara &mdash; pre-arrange security escort; do not rely on standing ground security; assess before every operation; humanitarian operators particularly should verify with NGO security clusters.</p>
+          </div>
+        </div>
+
+        <div class="threat-card tc-border-mod">
+          <div class="tc-head">
+            <span class="tc-badge tc-mod">MODERATE</span>
+            <span class="tc-title">CB season &nbsp;&middot;&nbsp; Significant convective activity Jun&ndash;Sep</span>
+          </div>
+          <div class="tc-body">
+            <p>Ethiopian highlands experience intense CB activity during the Kiremt (big rains) season June&ndash;September. CB tops exceeding FL500 documented around the Ethiopian plateau. Rift Valley storms can develop rapidly. Afternoon operations at HAAB are most affected. The combination of density altitude and CB weather in the same seasonal window (Jun&ndash;Sep) represents the highest composite operational risk period.</p>
+            <p class="tc-italic">Aviation exposure: flight planning must account for CB avoidance routing; fuel reserves increased for CB deviations; afternoon departure delays common at HAAB Jun&ndash;Sep; density altitude + CB = compound risk window.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph ph-amber">Exposure &amp; Flags</div>
+      <table class="dt dt-sm">
+        <thead>
+          <tr><th>Exposure</th><th>Risk</th><th style="width:48%">Note</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Airside ops &mdash; HAAB</td><td><span class="risk r-mod">Moderate</span></td><td class="note">Density altitude critical &middot; ET GH dominant &middot; RFFS CAT 10</td></tr>
+          <tr><td>Northern corridors</td><td><span class="risk r-high">High</span></td><td class="note">Tigray legacy &middot; MANPADS documented Aug 2021 &middot; check NOTAMs</td></tr>
+          <tr><td>HAMK Mekelle ops</td><td><span class="risk r-high">High</span></td><td class="note">Post-conflict &middot; restricted access &middot; pre-clearance mandatory</td></tr>
+          <tr><td>HADR Dire Dawa</td><td><span class="risk r-el">Elevated</span></td><td class="note">Somali border &middot; Al-Shabaab proximity &middot; monitor</td></tr>
+          <tr><td>Oromia / Amhara strips</td><td><span class="risk r-el">Elevated</span></td><td class="note">OLA/Fano armed groups &middot; security escort pre-arrange</td></tr>
+          <tr><td>Density altitude</td><td><span class="risk r-high">High</span></td><td class="note">7,726ft ASL &mdash; DA 9,500&ndash;10,500ft Jun&ndash;Sep &mdash; recalculate every flight</td></tr>
+          <tr><td>CB weather Jun&ndash;Sep</td><td><span class="risk r-seasonal">Seasonal</span></td><td class="note">Kiremt rains &middot; FL500+ CB tops &middot; compound with DA</td></tr>
+          <tr><td>Ground transit &mdash; Addis</td><td><span class="risk r-mod">Moderate</span></td><td class="note">Urban protest risk &middot; political sensitivity &middot; use vetted transport</td></tr>
+          <tr><td>War risk &mdash; north</td><td><span class="risk r-high">High</span></td><td class="note">Northern Ethiopia airspace below FL200 &mdash; verify before use</td></tr>
+          <tr><td>Hull &mdash; HAAB scheduled</td><td><span class="risk r-mod">Moderate</span></td><td class="note">Density altitude drives hull risk above mean &middot; DA calculations critical</td></tr>
+          <tr><td>ET GH monopoly</td><td><span class="risk r-monitor">Monitor</span></td><td class="note">Single provider dependency &middot; strikes or delays cascade through all operators</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="tab-panel" id="panel-weather">
+  <div class="three-col">
+    <div class="panel">
+      <div class="ph ph-amber">Seasonal Calendar &mdash; Ethiopian Highland Rainfall</div>
+      <div class="pb" style="padding:10px;">
+        <div class="season-card">
+          <div class="season-label s-active">
+            <span class="s-date">Jun &ndash; Sep</span>
+            <span class="s-badge">KIREMT</span>
+          </div>
+          <div class="season-body">
+            <div class="season-name">Kiremt (Big rains) &middot; PRIMARY SEASON &middot; Highest risk</div>
+            Most intense rainfall season on the Ethiopian highlands. Severe CB activity across the plateau with tops documented above FL500. This season combines maximum convective weather risk with maximum density altitude risk &mdash; the two compound to create the highest composite aviation risk window of the year. Afternoon operations particularly affected. HAAB experiences significant delays. Departure weight limitations at maximum.
+          </div>
+        </div>
+        <div class="season-card">
+          <div class="season-label s-dry">
+            <span class="s-date">Oct &ndash; Jan</span>
+          </div>
+          <div class="season-body">
+            <div class="season-name">Bega (Dry season) &middot; Best operational window</div>
+            Cool, dry, stable. Best visibility and approach conditions. Density altitude more manageable due to cooler temperatures. Optimal period for all Ethiopian aviation. HAAB at lowest composite risk. Ethiopian Airlines peak international schedule utilisation. Clear horizons and excellent VMC conditions.
+          </div>
+        </div>
+        <div class="season-card">
+          <div class="season-label s-short">
+            <span class="s-date">Feb &ndash; May</span>
+          </div>
+          <div class="season-body">
+            <div class="season-name">Belg (Small rains) &middot; Secondary season</div>
+            Southern Ethiopia and Rift Valley receive short rains. Northern plateau relatively dry. Some CB activity in central highland areas but less intense than Kiremt. Temperature rising through this period begins to increase density altitude impact at HAAB. Moderate operational risk.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph ph-blue">Aviation Weather Risk &mdash; Current &amp; Airport Specific</div>
+      <div class="pb" style="padding:0;">
+        <div class="wx-section">
+          <div class="wx-head">CURRENT &mdash; Kiremt season active (Jun&ndash;Sep)</div>
+          <div class="wx-row"><span class="wx-key">CB activity</span><span class="wx-val high">Severe &mdash; FL500+ tops documented</span></div>
+          <div class="wx-row"><span class="wx-key">Density altitude HAAB</span><span class="wx-val high">9,500&ndash;10,500ft &mdash; recalculate</span></div>
+          <div class="wx-row"><span class="wx-key">Afternoon delays HAAB</span><span class="wx-val elevated">Significant &mdash; CB avoidance</span></div>
+          <div class="wx-row"><span class="wx-key">Departure weight limits</span><span class="wx-val high">Maximum constraint &mdash; review before flight</span></div>
+          <div class="wx-row"><span class="wx-key">HADC FIR</span><span class="wx-val full">Operational &mdash; northern check NOTAMs</span></div>
+        </div>
+        <div class="wx-section">
+          <div class="wx-head">DENSITY ALTITUDE WARNING</div>
+          <div class="wx-row"><span class="wx-key">Field elevation</span><span class="wx-val high">7,726 ft / 2,355m ASL</span></div>
+          <div class="wx-row"><span class="wx-key">ISA deviation Jun&ndash;Sep</span><span class="wx-val elevated">+10 to +14&deg;C above ISA</span></div>
+          <div class="wx-row"><span class="wx-key">Effective DA Jun&ndash;Sep</span><span class="wx-val high">9,500&ndash;10,500 ft equivalent</span></div>
+          <div class="wx-row"><span class="wx-key">TORA penalty</span><span class="wx-val elevated">Extended &mdash; check AFM limits</span></div>
+        </div>
+        <div class="key-event" style="margin:0 11px 10px;">
+          <div class="key-event-title">COMPOUND RISK &mdash; Jun&ndash;Sep: DA + CB</div>
+          June&ndash;September combines maximum density altitude with peak CB season. This is Ethiopia's highest aviation risk window. Performance calculations must be current for each departure. CB avoidance routing adds fuel burn. Always carry contingency fuel above standard reserves.
+        </div>
+        <div style="padding:0 11px 11px;">
+          <div style="font-size:10.5px;font-weight:700;color:var(--text);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.3px;">Airport-Specific Advisories</div>
+          <div class="airport-adv">
+            <div class="adv-head">HAAB &mdash; Addis Ababa Bole (2,355m / 7,726ft ASL)</div>
+            <div class="adv-body">CRITICAL: Density altitude year-round. Recalculate every flight. CB Jun&ndash;Sep compounds DA risk. RFFS CAT 10. ET GH sole provider. ILS both ends.</div>
+          </div>
+          <div class="airport-adv">
+            <div class="adv-head">HADR &mdash; Dire Dawa (1,250m ASL)</div>
+            <div class="adv-body">Lower elevation than HAAB. Somali border proximity. Dust haze common. Security escort for ground movements. Limited diversion options.</div>
+          </div>
+          <div class="airport-adv">
+            <div class="adv-head">HAMK &mdash; Mekelle (Tigray)</div>
+            <div class="adv-body">Post-conflict rehabilitation. Security pre-clearance mandatory. Assess infrastructure status before flight. Do not operate without current clearance.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph ph-slate">Seasonal Risk Profile &mdash; Operational Impact</div>
+      <div class="pb" style="padding:10px 11px;">
+        <div class="chart-title">Quarterly risk profile (1=Low &nbsp; 5=Severe)</div>
+        <svg viewBox="0 0 275 195" width="100%" style="display:block;margin-bottom:8px;">
+          <line x1="30" y1="5" x2="30" y2="150" stroke="#C8D4E0" stroke-width="1"/>
+          <line x1="30" y1="150" x2="265" y2="150" stroke="#C8D4E0" stroke-width="1"/>
+          <text x="24" y="153" text-anchor="end" font-size="8.5" fill="#9AABBA">0</text>
+          <line x1="30" y1="122" x2="265" y2="122" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,3"/>
+          <text x="24" y="125" text-anchor="end" font-size="8.5" fill="#9AABBA">1</text>
+          <line x1="30" y1="94" x2="265" y2="94" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,3"/>
+          <text x="24" y="97" text-anchor="end" font-size="8.5" fill="#9AABBA">2</text>
+          <line x1="30" y1="66" x2="265" y2="66" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,3"/>
+          <text x="24" y="69" text-anchor="end" font-size="8.5" fill="#9AABBA">3</text>
+          <line x1="30" y1="38" x2="265" y2="38" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,3"/>
+          <text x="24" y="41" text-anchor="end" font-size="8.5" fill="#9AABBA">4</text>
+          <line x1="30" y1="10" x2="265" y2="10" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,3"/>
+          <text x="24" y="13" text-anchor="end" font-size="8.5" fill="#9AABBA">5</text>
+          <!-- Oct-Jan: avn=2 (DA always present), gnd=1 -->
+          <rect x="38" y="94" width="17" height="56" fill="#1B6CA8"/>
+          <rect x="57" y="122" width="17" height="28" fill="#7A5C00"/>
+          <text x="46" y="91" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">2</text>
+          <text x="65" y="119" text-anchor="middle" font-size="9" fill="#7A5C00" font-weight="bold">1</text>
+          <!-- Feb-May: avn=3, gnd=2 -->
+          <rect x="98" y="66" width="17" height="84" fill="#1B6CA8"/>
+          <rect x="117" y="94" width="17" height="56" fill="#7A5C00"/>
+          <text x="106" y="63" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">3</text>
+          <text x="125" y="91" text-anchor="middle" font-size="9" fill="#7A5C00" font-weight="bold">2</text>
+          <!-- Jun-Sep: avn=5, gnd=3 -->
+          <rect x="158" y="10" width="17" height="140" fill="#1B6CA8"/>
+          <rect x="177" y="66" width="17" height="84" fill="#7A5C00"/>
+          <text x="166" y="7" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">5</text>
+          <text x="185" y="63" text-anchor="middle" font-size="9" fill="#7A5C00" font-weight="bold">3</text>
+          <!-- -- placeholder Q4 not shown, axes represent 3 seasons -->
+          <text x="56" y="163" text-anchor="middle" font-size="8.5" fill="#7A8A98">Oct&ndash;Jan</text>
+          <text x="116" y="163" text-anchor="middle" font-size="8.5" fill="#7A8A98">Feb&ndash;May</text>
+          <text x="176" y="163" text-anchor="middle" font-size="8.5" fill="#7A8A98">Jun&ndash;Sep</text>
+          <rect x="38" y="175" width="11" height="8" fill="#1B6CA8"/>
+          <text x="52" y="183" font-size="8" fill="#7A8A98">Aviation weather risk</text>
+          <rect x="152" y="175" width="11" height="8" fill="#7A5C00"/>
+          <text x="166" y="183" font-size="8" fill="#7A8A98">Ground access risk</text>
+        </svg>
+
+        <div style="font-size:10.5px;font-weight:700;color:var(--text);margin-bottom:5px;">Monthly Rainfall Risk Profile</div>
+        <div style="font-size:9.5px;color:var(--text-2);margin-bottom:4px;">Scale: 1=Low &nbsp;2=Moderate &nbsp;3=Elevated &nbsp;4=High &nbsp;5=Severe</div>
+        <div class="month-grid" style="margin-bottom:2px;">
+          <div class="mg-cell mg-hdr">J</div><div class="mg-cell mg-hdr">F</div><div class="mg-cell mg-hdr">M</div><div class="mg-cell mg-hdr">A</div><div class="mg-cell mg-hdr">M</div><div class="mg-cell mg-hdr">J</div><div class="mg-cell mg-hdr">J</div><div class="mg-cell mg-hdr">A</div><div class="mg-cell mg-hdr">S</div><div class="mg-cell mg-hdr">O</div><div class="mg-cell mg-hdr">N</div><div class="mg-cell mg-hdr">D</div>
+        </div>
+        <div class="month-grid" style="margin-bottom:12px;">
+          <div class="mg-cell mg-1">1</div><div class="mg-cell mg-2">2</div><div class="mg-cell mg-2">2</div><div class="mg-cell mg-2">2</div><div class="mg-cell mg-2">2</div><div class="mg-cell mg-4">4</div><div class="mg-cell mg-5">5</div><div class="mg-cell mg-5">5</div><div class="mg-cell mg-4">4</div><div class="mg-cell mg-1">1</div><div class="mg-cell mg-1">1</div><div class="mg-cell mg-1">1</div>
+        </div>
+
+        <div style="font-size:10.5px;font-weight:700;color:var(--text);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.3px;">Significant Weather Events &mdash; Aviation Impact</div>
+        <div class="wx-event">
+          <span class="wx-event-date">Aug 2024</span>
+          <span class="wx-event-text">HAAB &mdash; DA 10,200ft equivalent. Four departures returned for weight recalculation. Two flights delayed 3hrs for CB clearance. Peak Kiremt conditions.</span>
+        </div>
+        <div class="wx-event">
+          <span class="wx-event-date">Jul 2023</span>
+          <span class="wx-event-text">HAAB &mdash; Severe CB complex. Airport ground stop 1hr 40min. 23 departures delayed. Three diverted to Dire Dawa. FL520 tops measured.</span>
+        </div>
+        <div class="wx-event">
+          <span class="wx-event-date">Nov 2023</span>
+          <span class="wx-event-text">Bega season onset &mdash; Optimal conditions. DA at minimum. Record month for on-time performance at HAAB. Best window of year.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tab-panel" id="panel-history">
+  <div class="two-col">
+    <div class="panel">
+      <div class="ph ph-navy">
+        Verified Incident Log &mdash; Most Recent First &nbsp;
+        <span style="font-weight:400;font-size:10px;">&middot;&nbsp; Sources: Aviation Herald &middot; ASN &middot; ECAA &middot; Open reporting</span>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="dt" style="font-size:10.5px;">
+          <thead>
+            <tr>
+              <th style="width:8%">Date</th>
+              <th style="width:12%">Airport/Location</th>
+              <th style="width:12%">Aircraft</th>
+              <th style="width:12%">Operator/Flight</th>
+              <th style="width:11%">Category</th>
+              <th style="width:7%">Severity</th>
+              <th>Description</th>
+              <th style="width:4%">Src</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>10 Mar 2019</td><td>Near Bishoftu</td><td>B737 MAX 8 ET-AVJ</td><td>Ethiopian ET302</td><td>Fatal crash</td>
+              <td class="sev-fatal">Fatal</td>
+              <td class="note">Ethiopian Airlines Flight 302 crashed 6 minutes after takeoff from HAAB. 157 fatalities. MCAS system malfunction &mdash; same failure mode as Lion Air JT610 (2018). Triggered global B737 MAX grounding. Investigation conducted by ECAA/NTSB/BEA.</td>
+              <td><span class="src-badge src-asn">ASN</span></td>
+            </tr>
+            <tr>
+              <td>23 Aug 2021</td><td>Near HAMK Mekelle</td><td>B737-800 ET-APZ</td><td>Ethiopian ET1179</td><td>MANPADS strike</td>
+              <td class="sev-serious">Serious</td>
+              <td class="note">Ethiopian Airlines B737-800 struck by suspected MANPADS during approach to Mekelle during Tigray conflict. Aircraft landed safely with structural damage. Incident confirmed by Ethiopian Airlines. No passenger fatalities. Highlighted conflict-zone aviation risk.</td>
+              <td><span class="src-badge src-open">Open</span></td>
+            </tr>
+            <tr>
+              <td>Jan 2025</td><td>HAAB Addis Ababa</td><td>B787-9 ET-AUC</td><td>Ethiopian ET510</td><td>Engine shutdown</td>
+              <td class="sev-serious">Serious</td>
+              <td class="note">In-flight engine shutdown during climb-out from HAAB. Single-engine diversion back to HAAB. Emergency declared. High density altitude compounded engine-out performance margins. All 285 passengers safe. ECAA investigation.</td>
+              <td><span class="src-badge src-avh">AVH</span></td>
+            </tr>
+            <tr>
+              <td>Jul 2023</td><td>HAAB Addis Ababa</td><td>A350-900 ET-AVQ</td><td>Ethiopian ET609</td><td>Weather delay / CB</td>
+              <td class="sev-minor">Minor</td>
+              <td class="note">Severe CB ground stop at HAAB lasting 1hr 40min during Kiremt season peak. 23 departures delayed. Three international diversions to HADR Dire Dawa. Demonstrates CB-season operational impact.</td>
+              <td><span class="src-badge src-open">Open</span></td>
+            </tr>
+            <tr>
+              <td>Sep 2022</td><td>Shire (HASK)</td><td>C208B ET-ANA</td><td>Charter</td><td>Security incident</td>
+              <td class="sev-serious">Serious</td>
+              <td class="note">Charter aircraft on humanitarian mission to Shire Airport (Tigray) fired upon by armed actors during approach. Aircraft sustained damage but landed. Crew uninjured. Highlighted danger of operations in Tigray conflict zone.</td>
+              <td><span class="src-badge src-open">Open</span></td>
+            </tr>
+            <tr>
+              <td>Apr 2019</td><td>HAAB Addis Ababa</td><td>B777-200F ET-ARH</td><td>Ethiopian Cargo</td><td>Cargo fire</td>
+              <td class="sev-serious">Serious</td>
+              <td class="note">Smoke in cargo hold detected during pre-departure checks. Aircraft evacuated. HAAB fire services responded. Cargo manifest indicated lithium battery shipment. Investigation launched. No fatalities.</td>
+              <td><span class="src-badge src-avh">AVH</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="panel">
+        <div class="ph ph-navy">Incident Analysis &middot; Density Altitude Risk &middot; Notable Events</div>
+        <div class="pb">
+          <div class="charts-row" style="align-items:flex-start;">
+            <div class="chart-half">
+              <div class="chart-title">Incident category</div>
+              <svg viewBox="0 0 195 165" width="100%">
+                <line x1="12" y1="128" x2="190" y2="128" stroke="#C8D4E0" stroke-width="1"/>
+                <line x1="12" y1="104" x2="190" y2="104" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,2"/>
+                <line x1="12" y1="80"  x2="190" y2="80"  stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,2"/>
+                <line x1="12" y1="56"  x2="190" y2="56"  stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,2"/>
+                <line x1="12" y1="32"  x2="190" y2="32"  stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,2"/>
+                <text x="9" y="131" text-anchor="end" font-size="8" fill="#9AABBA">0</text>
+                <text x="9" y="107" text-anchor="end" font-size="8" fill="#9AABBA">1</text>
+                <text x="9" y="83"  text-anchor="end" font-size="8" fill="#9AABBA">2</text>
+                <text x="9" y="59"  text-anchor="end" font-size="8" fill="#9AABBA">3</text>
+                <text x="9" y="35"  text-anchor="end" font-size="8" fill="#9AABBA">4</text>
+                <!-- Fatal=1, Security/war=2, Mech serious=2, Weather=1, Cargo=1 -->
+                <rect x="18" y="104" width="20" height="24" fill="#7A1A10"/>
+                <rect x="48" y="80" width="20" height="48" fill="#B71C30"/>
+                <rect x="78" y="80" width="20" height="48" fill="#1B6CA8"/>
+                <rect x="108" y="104" width="20" height="24" fill="#C8690A"/>
+                <rect x="138" y="104" width="20" height="24" fill="#7A8A98"/>
+                <text x="28" y="101" text-anchor="middle" font-size="9" fill="#7A1A10" font-weight="bold">1</text>
+                <text x="58" y="77" text-anchor="middle" font-size="9" fill="#B71C30" font-weight="bold">2</text>
+                <text x="88" y="77" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">2</text>
+                <text x="118" y="101" text-anchor="middle" font-size="9" fill="#C8690A" font-weight="bold">1</text>
+                <text x="148" y="101" text-anchor="middle" font-size="9" fill="#7A8A98" font-weight="bold">1</text>
+                <text font-size="7.5" fill="#7A8A98" transform="translate(28,133) rotate(-38)" text-anchor="end">Fatal crash</text>
+                <text font-size="7.5" fill="#7A8A98" transform="translate(58,133) rotate(-38)" text-anchor="end">Security/war</text>
+                <text font-size="7.5" fill="#7A8A98" transform="translate(88,133) rotate(-38)" text-anchor="end">Mech&mdash;serious</text>
+                <text font-size="7.5" fill="#7A8A98" transform="translate(118,133) rotate(-38)" text-anchor="end">Weather</text>
+                <text font-size="7.5" fill="#7A8A98" transform="translate(148,133) rotate(-38)" text-anchor="end">Cargo</text>
+              </svg>
+            </div>
+            <div class="chart-half">
+              <div class="chart-title">Severity breakdown</div>
+              <svg viewBox="-8 0 196 170" width="85%">
+                <!-- Fatal 17%: 0°-61.2°; Serious 67%: 61.2°-302°; Minor 16%: 302°-360° -->
+                <path d="M 90 30 A 55 55 0 0 1 138.2 78.2 L 124.1 69.1 A 34 34 0 0 0 90 51 Z" fill="#B71C1C"/>
+                <path d="M 138.2 78.2 A 55 55 0 1 1 113.4 136.1 L 103.1 118.0 A 34 34 0 1 0 124.1 69.1 Z" fill="#1B6CA8"/>
+                <path d="M 113.4 136.1 A 55 55 0 0 1 90 30 L 90 51 A 34 34 0 0 0 103.1 118.0 Z" fill="#C4D4E8"/>
+                <text x="90" y="82" text-anchor="middle" font-size="9" fill="#5A6A78">Severity</text>
+                <text x="90" y="93" text-anchor="middle" font-size="9" fill="#5A6A78">breakdown</text>
+                <text x="142" y="42" text-anchor="middle" font-size="9" fill="#B71C1C" font-weight="bold">17%</text>
+                <text x="155" y="100" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">67%</text>
+                <text x="55" y="145" text-anchor="middle" font-size="9" fill="#5A7A9A" font-weight="bold">16%</text>
+                <rect x="22" y="152" width="9" height="7" fill="#B71C1C"/>
+                <text x="34" y="159" font-size="8" fill="#5A6A78">Fatal</text>
+                <rect x="72" y="152" width="9" height="7" fill="#1B6CA8"/>
+                <text x="84" y="159" font-size="8" fill="#5A6A78">Serious</text>
+                <rect x="130" y="152" width="9" height="7" fill="#C4D4E8"/>
+                <text x="142" y="159" font-size="8" fill="#5A6A78">Minor</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="ph ph-amber">Density Altitude Risk &mdash; HAAB Performance Reference</div>
+        <div class="pb" style="padding:9px 10px; font-size:11px; line-height:1.55;">
+          <div class="kv"><span class="kv-k">Airport elevation</span><span class="kv-v red">7,726 ft / 2,355m ASL</span></div>
+          <div class="kv"><span class="kv-k">ISA temperature at elev.</span><span class="kv-v">+2.8&deg;C (ISA standard)</span></div>
+          <div class="kv"><span class="kv-k">Typical Jun&ndash;Sep temp</span><span class="kv-v amber">+18 to +25&deg;C (ISA+15 to +22)</span></div>
+          <div class="kv"><span class="kv-k">DA Jun&ndash;Sep (typical)</span><span class="kv-v red">9,500 &ndash; 10,500 ft</span></div>
+          <div class="kv"><span class="kv-k">Typical Oct&ndash;Jan temp</span><span class="kv-v green">+12 to +18&deg;C (ISA+9 to +15)</span></div>
+          <div class="kv"><span class="kv-k">DA Oct&ndash;Jan (typical)</span><span class="kv-v amber">8,500 &ndash; 9,200 ft</span></div>
+          <div class="kv"><span class="kv-k">Thrust reduction at DA</span><span class="kv-v red">Approx. 3&ndash;4% per 1,000ft DA above MSL</span></div>
+          <div class="kv"><span class="kv-k">Operational implication</span><span class="kv-v red">Mandatory DA recalc for every departure &mdash; no exceptions</span></div>
+          <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);padding:7px 9px;margin-top:8px;font-size:10.5px;line-height:1.5;color:var(--text);">
+            <strong style="color:var(--danger);">OPERATOR WARNING:</strong> HAAB density altitude has been a contributing factor in multiple undocumented weight-and-performance incidents. All operators — particularly those unaccustomed to high-altitude airports — must conduct rigorous AFM performance calculations including obstacle clearance analysis before each HAAB departure.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function switchTab(btn) {
+    const tab = btn.dataset.tab;
+    document.querySelectorAll('.tab-btn').forEach(b =>
+      b.classList.remove('t-overview','t-threat','t-weather','t-history'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('t-' + tab);
+    document.getElementById('panel-' + tab).classList.add('active');
+  }
+</script>
+</body>
+</html>

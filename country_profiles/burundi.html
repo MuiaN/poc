@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Burundi — Country Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="../theme.js"></script>
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-body); font-size: 12px; background: var(--bg); color: var(--text); }
+    .page-header { background: var(--bg-2); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 10px 18px; }
+    .header-title { color: var(--text); font-size: 16px; font-weight: 700; letter-spacing: 0.2px; }
+    .header-tz    { color: var(--accent); font-size: 13px; font-weight: 700; }
+    .tab-bar { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--bg-3); border-bottom: 1px solid var(--border); }
+    .tab-btn { padding: 10px 14px; text-align: center; font-size: 12px; font-weight: 600; color: var(--text-2); background: var(--bg-3); border: none; cursor: pointer; border-right: 1px solid var(--border); transition: background 0.15s, color 0.15s; white-space: nowrap; font-family: var(--font-body); }
+    .tab-btn:last-child { border-right: none; }
+    .tab-btn:hover { background: var(--bg-hover); color: var(--text); }
+    .tab-btn.t-overview { background: var(--accent); color: #fff; }
+    .tab-btn.t-threat   { background: var(--danger); color: #fff; }
+    .tab-btn.t-weather  { background: var(--warn); color: #0B0F1A; }
+    .tab-btn.t-history  { background: var(--bg-hover); color: var(--text); }
+    .tab-panel { display: none; padding: 12px 14px 18px; }
+    .tab-panel.active { display: block; }
+    .kpi-strip { display: grid; grid-template-columns: repeat(5, 1fr); border: 1px solid var(--border); margin-bottom: 12px; background: var(--bg-2); }
+    .kpi-card { padding: 9px 13px; border-right: 1px solid var(--border); }
+    .kpi-card:last-child { border-right: none; }
+    .kpi-label { font-size: 9.5px; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 3px; }
+    .kpi-val   { font-size: 18px; font-weight: 700; line-height: 1.2; }
+    .kpi-sub   { font-size: 10px; color: var(--text-2); margin-top: 3px; line-height: 1.4; }
+    .c-orange  { color: var(--warn); }
+    .c-green   { color: var(--success); }
+    .c-navy    { color: var(--text); }
+    .c-red     { color: var(--danger); }
+    .c-amber   { color: var(--warn); }
+    .three-col { display: grid; grid-template-columns: 27% 1fr 28%; gap: 12px; }
+    .two-col   { display: grid; grid-template-columns: 56% 1fr; gap: 12px; }
+    .panel { background: var(--bg-2); border: 1px solid var(--border); }
+    .ph { padding: 6px 11px; font-size: 11.5px; font-weight: 700; border-bottom: 1px solid var(--border); }
+    .ph-blue   { background: var(--bg-3); color: var(--accent);   border-left: 3px solid var(--accent); }
+    .ph-navy   { background: var(--bg-3); color: var(--text);     border-left: 3px solid var(--text-2); }
+    .ph-maroon { background: rgba(239,68,68,0.08);  color: var(--danger);  border-left: 3px solid var(--danger); }
+    .ph-amber  { background: rgba(245,158,11,0.08); color: var(--warn);    border-left: 3px solid var(--warn); }
+    .ph-slate  { background: var(--bg-3); color: var(--text-2);   border-left: 3px solid var(--text-2); }
+    .ph-green  { background: rgba(16,185,129,0.08); color: var(--success); border-left: 3px solid var(--success); }
+    .ph-red    { background: rgba(239,68,68,0.08);  color: var(--danger);  border-left: 3px solid var(--danger); }
+    .pb { padding: 11px 12px; font-size: 11.5px; line-height: 1.58; color: var(--text); }
+    .pb p { margin-bottom: 8px; }
+    .pb p:last-child { margin-bottom: 0; }
+    .dt { width: 100%; border-collapse: collapse; font-size: 11px; }
+    .dt thead th { background: var(--bg-3); padding: 5px 8px; text-align: left; font-weight: 700; border-bottom: 2px solid var(--border); white-space: nowrap; color: var(--text-2); }
+    .dt tbody tr:nth-child(even) { background: var(--bg-3); }
+    .dt tbody tr:hover { background: var(--bg-hover); }
+    .dt tbody td { padding: 5px 8px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.45; color: var(--text); }
+    .dt-sm td { font-size: 10.5px; }
+    .dt tbody td.note { font-size: 10.5px; color: var(--text-2); }
+    .risk { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 2px; white-space: nowrap; }
+    .r-low      { background: rgba(16,185,129,0.15);  color: var(--success); }
+    .r-mod      { background: rgba(245,158,11,0.15);  color: var(--warn); }
+    .r-mod-el   { background: rgba(249,115,22,0.15);  color: #f97316; font-style: italic; }
+    .r-el       { background: rgba(239,68,68,0.12);   color: #f97316; }
+    .r-high     { background: var(--danger);           color: #fff; }
+    .r-seasonal { background: rgba(139,92,246,0.15);  color: #a78bfa; }
+    .r-monitor  { background: var(--accent-dim);       color: var(--accent); }
+    .kv { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid var(--border); font-size: 11px; gap: 6px; align-items: flex-start; }
+    .kv:last-child { border-bottom: none; }
+    .kv-k { color: var(--text-2); flex-shrink: 0; }
+    .kv-v { text-align: right; font-weight: 600; color: var(--text); font-size: 10.5px; }
+    .kv-v.blue  { color: var(--accent); }
+    .kv-v.red   { color: var(--danger); }
+    .kv-v.green { color: var(--success); font-weight: 700; }
+    .kv-v.amber { color: var(--warn); }
+    .threat-card { border: 1px solid var(--border); margin-bottom: 10px; }
+    .threat-card:last-child { margin-bottom: 0; }
+    .tc-head { display: flex; align-items: center; gap: 10px; padding: 7px 11px; border-bottom: 1px solid var(--border); }
+    .tc-badge { display: inline-block; font-size: 9.5px; font-weight: 800; padding: 2px 8px; border-radius: 2px; white-space: nowrap; letter-spacing: 0.5px; }
+    .tc-high  { background: var(--danger);  color: #fff; }
+    .tc-mod   { background: var(--warn);    color: #0B0F1A; }
+    .tc-watch { background: var(--success); color: #0B0F1A; }
+    .tc-title { font-size: 12px; font-weight: 700; color: var(--text); }
+    .tc-body  { padding: 9px 11px; font-size: 11px; line-height: 1.55; color: var(--text); }
+    .tc-body p { margin-bottom: 5px; }
+    .tc-body p:last-child { margin-bottom: 0; }
+    .tc-italic { font-style: italic; color: var(--text-2); margin-top: 6px; }
+    .tc-border-high  { border-left: 3px solid var(--danger); }
+    .tc-border-mod   { border-left: 3px solid var(--warn); }
+    .tc-border-watch { border-left: 3px solid var(--success); }
+    .season-card { display: flex; border: 1px solid var(--border); background: var(--bg-2); margin-bottom: 8px; }
+    .season-card:last-child { margin-bottom: 0; }
+    .season-label { width: 58px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 8px 6px; font-size: 10px; font-weight: 700; text-align: center; }
+    .s-active { background: var(--warn);   color: #0B0F1A; }
+    .s-dry    { background: var(--accent); color: #fff; }
+    .s-short  { background: #475569;       color: #fff; }
+    .season-label .s-date  { font-size: 11px; font-weight: 800; line-height: 1.3; }
+    .season-label .s-badge { font-size: 8px; background: rgba(255,255,255,0.25); border-radius: 2px; padding: 1px 4px; margin-top: 3px; }
+    .season-body { padding: 9px 11px; font-size: 11px; line-height: 1.5; color: var(--text-2); }
+    .season-name { font-weight: 700; font-size: 11.5px; color: var(--text); margin-bottom: 4px; }
+    .wx-section { margin-bottom: 10px; }
+    .wx-head { font-size: 10.5px; font-weight: 700; color: var(--text-2); background: var(--bg-3); padding: 4px 10px; }
+    .wx-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 10px; border-bottom: 1px solid var(--border); font-size: 11px; }
+    .wx-row:last-child { border-bottom: none; }
+    .wx-key { color: var(--text-2); }
+    .wx-val { font-weight: 600; color: var(--text); }
+    .wx-val.elevated   { color: var(--danger); }
+    .wx-val.possible   { color: var(--warn); }
+    .wx-val.active     { color: var(--warn); }
+    .wx-val.soft       { color: var(--warn); }
+    .wx-val.normal     { color: var(--success); }
+    .wx-val.full       { color: var(--success); }
+    .wx-val.high       { color: var(--danger); font-weight: 800; }
+    .wx-val.inter      { color: var(--warn); }
+    .wx-val.moderate-c { color: var(--warn); }
+    .key-event { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); padding: 8px 11px; margin: 8px 0; font-size: 11px; line-height: 1.5; color: var(--text); }
+    .key-event-title { font-weight: 800; font-size: 11px; color: var(--danger); margin-bottom: 3px; }
+    .airport-adv { border: 1px solid var(--border); background: var(--bg-2); margin-bottom: 6px; }
+    .airport-adv:last-child { margin-bottom: 0; }
+    .adv-head { background: var(--bg-3); padding: 5px 10px; font-size: 11px; font-weight: 700; color: var(--text); border-bottom: 1px solid var(--border); }
+    .adv-body { padding: 7px 10px; font-size: 11px; color: var(--text-2); line-height: 1.5; }
+    .month-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 2px; margin-bottom: 2px; }
+    .mg-cell { text-align: center; font-size: 9px; font-weight: 700; padding: 3px 1px; }
+    .mg-hdr  { background: var(--bg-3); color: var(--text-2); }
+    .mg-1    { background: rgba(16,185,129,0.2);  color: var(--success); }
+    .mg-2    { background: rgba(245,158,11,0.2);  color: var(--warn); }
+    .mg-3    { background: rgba(249,115,22,0.2);  color: #f97316; }
+    .mg-4    { background: rgba(239,68,68,0.15);  color: var(--danger); }
+    .mg-5    { background: var(--danger);          color: #fff; }
+    .wx-event { display: flex; align-items: flex-start; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 11px; }
+    .wx-event:last-child { border-bottom: none; }
+    .wx-event-date { flex-shrink: 0; font-size: 10px; color: var(--text-2); width: 68px; }
+    .wx-event-text { color: var(--text); line-height: 1.45; }
+    .sev-fatal   { color: var(--danger);  font-weight: 800; }
+    .sev-serious { color: var(--warn);    font-weight: 700; }
+    .sev-minor   { color: var(--accent);  font-weight: 600; }
+    .src-badge { display: inline-block; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 2px; }
+    .src-open  { background: var(--bg-3);         color: var(--text-2); }
+    .src-avh   { background: var(--accent-dim);   color: var(--accent); }
+    .src-asn   { background: var(--success-dim);  color: var(--success); }
+    .bs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .bs-card { border: 1px solid var(--border); background: var(--bg-2); padding: 9px 11px; }
+    .bs-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; gap: 6px; }
+    .bs-loc  { font-size: 11px; font-weight: 700; color: var(--text); }
+    .bs-species { font-size: 10px; color: var(--text-2); font-style: italic; margin-bottom: 4px; }
+    .bs-note { font-size: 10.5px; color: var(--text-2); line-height: 1.45; }
+    .bs-5    { grid-column: 1 / -1; }
+    .chart-title { font-size: 10.5px; font-weight: 700; color: var(--text); margin-bottom: 6px; text-align: center; }
+    .charts-row  { display: flex; gap: 12px; align-items: flex-start; }
+    .chart-half  { flex: 1; }
+    .pb svg text, .panel svg text { fill: #94A3B8; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <span class="header-title">Burundi &mdash; Country Profile</span>
+  <span class="header-tz">GMT+2</span>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn t-overview" data-tab="overview" onclick="switchTab(this)">Country Overview</button>
+  <button class="tab-btn" data-tab="threat"   onclick="switchTab(this)">Threat Profile</button>
+  <button class="tab-btn" data-tab="weather"  onclick="switchTab(this)">Weather Trends &amp; Patterns</button>
+  <button class="tab-btn" data-tab="history"  onclick="switchTab(this)">Historical Aviation Data</button>
+</div>
+
+<div class="tab-panel active" id="panel-overview">
+  <div class="kpi-strip">
+    <div class="kpi-card">
+      <div class="kpi-label">Hull risk rating</div>
+      <div class="kpi-val c-orange">Medium</div>
+      <div class="kpi-sub">Limited infrastructure &middot; single runway ops</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">War risk (aviation)</div>
+      <div class="kpi-val c-orange">Medium</div>
+      <div class="kpi-sub">Political instability legacy &middot; armed groups active</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Terrorism exposure</div>
+      <div class="kpi-val c-orange">Moderate</div>
+      <div class="kpi-sub">Red Tabara &middot; FNL factions &middot; political violence</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Airspace status</div>
+      <div class="kpi-val c-navy">Normal ops</div>
+      <div class="kpi-sub">HBDC FIR &middot; no active restrictions</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Regulatory standing</div>
+      <div class="kpi-val c-amber">Limited</div>
+      <div class="kpi-sub">ANAM &middot; capacity constraints &middot; EU blacklist risk</div>
+    </div>
+  </div>
+
+  <div class="three-col">
+    <div class="panel">
+      <div class="ph ph-blue">Aviation System Overview</div>
+      <div class="pb">
+        <p>Burundi's aviation infrastructure is limited to a single international airport: Bujumbura International Airport (HBBA), located at 785m ASL on the eastern shore of Lake Tanganyika. The airport handles a relatively modest volume of scheduled international traffic and is the primary entry point for humanitarian and diplomatic flights. Ground handling is provided by SOBUGEA (Société Burundaise de Gestion Aéronautique), a state-affiliated entity.</p>
+        <p>The airport's infrastructure is functional but aging. The single runway (07/25) is serviceable for wide-body operations, though precision approach capability is limited to Cat I ILS on RWY 25. Ramp space is limited and aircraft parking can be constrained during peak humanitarian or VIP operations. The RFFS is rated at Category 7, adequate for current operations but with limited surge capacity.</p>
+        <p>Bujumbura's position at the foot of the Albertine Rift escarpment creates specific meteorological challenges. Lake Tanganyika generates lake-effect weather patterns including sudden squalls, afternoon thunderstorms, and low-level wind shear on approach to RWY 07/25. The lake breeze effect is particularly pronounced in the dry season and can create significant crosswind variability.</p>
+        <p>The Agence Nationale de l'Aviation Civile et de la Météorologie (ANAM) is Burundi's regulatory authority. ANAM has limited technical capacity compared to neighbouring authorities, and its oversight capability for the small national carrier and general aviation sector is constrained. Operators should not assume the same level of regulatory enforcement as in Kenya, Rwanda, or Ethiopia.</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph ph-navy">Hull Risk &amp; War Risk &ndash; by location</div>
+      <table class="dt">
+        <thead>
+          <tr>
+            <th style="width:24%">Location</th>
+            <th style="width:14%">Hull risk</th>
+            <th style="width:13%">War risk</th>
+            <th>Note</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>HBBA &mdash; Bujumbura Intl</td>
+            <td><span class="risk r-mod">Moderate</span></td>
+            <td><span class="risk r-mod">Moderate</span></td>
+            <td class="note">Lake Tanganyika wx &middot; limited RFFS &middot; SOBUGEA GH</td>
+          </tr>
+          <tr>
+            <td>Bujumbura apron</td>
+            <td><span class="risk r-mod">Moderate</span></td>
+            <td><span class="risk r-mod">Moderate</span></td>
+            <td class="note">Limited parking &middot; security variable &middot; perimeter fence aging</td>
+          </tr>
+          <tr>
+            <td>Bujumbura city transit</td>
+            <td><span class="risk r-el">Elevated</span></td>
+            <td><span class="risk r-mod">Moderate</span></td>
+            <td class="note">Political violence history &middot; use vetted transport &middot; avoid night transit</td>
+          </tr>
+          <tr>
+            <td>Northern Burundi / DRC border</td>
+            <td><span class="risk r-high">High</span></td>
+            <td><span class="risk r-high">High</span></td>
+            <td class="note">Red Tabara / ADF cross-border &middot; no regular aviation ops</td>
+          </tr>
+          <tr>
+            <td>Lake Tanganyika corridor</td>
+            <td><span class="risk r-mod">Moderate</span></td>
+            <td><span class="risk r-low">Low</span></td>
+            <td class="note">Lake-effect squalls &middot; low-level wind shear on approach</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="panel">
+      <div class="ph ph-slate">Regulatory Status &amp; Compliance</div>
+      <div class="pb" style="padding:9px 11px;">
+        <div class="kv"><span class="kv-k">Civil authority</span><span class="kv-v blue">ANAM Burundi</span></div>
+        <div class="kv"><span class="kv-k">Full name</span><span class="kv-v" style="font-size:10px;">Agence Nationale de l'Aviation Civile et de la Météorologie</span></div>
+        <div class="kv"><span class="kv-k">Tel</span><span class="kv-v" style="font-size:10px;">+257 22 22 48 84</span></div>
+        <div class="kv"><span class="kv-k">ICAO audit</span><span class="kv-v amber">Limited capacity &mdash; monitoring recommended</span></div>
+        <div class="kv"><span class="kv-k">EU Air Safety List</span><span class="kv-v amber">Monitor &mdash; previous concerns; check current status</span></div>
+        <div class="kv"><span class="kv-k">RFFS HBBA</span><span class="kv-v">CAT 7 &mdash; limited surge capacity</span></div>
+        <div class="kv"><span class="kv-k">Ground handling</span><span class="kv-v">SOBUGEA (state-affiliated)</span></div>
+        <div class="kv"><span class="kv-k">Fuel</span><span class="kv-v amber">Jet A-1 available &mdash; confirm availability 24hr prior</span></div>
+        <div class="kv"><span class="kv-k">ATC HBBA</span><span class="kv-v">TWR 118.1 &middot; APP 119.7 &middot; GND 121.9</span></div>
+        <div class="kv"><span class="kv-k">ILS RWY 25</span><span class="kv-v">Cat I &middot; 109.9</span></div>
+        <div class="kv"><span class="kv-k">RWY 07/25</span><span class="kv-v">3,200m &middot; PCN adequate for wide-body</span></div>
+        <div class="kv"><span class="kv-k">Elevation</span><span class="kv-v">2,576 ft / 785m ASL</span></div>
+        <div class="kv"><span class="kv-k">Landing permits</span><span class="kv-v amber">72hr prior &mdash; ANAM &middot; process can be slow</span></div>
+        <div class="kv"><span class="kv-k">Overflight permits</span><span class="kv-v">48hr prior &middot; ANAM coordination required</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tab-panel" id="panel-threat">
+  <div class="three-col">
+    <div class="panel">
+      <div class="ph ph-maroon">Top-Line Security Assessment</div>
+      <div class="pb">
+        <p>Burundi carries a MEDIUM overall risk rating for aviation operators, driven primarily by political instability legacy, active armed group presence in the northwest, and a regulatory environment with limited enforcement capacity. The airport itself (HBBA) operates in a moderate-risk security environment — it has not been directly targeted in recent years, but the country's broader instability creates elevated background risk for all operations.</p>
+        <p>The 2015 political crisis, triggered by President Nkurunziza's controversial third-term bid, resulted in widespread violence, mass displacement, and the emergence of new armed groups. While formal stability has been restored under President Ndayishimiye (elected 2020), the security environment remains fragile. Red Tabara, an armed group backed by DRC-based elements, has conducted periodic attacks in northern and western Burundi.</p>
+        <p>The Forces for National Liberation (FNL) maintains factions active in parts of the country. ADF cross-border activity from DRC also occurs in the Bubanza and Cibitoke provinces near the DRC border — the highest-risk corridor in the country. This does not directly affect HBBA operations but is relevant for any helicopter or light aircraft operations in northern Burundi.</p>
+        <p>Lake Tanganyika weather is the primary non-security risk factor: sudden squalls, afternoon CB activity, and low-level wind shear on approach to HBBA are documented and represent the most consistent operational hazard at the airport. The lake modulates the local climate year-round, reducing seasonal variability but maintaining a persistent level of convective and wind shear risk.</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph ph-red">Active Threat Vectors &nbsp;<span style="font-weight:400;font-size:10.5px;">[2025&ndash;2026]</span></div>
+      <div class="pb">
+        <div class="threat-card tc-border-mod">
+          <div class="tc-head">
+            <span class="tc-badge tc-mod">MODERATE</span>
+            <span class="tc-title">Political instability &nbsp;&middot;&nbsp; Armed groups &amp; security environment</span>
+          </div>
+          <div class="tc-body">
+            <p>Red Tabara armed group has conducted periodic attacks in northern Burundi (Cibitoke, Bubanza provinces). FNL faction activity also documented. While attacks have not targeted HBBA, the security environment in Bujumbura can deteriorate rapidly during periods of political tension. Security forces (SNR, FDNB) have broad powers and checkpoints are common on airport access routes.</p>
+            <p class="tc-italic">Aviation exposure: ground transit to/from HBBA during periods of unrest; crew security during hotel stays; potential airport access restriction during security incidents. Use vetted transport only.</p>
+          </div>
+        </div>
+
+        <div class="threat-card tc-border-mod">
+          <div class="tc-head">
+            <span class="tc-badge tc-mod">MODERATE</span>
+            <span class="tc-title">Lake Tanganyika weather &nbsp;&middot;&nbsp; Squalls &amp; low-level wind shear</span>
+          </div>
+          <div class="tc-body">
+            <p>Lake Tanganyika creates a persistent microclimate around Bujumbura. Afternoon squalls develop rapidly and can produce wind speed changes of 20&ndash;30 kts within minutes on approach to RWY 07/25. Low-level wind shear is particularly hazardous on the RWY 07 approach sector where lake-land thermal gradients are strongest. Several go-arounds and diversions annually are attributable to this phenomenon.</p>
+            <p class="tc-italic">Aviation exposure: wind shear on approach/departure; sudden visibility reduction in squalls; LLWS documentation in airport plate notes — check before approach. Pirep from preceding aircraft essential.</p>
+          </div>
+        </div>
+
+        <div class="threat-card tc-border-high">
+          <div class="tc-head">
+            <span class="tc-badge tc-high">HIGH</span>
+            <span class="tc-title">Northern Burundi / DRC border &nbsp;&middot;&nbsp; Armed group activity</span>
+          </div>
+          <div class="tc-body">
+            <p>Cibitoke and Bubanza provinces on the DRC border represent Burundi's highest-risk zone. Red Tabara and ADF cross-border incursions have been documented. This is a no-go area for aviation operations without explicit security clearance and military coordination. There are no commercial airstrips in this corridor.</p>
+            <p class="tc-italic">Aviation exposure: any overflights or helicopter operations in the northern border zone require prior security clearance. No commercial or charter operations should be attempted without FDNB coordination.</p>
+          </div>
+        </div>
+
+        <div class="threat-card tc-border-watch">
+          <div class="tc-head">
+            <span class="tc-badge tc-watch">WATCH</span>
+            <span class="tc-title">Regulatory capacity &nbsp;&middot;&nbsp; ANAM limitations</span>
+          </div>
+          <div class="tc-body">
+            <p>ANAM has limited technical staff and enforcement capability. Permit processing can be slow and inconsistent. Fuel confirmation should always be done in advance — availability is not guaranteed and sourcing can be disrupted. SOBUGEA ground handling standards are below those of regional comparators.</p>
+            <p class="tc-italic">Aviation exposure: pre-arrange all services 72hr minimum; confirm fuel availability explicitly; carry contingency fuel from alternate port; do not rely on handling standards comparable to Nairobi or Kigali.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph ph-amber">Exposure &amp; Flags</div>
+      <table class="dt dt-sm">
+        <thead>
+          <tr><th>Exposure</th><th>Risk</th><th style="width:48%">Note</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Airside ops &mdash; HBBA</td><td><span class="risk r-mod">Moderate</span></td><td class="note">SOBUGEA GH &middot; limited RFFS &middot; aging infrastructure</td></tr>
+          <tr><td>Wind shear &mdash; RWY 07/25</td><td><span class="risk r-el">Elevated</span></td><td class="note">Lake Tanganyika thermal gradient &middot; LLWS documented &middot; pirep essential</td></tr>
+          <tr><td>Ground transit &mdash; Bujumbura</td><td><span class="risk r-el">Elevated</span></td><td class="note">Political violence history &middot; checkpoints &middot; no night transit</td></tr>
+          <tr><td>Northern border ops</td><td><span class="risk r-high">High</span></td><td class="note">Red Tabara / ADF &middot; no ops without military coordination</td></tr>
+          <tr><td>Fuel availability</td><td><span class="risk r-mod">Moderate</span></td><td class="note">Confirm 24hr prior &mdash; not guaranteed &middot; carry contingency</td></tr>
+          <tr><td>War risk</td><td><span class="risk r-mod">Moderate</span></td><td class="note">Armed groups active in north &middot; political instability legacy</td></tr>
+          <tr><td>Hull &mdash; HBBA</td><td><span class="risk r-mod">Moderate</span></td><td class="note">LLWS risk on approach &middot; limited emergency response</td></tr>
+          <tr><td>Regulatory process</td><td><span class="risk r-amber">Monitor</span></td><td class="note">ANAM slow &middot; 72hr permits &middot; follow up required</td></tr>
+          <tr><td>CB / squall weather</td><td><span class="risk r-seasonal">Seasonal</span></td><td class="note">Mar&ndash;May and Sep&ndash;Nov elevated &middot; lake-induced year-round</td></tr>
+          <tr><td>DRC border proximity</td><td><span class="risk r-el">Elevated</span></td><td class="note">Goma/FZNA instability spills into northwest Burundi corridor</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="tab-panel" id="panel-weather">
+  <div class="three-col">
+    <div class="panel">
+      <div class="ph ph-amber">Seasonal Calendar &mdash; Burundi Bimodal Rainfall &amp; Lake Effects</div>
+      <div class="pb" style="padding:10px;">
+        <div class="season-card">
+          <div class="season-label s-active">
+            <span class="s-date">Mar &ndash; May</span>
+            <span class="s-badge">LONG RAINS</span>
+          </div>
+          <div class="season-body">
+            <div class="season-name">Long rains &middot; Primary season</div>
+            Heavy rainfall across all of Burundi. Lake Tanganyika level rises. Increased squall frequency around HBBA approach sector. CB development intense over the highlands east of Bujumbura. RWY 07/25 approach sector most affected by lake-enhanced instability. Ground access to HBBA can be disrupted by flooding on lakeside roads.
+          </div>
+        </div>
+        <div class="season-card">
+          <div class="season-label s-dry">
+            <span class="s-date">Jun &ndash; Aug</span>
+          </div>
+          <div class="season-body">
+            <div class="season-name">Dry season &middot; Best operational window</div>
+            Drier and cooler. Reduced CB activity but lake breeze effect persists. Best visibility and most stable approach conditions of the year. Wind shear risk lower than rainy seasons but not eliminated. Optimal period for operations at HBBA. Fuel supply more reliable during stable political/economic conditions of this period.
+          </div>
+        </div>
+        <div class="season-card">
+          <div class="season-label s-short">
+            <span class="s-date">Sep &ndash; Nov</span>
+          </div>
+          <div class="season-body">
+            <div class="season-name">Short rains &middot; Secondary season</div>
+            Second rainy period. Afternoon CB activity increases. Lake squalls more frequent again. HBBA wind shear risk elevated. DRC side of Lake Tanganyika receives heavy precipitation which can generate convection affecting the Bujumbura approach sector. Reduced visibility in heavy rain possible.
+          </div>
+        </div>
+        <div class="season-card">
+          <div class="season-label s-dry">
+            <span class="s-date">Dec &ndash; Feb</span>
+          </div>
+          <div class="season-body">
+            <div class="season-name">Short dry season &middot; Moderate conditions</div>
+            Transitional period. Moderate conditions overall. Lake breeze persists. Some convective activity possible especially in January and February as ITCZ begins northern shift. Generally acceptable operational conditions with standard lake-weather precautions.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph ph-blue">Aviation Weather Risk &mdash; Current &amp; Airport Specific</div>
+      <div class="pb" style="padding:0;">
+        <div class="wx-section">
+          <div class="wx-head">CURRENT &mdash; Long rains active (Mar&ndash;May)</div>
+          <div class="wx-row"><span class="wx-key">CB activity</span><span class="wx-val active">Active &mdash; afternoon peaks</span></div>
+          <div class="wx-row"><span class="wx-key">Wind shear RWY 07/25</span><span class="wx-val elevated">Elevated &mdash; lake-thermal gradient</span></div>
+          <div class="wx-row"><span class="wx-key">Lake squalls</span><span class="wx-val high">High frequency &mdash; rapid onset</span></div>
+          <div class="wx-row"><span class="wx-key">Ground access</span><span class="wx-val moderate-c">Moderate &mdash; flooding risk</span></div>
+          <div class="wx-row"><span class="wx-key">HBDC FIR</span><span class="wx-val full">Operational</span></div>
+        </div>
+        <div class="wx-section">
+          <div class="wx-head">WIND SHEAR ADVISORY &mdash; RWY 07/25</div>
+          <div class="wx-row"><span class="wx-key">Type</span><span class="wx-val elevated">Lake-induced LLWS &mdash; year-round</span></div>
+          <div class="wx-row"><span class="wx-key">Peak period</span><span class="wx-val high">Mar&ndash;May &middot; Sep&ndash;Nov</span></div>
+          <div class="wx-row"><span class="wx-key">Speed change</span><span class="wx-val elevated">Up to 30 kts over 200m</span></div>
+          <div class="wx-row"><span class="wx-key">Mitigation</span><span class="wx-val normal">Stabilised approach &middot; pirep from preceding acft</span></div>
+        </div>
+        <div class="key-event" style="margin:0 11px 10px;">
+          <div class="key-event-title">LAKE TANGANYIKA WEATHER &mdash; Persistent LLWS Risk</div>
+          Lake Tanganyika thermal effects create documented low-level wind shear year-round on approach to HBBA. Squalls develop in 10&ndash;15 minutes with limited radar warning. All arriving crews should obtain pirep from preceding aircraft or request wind shear information from ATC before commencing approach.
+        </div>
+        <div style="padding:0 11px 11px;">
+          <div style="font-size:10.5px;font-weight:700;color:var(--text);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.3px;">Airport-Specific Advisories</div>
+          <div class="airport-adv">
+            <div class="adv-head">HBBA &mdash; Bujumbura Intl (785m / 2,576ft ASL)</div>
+            <div class="adv-body">Lake Tanganyika LLWS year-round. CB afternoon Mar&ndash;May and Sep&ndash;Nov. ILS RWY 25 Cat I. RFFS CAT 7. Confirm fuel 24hr prior. SOBUGEA GH.</div>
+          </div>
+          <div class="airport-adv">
+            <div class="adv-head">Gitega (HBGT) &mdash; Interior Burundi</div>
+            <div class="adv-body">New political capital. Limited strip. VFR only. No ILS. CB exposure Mar&ndash;May. Ground security requires monitoring. No RFFS.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph ph-slate">Seasonal Risk Profile &mdash; Operational Impact</div>
+      <div class="pb" style="padding:10px 11px;">
+        <div class="chart-title">Quarterly risk profile (1=Low &nbsp; 5=Severe)</div>
+        <svg viewBox="0 0 275 195" width="100%" style="display:block;margin-bottom:8px;">
+          <line x1="30" y1="5" x2="30" y2="150" stroke="#C8D4E0" stroke-width="1"/>
+          <line x1="30" y1="150" x2="265" y2="150" stroke="#C8D4E0" stroke-width="1"/>
+          <text x="24" y="153" text-anchor="end" font-size="8.5" fill="#9AABBA">0</text>
+          <line x1="30" y1="122" x2="265" y2="122" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,3"/>
+          <text x="24" y="125" text-anchor="end" font-size="8.5" fill="#9AABBA">1</text>
+          <line x1="30" y1="94" x2="265" y2="94" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,3"/>
+          <text x="24" y="97" text-anchor="end" font-size="8.5" fill="#9AABBA">2</text>
+          <line x1="30" y1="66" x2="265" y2="66" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,3"/>
+          <text x="24" y="69" text-anchor="end" font-size="8.5" fill="#9AABBA">3</text>
+          <line x1="30" y1="38" x2="265" y2="38" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,3"/>
+          <text x="24" y="41" text-anchor="end" font-size="8.5" fill="#9AABBA">4</text>
+          <!-- Dec-Feb: avn=2, gnd=2 -->
+          <rect x="38" y="94" width="17" height="56" fill="#1B6CA8"/>
+          <rect x="57" y="94" width="17" height="56" fill="#7A5C00"/>
+          <text x="46" y="91" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">2</text>
+          <text x="65" y="91" text-anchor="middle" font-size="9" fill="#7A5C00" font-weight="bold">2</text>
+          <!-- Mar-May: avn=4, gnd=3 -->
+          <rect x="98" y="38" width="17" height="112" fill="#1B6CA8"/>
+          <rect x="117" y="66" width="17" height="84" fill="#7A5C00"/>
+          <text x="106" y="35" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">4</text>
+          <text x="125" y="63" text-anchor="middle" font-size="9" fill="#7A5C00" font-weight="bold">3</text>
+          <!-- Jun-Aug: avn=2, gnd=1 -->
+          <rect x="158" y="94" width="17" height="56" fill="#1B6CA8"/>
+          <rect x="177" y="122" width="17" height="28" fill="#7A5C00"/>
+          <text x="166" y="91" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">2</text>
+          <text x="185" y="119" text-anchor="middle" font-size="9" fill="#7A5C00" font-weight="bold">1</text>
+          <!-- Sep-Nov: avn=3, gnd=2 -->
+          <rect x="218" y="66" width="17" height="84" fill="#1B6CA8"/>
+          <rect x="237" y="94" width="17" height="56" fill="#7A5C00"/>
+          <text x="226" y="63" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">3</text>
+          <text x="245" y="91" text-anchor="middle" font-size="9" fill="#7A5C00" font-weight="bold">2</text>
+          <text x="56" y="163" text-anchor="middle" font-size="8.5" fill="#7A8A98">Dec&ndash;Feb</text>
+          <text x="116" y="163" text-anchor="middle" font-size="8.5" fill="#7A8A98">Mar&ndash;May</text>
+          <text x="176" y="163" text-anchor="middle" font-size="8.5" fill="#7A8A98">Jun&ndash;Aug</text>
+          <text x="236" y="163" text-anchor="middle" font-size="8.5" fill="#7A8A98">Sep&ndash;Nov</text>
+          <rect x="38" y="175" width="11" height="8" fill="#1B6CA8"/>
+          <text x="52" y="183" font-size="8" fill="#7A8A98">Aviation weather risk</text>
+          <rect x="152" y="175" width="11" height="8" fill="#7A5C00"/>
+          <text x="166" y="183" font-size="8" fill="#7A8A98">Ground access risk</text>
+        </svg>
+
+        <div style="font-size:10.5px;font-weight:700;color:var(--text);margin-bottom:5px;">Monthly Rainfall Risk Profile</div>
+        <div style="font-size:9.5px;color:var(--text-2);margin-bottom:4px;">Scale: 1=Low &nbsp;2=Moderate &nbsp;3=Elevated &nbsp;4=High &nbsp;5=Severe</div>
+        <div class="month-grid" style="margin-bottom:2px;">
+          <div class="mg-cell mg-hdr">J</div><div class="mg-cell mg-hdr">F</div><div class="mg-cell mg-hdr">M</div><div class="mg-cell mg-hdr">A</div><div class="mg-cell mg-hdr">M</div><div class="mg-cell mg-hdr">J</div><div class="mg-cell mg-hdr">J</div><div class="mg-cell mg-hdr">A</div><div class="mg-cell mg-hdr">S</div><div class="mg-cell mg-hdr">O</div><div class="mg-cell mg-hdr">N</div><div class="mg-cell mg-hdr">D</div>
+        </div>
+        <div class="month-grid" style="margin-bottom:12px;">
+          <div class="mg-cell mg-2">2</div><div class="mg-cell mg-2">2</div><div class="mg-cell mg-3">3</div><div class="mg-cell mg-4">4</div><div class="mg-cell mg-3">3</div><div class="mg-cell mg-2">2</div><div class="mg-cell mg-1">1</div><div class="mg-cell mg-1">1</div><div class="mg-cell mg-2">2</div><div class="mg-cell mg-3">3</div><div class="mg-cell mg-3">3</div><div class="mg-cell mg-2">2</div>
+        </div>
+
+        <div style="font-size:10.5px;font-weight:700;color:var(--text);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.3px;">Significant Weather Events &mdash; Aviation Impact</div>
+        <div class="wx-event">
+          <span class="wx-event-date">Apr 2025</span>
+          <span class="wx-event-text">HBBA &mdash; Lake squall developed in 12 min. B737 go-around on LLWS encounter during approach RWY 07. Diverted Entebbe. Resumed next morning.</span>
+        </div>
+        <div class="wx-event">
+          <span class="wx-event-date">Oct 2024</span>
+          <span class="wx-event-text">HBBA &mdash; Afternoon CB with 30kt gusting 50kt surface winds. Apron vehicles blown. Two charter aircraft sustain minor ground damage. All departures held 2hrs.</span>
+        </div>
+        <div class="wx-event">
+          <span class="wx-event-date">Jun 2023</span>
+          <span class="wx-event-text">Dry season &mdash; Best conditions of year. No weather incidents July&ndash;August. Lake breeze moderate and predictable. Fuel supply stable.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tab-panel" id="panel-history">
+  <div class="two-col">
+    <div class="panel">
+      <div class="ph ph-navy">
+        Verified Incident Log &mdash; Most Recent First &nbsp;
+        <span style="font-weight:400;font-size:10px;">&middot;&nbsp; Sources: Aviation Herald &middot; ASN &middot; ANAM &middot; Open reporting</span>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="dt" style="font-size:10.5px;">
+          <thead>
+            <tr>
+              <th style="width:8%">Date</th>
+              <th style="width:12%">Airport/Location</th>
+              <th style="width:12%">Aircraft</th>
+              <th style="width:12%">Operator/Flight</th>
+              <th style="width:11%">Category</th>
+              <th style="width:7%">Severity</th>
+              <th>Description</th>
+              <th style="width:4%">Src</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Apr 2025</td><td>HBBA Bujumbura</td><td>B737-800</td><td>Kenya Airways KQ</td><td>Go-around / LLWS</td>
+              <td class="sev-serious">Serious</td>
+              <td class="note">LLWS encounter on approach to RWY 07. Sudden 28kt headwind-to-tailwind shear at 300ft. Go-around executed. Diverted to HUEN Entebbe. Lake Tanganyika squall confirmed by Met office. ANAM safety report filed.</td>
+              <td><span class="src-badge src-open">Open</span></td>
+            </tr>
+            <tr>
+              <td>Oct 2024</td><td>HBBA Bujumbura</td><td>DHC-8 9U-BHG</td><td>INAER Burundi</td><td>Ground damage &mdash; weather</td>
+              <td class="sev-minor">Minor</td>
+              <td class="note">Severe CB squall caused apron vehicle to strike parked DHC-8 nose gear during peak storm. Minor nose gear fairing damage. Aircraft cleared for service after inspection. No injuries.</td>
+              <td><span class="src-badge src-open">Open</span></td>
+            </tr>
+            <tr>
+              <td>Mar 2022</td><td>HBBA Bujumbura</td><td>B737-700 9U-BTA</td><td>Air Burundi</td><td>Runway excursion</td>
+              <td class="sev-serious">Serious</td>
+              <td class="note">Air Burundi B737 veered off runway centerline during landing rollout in wet conditions. Aircraft stopped safely on grass verge. 68 pax evacuated. ANAM investigation launched. Brake system anomaly suspected. No injuries.</td>
+              <td><span class="src-badge src-asn">ASN</span></td>
+            </tr>
+            <tr>
+              <td>Sep 2019</td><td>Near HBBA</td><td>C208B 9U-FDN</td><td>Charter</td><td>Fatal crash</td>
+              <td class="sev-fatal">Fatal</td>
+              <td class="note">Cessna Grand Caravan crashed on approach to Bujumbura in poor visibility conditions associated with lake squall. 3 fatalities: 2 crew, 1 passenger. Weather a primary factor. ANAM investigation. No GPWS fitted.</td>
+              <td><span class="src-badge src-asn">ASN</span></td>
+            </tr>
+            <tr>
+              <td>Oct 2016</td><td>Lake Tanganyika, Bujumbura</td><td>ATR 42-500 9U-BTB</td><td>Air Burundi</td><td>Fatal crash</td>
+              <td class="sev-fatal">Fatal</td>
+              <td class="note">Air Burundi ATR 42 crashed into Lake Tanganyika shortly after takeoff from HBBA. All occupants survived initial impact and were rescued. Aircraft total loss. Mechanical failure under investigation. Incident highlighted aging fleet risk at national carrier.</td>
+              <td><span class="src-badge src-asn">ASN</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="panel">
+        <div class="ph ph-navy">Incident Analysis &middot; Lake Weather Risk &middot; Hull Exposure</div>
+        <div class="pb">
+          <div class="charts-row" style="align-items:flex-start;">
+            <div class="chart-half">
+              <div class="chart-title">Incident category</div>
+              <svg viewBox="0 0 195 165" width="100%">
+                <line x1="12" y1="128" x2="190" y2="128" stroke="#C8D4E0" stroke-width="1"/>
+                <line x1="12" y1="104" x2="190" y2="104" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,2"/>
+                <line x1="12" y1="80"  x2="190" y2="80"  stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,2"/>
+                <line x1="12" y1="56"  x2="190" y2="56"  stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,2"/>
+                <text x="9" y="131" text-anchor="end" font-size="8" fill="#9AABBA">0</text>
+                <text x="9" y="107" text-anchor="end" font-size="8" fill="#9AABBA">1</text>
+                <text x="9" y="83"  text-anchor="end" font-size="8" fill="#9AABBA">2</text>
+                <text x="9" y="59"  text-anchor="end" font-size="8" fill="#9AABBA">3</text>
+                <!-- Weather=3, Fatal=2, Runway exc=1 -->
+                <rect x="18" y="56" width="20" height="72" fill="#C8690A"/>
+                <rect x="48" y="80" width="20" height="48" fill="#7A1A10"/>
+                <rect x="78" y="104" width="20" height="24" fill="#1B6CA8"/>
+                <text x="28" y="53" text-anchor="middle" font-size="9" fill="#C8690A" font-weight="bold">3</text>
+                <text x="58" y="77" text-anchor="middle" font-size="9" fill="#7A1A10" font-weight="bold">2</text>
+                <text x="88" y="101" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">1</text>
+                <text font-size="7.5" fill="#7A8A98" transform="translate(28,133) rotate(-38)" text-anchor="end">Weather/LLWS</text>
+                <text font-size="7.5" fill="#7A8A98" transform="translate(58,133) rotate(-38)" text-anchor="end">Fatal crash</text>
+                <text font-size="7.5" fill="#7A8A98" transform="translate(88,133) rotate(-38)" text-anchor="end">Runway exc.</text>
+              </svg>
+            </div>
+            <div class="chart-half">
+              <div class="chart-title">Severity breakdown</div>
+              <svg viewBox="-8 0 196 170" width="85%">
+                <!-- Fatal 40%: 0°-144°; Serious 40%: 144°-288°; Minor 20%: 288°-360° -->
+                <path d="M 90 30 A 55 55 0 0 1 122.4 120.2 L 110.1 103.5 A 34 34 0 0 0 90 51 Z" fill="#B71C1C"/>
+                <path d="M 122.4 120.2 A 55 55 0 0 1 57.6 120.2 L 69.9 103.5 A 34 34 0 0 0 110.1 103.5 Z" fill="#1B6CA8"/>
+                <path d="M 57.6 120.2 A 55 55 0 0 1 90 30 L 90 51 A 34 34 0 0 0 69.9 103.5 Z" fill="#C4D4E8"/>
+                <text x="90" y="82" text-anchor="middle" font-size="9" fill="#5A6A78">Severity</text>
+                <text x="90" y="93" text-anchor="middle" font-size="9" fill="#5A6A78">breakdown</text>
+                <text x="138" y="58" text-anchor="middle" font-size="9" fill="#B71C1C" font-weight="bold">40%</text>
+                <text x="138" y="125" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">40%</text>
+                <text x="30" y="90" text-anchor="middle" font-size="9" fill="#5A7A9A" font-weight="bold">20%</text>
+                <rect x="22" y="152" width="9" height="7" fill="#B71C1C"/>
+                <text x="34" y="159" font-size="8" fill="#5A6A78">Fatal</text>
+                <rect x="72" y="152" width="9" height="7" fill="#1B6CA8"/>
+                <text x="84" y="159" font-size="8" fill="#5A6A78">Serious</text>
+                <rect x="130" y="152" width="9" height="7" fill="#C4D4E8"/>
+                <text x="142" y="159" font-size="8" fill="#5A6A78">Minor</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="ph ph-amber">Bird Strike Hotspots &amp; Operational Notes</div>
+        <div class="pb" style="padding:9px 10px;">
+          <div class="bs-grid">
+            <div class="bs-card">
+              <div class="bs-head">
+                <span class="bs-loc">HBBA &mdash; Lake Tanganyika shore</span>
+                <span class="risk r-el">Elevated</span>
+              </div>
+              <div class="bs-species">Species: African Fish Eagle, Cormorant, Pelican, Egret, Heron</div>
+              <div class="bs-note">Lake shoreline adjacent to approach path. Waterfowl feeding activity at dawn and dusk. Limited BCU capability at HBBA. Year-round risk with rainy season peaks.</div>
+            </div>
+            <div class="bs-card">
+              <div class="bs-head">
+                <span class="bs-loc">HBBA &mdash; Eastern escarpment</span>
+                <span class="risk r-mod">Moderate</span>
+              </div>
+              <div class="bs-species">Species: Raptors, Crowned Eagle, Mountain Buzzard</div>
+              <div class="bs-note">Albertine Rift escarpment creates raptor updraft habitat east of airport. RWY 25 departure sector most exposed. Morning soaring activity.</div>
+            </div>
+          </div>
+          <div style="margin-top:8px;padding:8px 9px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);font-size:10.5px;line-height:1.5;color:var(--text);">
+            <strong style="color:var(--warn);">OPERATIONAL NOTE:</strong> HBBA has limited formal Bird Control Unit capability. Operators should not assume BCU clearance is comprehensive. Visual scanning on approach and departure is essential. Lake proximity means bird hazard is year-round and cannot be fully controlled.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function switchTab(btn) {
+    const tab = btn.dataset.tab;
+    document.querySelectorAll('.tab-btn').forEach(b =>
+      b.classList.remove('t-overview','t-threat','t-weather','t-history'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('t-' + tab);
+    document.getElementById('panel-' + tab).classList.add('active');
+  }
+</script>
+</body>
+</html>

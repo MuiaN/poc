@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Somalia — Country Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="../theme.js"></script>
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-body); font-size: 12px; background: var(--bg); color: var(--text); }
+    .page-header { background: var(--bg-2); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 10px 18px; }
+    .header-title { color: var(--text); font-size: 16px; font-weight: 700; letter-spacing: 0.2px; }
+    .header-tz    { color: var(--accent); font-size: 13px; font-weight: 700; }
+    .tab-bar { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--bg-3); border-bottom: 1px solid var(--border); }
+    .tab-btn { padding: 10px 14px; text-align: center; font-size: 12px; font-weight: 600; color: var(--text-2); background: var(--bg-3); border: none; cursor: pointer; border-right: 1px solid var(--border); transition: background 0.15s, color 0.15s; white-space: nowrap; font-family: var(--font-body); }
+    .tab-btn:last-child { border-right: none; }
+    .tab-btn:hover { background: var(--bg-hover); color: var(--text); }
+    .tab-btn.t-overview { background: var(--accent); color: #fff; }
+    .tab-btn.t-threat   { background: var(--danger); color: #fff; }
+    .tab-btn.t-weather  { background: var(--warn); color: #0B0F1A; }
+    .tab-btn.t-history  { background: var(--bg-hover); color: var(--text); }
+    .tab-panel { display: none; padding: 12px 14px 18px; }
+    .tab-panel.active { display: block; }
+    .kpi-strip { display: grid; grid-template-columns: repeat(5, 1fr); border: 1px solid var(--border); margin-bottom: 12px; background: var(--bg-2); }
+    .kpi-card { padding: 9px 13px; border-right: 1px solid var(--border); }
+    .kpi-card:last-child { border-right: none; }
+    .kpi-label { font-size: 9.5px; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 3px; }
+    .kpi-val   { font-size: 18px; font-weight: 700; line-height: 1.2; }
+    .kpi-sub   { font-size: 10px; color: var(--text-2); margin-top: 3px; line-height: 1.4; }
+    .c-orange  { color: var(--warn); }
+    .c-green   { color: var(--success); }
+    .c-navy    { color: var(--text); }
+    .c-red     { color: var(--danger); }
+    .c-amber   { color: var(--warn); }
+    .three-col { display: grid; grid-template-columns: 27% 1fr 28%; gap: 12px; }
+    .two-col   { display: grid; grid-template-columns: 56% 1fr; gap: 12px; }
+    .panel { background: var(--bg-2); border: 1px solid var(--border); }
+    .ph { padding: 6px 11px; font-size: 11.5px; font-weight: 700; border-bottom: 1px solid var(--border); }
+    .ph-blue   { background: var(--bg-3); color: var(--accent);   border-left: 3px solid var(--accent); }
+    .ph-navy   { background: var(--bg-3); color: var(--text);     border-left: 3px solid var(--text-2); }
+    .ph-maroon { background: rgba(239,68,68,0.08);  color: var(--danger);  border-left: 3px solid var(--danger); }
+    .ph-amber  { background: rgba(245,158,11,0.08); color: var(--warn);    border-left: 3px solid var(--warn); }
+    .ph-slate  { background: var(--bg-3); color: var(--text-2);   border-left: 3px solid var(--text-2); }
+    .ph-green  { background: rgba(16,185,129,0.08); color: var(--success); border-left: 3px solid var(--success); }
+    .ph-red    { background: rgba(239,68,68,0.08);  color: var(--danger);  border-left: 3px solid var(--danger); }
+    .pb { padding: 11px 12px; font-size: 11.5px; line-height: 1.58; color: var(--text); }
+    .pb p { margin-bottom: 8px; }
+    .pb p:last-child { margin-bottom: 0; }
+    .dt { width: 100%; border-collapse: collapse; font-size: 11px; }
+    .dt thead th { background: var(--bg-3); padding: 5px 8px; text-align: left; font-weight: 700; border-bottom: 2px solid var(--border); white-space: nowrap; color: var(--text-2); }
+    .dt tbody tr:nth-child(even) { background: var(--bg-3); }
+    .dt tbody tr:hover { background: var(--bg-hover); }
+    .dt tbody td { padding: 5px 8px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.45; color: var(--text); }
+    .dt-sm td { font-size: 10.5px; }
+    .dt tbody td.note { font-size: 10.5px; color: var(--text-2); }
+    .risk { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 2px; white-space: nowrap; }
+    .r-low      { background: rgba(16,185,129,0.15);  color: var(--success); }
+    .r-mod      { background: rgba(245,158,11,0.15);  color: var(--warn); }
+    .r-mod-el   { background: rgba(249,115,22,0.15);  color: #f97316; font-style: italic; }
+    .r-el       { background: rgba(239,68,68,0.12);   color: #f97316; }
+    .r-high     { background: var(--danger);           color: #fff; }
+    .r-seasonal { background: rgba(139,92,246,0.15);  color: #a78bfa; }
+    .r-monitor  { background: var(--accent-dim);       color: var(--accent); }
+    .kv { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid var(--border); font-size: 11px; gap: 6px; align-items: flex-start; }
+    .kv:last-child { border-bottom: none; }
+    .kv-k { color: var(--text-2); flex-shrink: 0; }
+    .kv-v { text-align: right; font-weight: 600; color: var(--text); font-size: 10.5px; }
+    .kv-v.blue  { color: var(--accent); }
+    .kv-v.red   { color: var(--danger); }
+    .kv-v.green { color: var(--success); font-weight: 700; }
+    .kv-v.amber { color: var(--warn); }
+    .threat-card { border: 1px solid var(--border); margin-bottom: 10px; }
+    .threat-card:last-child { margin-bottom: 0; }
+    .tc-head { display: flex; align-items: center; gap: 10px; padding: 7px 11px; border-bottom: 1px solid var(--border); }
+    .tc-badge { display: inline-block; font-size: 9.5px; font-weight: 800; padding: 2px 8px; border-radius: 2px; white-space: nowrap; letter-spacing: 0.5px; }
+    .tc-high  { background: var(--danger);  color: #fff; }
+    .tc-mod   { background: var(--warn);    color: #0B0F1A; }
+    .tc-watch { background: var(--success); color: #0B0F1A; }
+    .tc-title { font-size: 12px; font-weight: 700; color: var(--text); }
+    .tc-body  { padding: 9px 11px; font-size: 11px; line-height: 1.55; color: var(--text); }
+    .tc-body p { margin-bottom: 5px; }
+    .tc-body p:last-child { margin-bottom: 0; }
+    .tc-italic { font-style: italic; color: var(--text-2); margin-top: 6px; }
+    .tc-border-high  { border-left: 3px solid var(--danger); }
+    .tc-border-mod   { border-left: 3px solid var(--warn); }
+    .tc-border-watch { border-left: 3px solid var(--success); }
+    .season-card { display: flex; border: 1px solid var(--border); background: var(--bg-2); margin-bottom: 8px; }
+    .season-card:last-child { margin-bottom: 0; }
+    .season-label { width: 58px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 8px 6px; font-size: 10px; font-weight: 700; text-align: center; }
+    .s-active { background: var(--warn);   color: #0B0F1A; }
+    .s-dry    { background: var(--accent); color: #fff; }
+    .s-short  { background: #475569;       color: #fff; }
+    .season-label .s-date  { font-size: 11px; font-weight: 800; line-height: 1.3; }
+    .season-label .s-badge { font-size: 8px; background: rgba(255,255,255,0.25); border-radius: 2px; padding: 1px 4px; margin-top: 3px; }
+    .season-body { padding: 9px 11px; font-size: 11px; line-height: 1.5; color: var(--text-2); }
+    .season-name { font-weight: 700; font-size: 11.5px; color: var(--text); margin-bottom: 4px; }
+    .wx-section { margin-bottom: 10px; }
+    .wx-head { font-size: 10.5px; font-weight: 700; color: var(--text-2); background: var(--bg-3); padding: 4px 10px; }
+    .wx-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 10px; border-bottom: 1px solid var(--border); font-size: 11px; }
+    .wx-row:last-child { border-bottom: none; }
+    .wx-key { color: var(--text-2); }
+    .wx-val { font-weight: 600; color: var(--text); }
+    .wx-val.elevated   { color: var(--danger); }
+    .wx-val.possible   { color: var(--warn); }
+    .wx-val.active     { color: var(--warn); }
+    .wx-val.soft       { color: var(--warn); }
+    .wx-val.normal     { color: var(--success); }
+    .wx-val.full       { color: var(--success); }
+    .wx-val.high       { color: var(--danger); font-weight: 800; }
+    .wx-val.inter      { color: var(--warn); }
+    .wx-val.moderate-c { color: var(--warn); }
+    .key-event { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); padding: 8px 11px; margin: 8px 0; font-size: 11px; line-height: 1.5; color: var(--text); }
+    .key-event-title { font-weight: 800; font-size: 11px; color: var(--danger); margin-bottom: 3px; }
+    .airport-adv { border: 1px solid var(--border); background: var(--bg-2); margin-bottom: 6px; }
+    .airport-adv:last-child { margin-bottom: 0; }
+    .adv-head { background: var(--bg-3); padding: 5px 10px; font-size: 11px; font-weight: 700; color: var(--text); border-bottom: 1px solid var(--border); }
+    .adv-body { padding: 7px 10px; font-size: 11px; color: var(--text-2); line-height: 1.5; }
+    .month-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 2px; margin-bottom: 2px; }
+    .mg-cell { text-align: center; font-size: 9px; font-weight: 700; padding: 3px 1px; }
+    .mg-hdr  { background: var(--bg-3); color: var(--text-2); }
+    .mg-1    { background: rgba(16,185,129,0.2);  color: var(--success); }
+    .mg-2    { background: rgba(245,158,11,0.2);  color: var(--warn); }
+    .mg-3    { background: rgba(249,115,22,0.2);  color: #f97316; }
+    .mg-4    { background: rgba(239,68,68,0.15);  color: var(--danger); }
+    .mg-5    { background: var(--danger);          color: #fff; }
+    .wx-event { display: flex; align-items: flex-start; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 11px; }
+    .wx-event:last-child { border-bottom: none; }
+    .wx-event-date { flex-shrink: 0; font-size: 10px; color: var(--text-2); width: 68px; }
+    .wx-event-text { color: var(--text); line-height: 1.45; }
+    .sev-fatal   { color: var(--danger);  font-weight: 800; }
+    .sev-serious { color: var(--warn);    font-weight: 700; }
+    .sev-minor   { color: var(--accent);  font-weight: 600; }
+    .src-badge { display: inline-block; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 2px; }
+    .src-open  { background: var(--bg-3);         color: var(--text-2); }
+    .src-avh   { background: var(--accent-dim);   color: var(--accent); }
+    .src-asn   { background: var(--success-dim);  color: var(--success); }
+    .bs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .bs-card { border: 1px solid var(--border); background: var(--bg-2); padding: 9px 11px; }
+    .bs-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; gap: 6px; }
+    .bs-loc  { font-size: 11px; font-weight: 700; color: var(--text); }
+    .bs-species { font-size: 10px; color: var(--text-2); font-style: italic; margin-bottom: 4px; }
+    .bs-note { font-size: 10.5px; color: var(--text-2); line-height: 1.45; }
+    .bs-5    { grid-column: 1 / -1; }
+    .chart-title { font-size: 10.5px; font-weight: 700; color: var(--text); margin-bottom: 6px; text-align: center; }
+    .charts-row  { display: flex; gap: 12px; align-items: flex-start; }
+    .chart-half  { flex: 1; }
+    .pb svg text, .panel svg text { fill: #94A3B8; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <span class="header-title">Somalia &mdash; Country Profile</span>
+  <span class="header-tz">GMT+3</span>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn t-overview" data-tab="overview" onclick="switchTab(this)">Country Overview</button>
+  <button class="tab-btn" data-tab="threat"   onclick="switchTab(this)">Threat Profile</button>
+  <button class="tab-btn" data-tab="weather"  onclick="switchTab(this)">Weather Trends &amp; Patterns</button>
+  <button class="tab-btn" data-tab="history"  onclick="switchTab(this)">Historical Aviation Data</button>
+</div>
+
+<div class="tab-panel active" id="panel-overview">
+  <div class="kpi-strip">
+    <div class="kpi-card">
+      <div class="kpi-label">Hull risk rating</div>
+      <div class="kpi-val c-red">High</div>
+      <div class="kpi-sub">Active conflict &middot; HCMM extreme risk &middot; no night ops</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">War risk (aviation)</div>
+      <div class="kpi-val c-red">High</div>
+      <div class="kpi-sub">Al-Shabaab MANPADS risk &middot; airport attacks documented</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Terrorism exposure</div>
+      <div class="kpi-val c-red">Extreme</div>
+      <div class="kpi-sub">Al-Shabaab primary &middot; HCMM direct targeting history</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Airspace status</div>
+      <div class="kpi-val c-red">Restricted</div>
+      <div class="kpi-sub">HCSM FIR &middot; conflict restrictions &middot; GNSS interference</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Regulatory standing</div>
+      <div class="kpi-val c-red">Severely Limited</div>
+      <div class="kpi-sub">CAAS &middot; EU blacklist &middot; capacity extremely limited</div>
+    </div>
+  </div>
+
+  <div class="three-col">
+    <div class="panel">
+      <div class="ph ph-blue">Aviation System Overview</div>
+      <div class="pb">
+        <p>Somalia's aviation system operates in one of the world's most challenging security environments. Mogadishu Aden Adde International Airport (HCMM) is the primary gateway, located at 9m ASL on the Indian Ocean coast. The airport operates under a layered security framework established by AMISOM (now ATMIS — African Union Transition Mission in Somalia) and Somali security forces. Despite the security environment, HCMM handles a significant volume of international humanitarian, UN, diplomatic, and commercial traffic.</p>
+        <p>The airport perimeter has been the target of multiple Al-Shabaab attacks including vehicle-borne IED attempts and mortar fire. The main terminal building has been rebuilt following the 2010 suicide bombing. HCMM operates under strict security protocols: all movements airside require security escort; no unaccompanied walking on the apron; crew must remain in the aircraft or in designated secure facilities when on the ground.</p>
+        <p>Electronic warfare interference on approach to HCMM has been reported by multiple operators. GNSS spoofing or jamming affecting approach accuracy has been documented in PIREPs, particularly during periods of heightened conflict activity. Operators should not rely solely on GNSS for approaches and should maintain ILS/VOR backup capability.</p>
+        <p>Jubba Airways provides the main commercial ground handling services at HCMM. The Civil Aviation Authority of Somalia (CAAS) is the regulatory body but has extremely limited technical capacity. All carriers serving Mogadishu are subject to EU Air Safety List restrictions or enhanced oversight requirements. Night operations are strongly discouraged due to the combined security and approach risk profile.</p>
+        <p>Beyond Mogadishu, aviation in Somalia is fragmented. Hargeisa (HCMH) in Somaliland is a comparatively stable alternative, functioning under separate Somaliland administration. Garowe and Bosaso serve Puntland. These airports carry their own security and infrastructure risk profiles distinct from the Mogadishu environment.</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph ph-navy">Hull Risk &amp; War Risk &ndash; by location</div>
+      <table class="dt">
+        <thead>
+          <tr>
+            <th style="width:24%">Location</th>
+            <th style="width:14%">Hull risk</th>
+            <th style="width:13%">War risk</th>
+            <th>Note</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>HCMM &mdash; Mogadishu</td>
+            <td><span class="risk r-high">High</span></td>
+            <td><span class="risk r-high">High</span></td>
+            <td class="note">Al-Shabaab threat &middot; MANPADS risk &middot; GNSS interference &middot; no night ops</td>
+          </tr>
+          <tr>
+            <td>HCMH &mdash; Hargeisa (Somaliland)</td>
+            <td><span class="risk r-el">Elevated</span></td>
+            <td><span class="risk r-mod">Moderate</span></td>
+            <td class="note">Somaliland administration &middot; relatively stable &middot; limited RFFS</td>
+          </tr>
+          <tr>
+            <td>Mogadishu city transit</td>
+            <td><span class="risk r-high">High</span></td>
+            <td><span class="risk r-high">High</span></td>
+            <td class="note">IED risk &middot; VCP &middot; armoured vehicle + armed escort mandatory</td>
+          </tr>
+          <tr>
+            <td>Kismayo (HCKI)</td>
+            <td><span class="risk r-high">High</span></td>
+            <td><span class="risk r-high">High</span></td>
+            <td class="note">Al-Shabaab active southern region &middot; security dependent on ATMIS presence</td>
+          </tr>
+          <tr>
+            <td>Bosaso (HCMF)</td>
+            <td><span class="risk r-el">Elevated</span></td>
+            <td><span class="risk r-el">Elevated</span></td>
+            <td class="note">Puntland ops &middot; piracy legacy port proximity &middot; limited services</td>
+          </tr>
+          <tr>
+            <td>HCSM FIR overflights</td>
+            <td><span class="risk r-mod">Moderate</span></td>
+            <td><span class="risk r-mod">Moderate</span></td>
+            <td class="note">Overflight FL200+ generally manageable &middot; GNSS interference possible below</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="panel">
+      <div class="ph ph-slate">Regulatory Status &amp; Compliance</div>
+      <div class="pb" style="padding:9px 11px;">
+        <div class="kv"><span class="kv-k">Civil authority</span><span class="kv-v blue">Civil Aviation Authority of Somalia (CAAS)</span></div>
+        <div class="kv"><span class="kv-k">EU Air Safety List</span><span class="kv-v red">ALL Somali carriers BANNED from EU airspace</span></div>
+        <div class="kv"><span class="kv-k">ICAO audit</span><span class="kv-v red">Significant deficiencies &mdash; SSC status</span></div>
+        <div class="kv"><span class="kv-k">RFFS HCMM</span><span class="kv-v amber">CAT 6 nominal &mdash; verify actual capability</span></div>
+        <div class="kv"><span class="kv-k">Ground handling</span><span class="kv-v">Jubba Airways GS &mdash; Mogadishu</span></div>
+        <div class="kv"><span class="kv-k">Security framework</span><span class="kv-v">ATMIS / SNA &mdash; layered airport security</span></div>
+        <div class="kv"><span class="kv-k">Fuel</span><span class="kv-v amber">Jet A-1 available &mdash; confirm 48hr prior</span></div>
+        <div class="kv"><span class="kv-k">ATC HCMM</span><span class="kv-v">TWR 118.1 &middot; APP 119.7</span></div>
+        <div class="kv"><span class="kv-k">GNSS warning</span><span class="kv-v red">Interference reported on approach &mdash; use ILS/VOR backup</span></div>
+        <div class="kv"><span class="kv-k">Night ops</span><span class="kv-v red">Strongly discouraged &mdash; MANPADS &amp; approach risk</span></div>
+        <div class="kv"><span class="kv-k">Elevation HCMM</span><span class="kv-v">30 ft / 9m ASL</span></div>
+        <div class="kv"><span class="kv-k">ILS RWY 05</span><span class="kv-v">Cat I &middot; 109.5 &mdash; verify current NOTAM</span></div>
+        <div class="kv"><span class="kv-k">Landing permits</span><span class="kv-v red">CAAS &middot; 72hr+ &middot; security clearance required</span></div>
+        <div class="kv"><span class="kv-k">Armed escort</span><span class="kv-v red">MANDATORY all ground movements</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tab-panel" id="panel-threat">
+  <div class="three-col">
+    <div class="panel">
+      <div class="ph ph-maroon">Top-Line Security Assessment</div>
+      <div class="pb">
+        <p>Somalia carries a HIGH overall risk rating for aviation operations, with the Mogadishu airport environment rated as EXTREME for ground-level security exposure. Al-Shabaab (Harakat al-Shabaab al-Mujahideen) is the primary threat actor and has demonstrated a persistent intent to target aviation assets, airport infrastructure, and international actors associated with the Somali federal government.</p>
+        <p>Al-Shabaab has documented MANPADS capability, acquired during the collapse of the Somali state in the early 1990s from abandoned military stocks. While no confirmed MANPADS shoot-down of a commercial aircraft has occurred, the threat is credible and was explicitly cited by ICAO in a 2016 airspace risk assessment. All operators should apply war-risk MANPADS loading for HCMM operations.</p>
+        <p>The airport has been attacked multiple times, most significantly in August 2010 (suicide bomb targeting AMISOM/Uganda contingent) and multiple mortar attacks on the airport perimeter and apron area. The ATMIS (formerly AMISOM) military presence provides a security envelope but this is not equivalent to a conflict-free environment. Airport security is layered and intensive but cannot fully eliminate the risk from IEDs, indirect fire, or armed assault.</p>
+        <p>GNSS interference on approach to HCMM has been reported by multiple operators and is documented in ICAO safety circulars. The interference may be deliberate (electronic warfare by Al-Shabaab or sympathetic actors) or incidental from military jamming systems. In either case, operators must not rely solely on GNSS for approach procedures. ILS or VOR/DME backup must be maintained.</p>
+        <p>Outside Mogadishu, Al-Shabaab controls significant rural territory and has the capability to interdict ground movements and airstrip access in southern and central Somalia. No commercial aviation operations should be conducted to secondary strips in Al-Shabaab-influenced areas without ATMIS/SNA security coordination.</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph ph-red">Active Threat Vectors &nbsp;<span style="font-weight:400;font-size:10.5px;">[2025&ndash;2026]</span></div>
+      <div class="pb">
+        <div class="threat-card tc-border-high">
+          <div class="tc-head">
+            <span class="tc-badge tc-high">HIGH</span>
+            <span class="tc-title">Al-Shabaab &nbsp;&middot;&nbsp; MANPADS capability &amp; airport targeting</span>
+          </div>
+          <div class="tc-body">
+            <p>Al-Shabaab has documented MANPADS (Man-Portable Air Defence Systems) capability and has explicitly threatened aviation targets. Previous attacks on HCMM include mortar fire on apron areas, VBIED attempts at airport access, and direct assault on terminal building. The group maintains a dedicated intelligence collection capability against HCMM operations including monitoring of scheduled movements.</p>
+            <p>ICAO issued a MANPADS threat advisory for HCMM in 2016. The advisory remains relevant. All departures and approaches should be conducted using MANPADS risk mitigation procedures where available (steep approaches, tactical departure procedures, reduced exposure time at low altitude over populated areas).</p>
+            <p class="tc-italic">Aviation exposure: MANPADS threat on departure/approach; mortar/indirect fire risk on apron; VBIED risk on access roads; assault risk at perimeter. War risk insurance mandatory.</p>
+          </div>
+        </div>
+
+        <div class="threat-card tc-border-high">
+          <div class="tc-head">
+            <span class="tc-badge tc-high">HIGH</span>
+            <span class="tc-title">GNSS interference &nbsp;&middot;&nbsp; Approach integrity degraded</span>
+          </div>
+          <div class="tc-body">
+            <p>Multiple PIREPs report GNSS signal degradation, spoofing, and jamming on approach to HCMM. Incidents have caused false position indications and navigation uncertainty below FL100. The phenomenon is documented in ICAO safety circulars and NOTAM advisories. Sources may include military EW systems, deliberate Al-Shabaab jamming, or opportunistic interference from the complex radio environment in Mogadishu.</p>
+            <p class="tc-italic">Aviation exposure: do not rely solely on GNSS for approaches to HCMM. Maintain ILS/VOR capability. Monitor GPS integrity warnings on approach. Cross-check position with ILS glidepath and DME. RAIM prediction not reliable for planning at HCMM.</p>
+          </div>
+        </div>
+
+        <div class="threat-card tc-border-high">
+          <div class="tc-head">
+            <span class="tc-badge tc-high">HIGH</span>
+            <span class="tc-title">Night operations &nbsp;&middot;&nbsp; Compounded security &amp; approach risk</span>
+          </div>
+          <div class="tc-body">
+            <p>Night operations at HCMM carry compounded risk from two independent sources: the security threat (Al-Shabaab has conducted attacks at night and under cover of darkness, and ATMIS/SNA situational awareness is reduced after dark); and the approach risk (GNSS interference combined with reduced visual cues creates elevated CFIT risk at night). Multiple operators have adopted a formal no-night-ops policy at HCMM.</p>
+            <p class="tc-italic">Aviation exposure: Night operations at HCMM should be avoided unless operationally essential and only with current security SITREP and ILS approaches confirmed serviceable. Briefing on night security situation from ATMIS mandatory before any night landing.</p>
+          </div>
+        </div>
+
+        <div class="threat-card tc-border-mod">
+          <div class="tc-head">
+            <span class="tc-badge tc-mod">MODERATE</span>
+            <span class="tc-title">Ground transit &nbsp;&middot;&nbsp; IED &amp; ambush risk &mdash; Mogadishu city</span>
+          </div>
+          <div class="tc-body">
+            <p>Mogadishu city transit carries extreme risk. Al-Shabaab conducts IED attacks, VBIED attacks, and targeted assassinations in the city, including against hotel complexes used by international operators and NGO staff. Transit outside the airport compound requires armoured vehicles and armed escort at all times.</p>
+            <p class="tc-italic">Aviation exposure: crew hotel accommodation and transit in Mogadishu requires armoured vehicle, armed escort, and pre-movement route reconnaissance. No unaccompanied movements. Minimise time outside airport compound.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph ph-amber">Exposure &amp; Flags</div>
+      <table class="dt dt-sm">
+        <thead>
+          <tr><th>Exposure</th><th>Risk</th><th style="width:48%">Note</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>HCMM airside &mdash; all ops</td><td><span class="risk r-high">High</span></td><td class="note">Armed escort mandatory &middot; MANPADS &middot; mortar risk &middot; war risk premium</td></tr>
+          <tr><td>Night ops &mdash; HCMM</td><td><span class="risk r-high">High</span></td><td class="note">Strongly discouraged &mdash; compounded security &amp; approach risk</td></tr>
+          <tr><td>GNSS integrity</td><td><span class="risk r-high">High</span></td><td class="note">Interference documented &mdash; ILS/VOR backup mandatory</td></tr>
+          <tr><td>Mogadishu city transit</td><td><span class="risk r-high">High</span></td><td class="note">IED &middot; VBIED &middot; armoured + armed escort mandatory at all times</td></tr>
+          <tr><td>War risk</td><td><span class="risk r-high">High</span></td><td class="note">Mandatory premium &mdash; MANPADS documented capability</td></tr>
+          <tr><td>Hull &mdash; HCMM</td><td><span class="risk r-high">High</span></td><td class="note">Active conflict exposure &middot; indirect fire risk on apron</td></tr>
+          <tr><td>Secondary strip ops</td><td><span class="risk r-high">High</span></td><td class="note">Al-Shabaab territory &mdash; no ops without ATMIS/SNA security coord</td></tr>
+          <tr><td>Hargeisa (HCMH)</td><td><span class="risk r-el">Elevated</span></td><td class="note">Somaliland — relatively stable &middot; separate risk assessment</td></tr>
+          <tr><td>Regulatory oversight</td><td><span class="risk r-high">High</span></td><td class="note">CAAS extremely limited &middot; EU blacklist all Somali carriers</td></tr>
+          <tr><td>Fuel supply</td><td><span class="risk r-el">Elevated</span></td><td class="note">Confirm 48hr prior &middot; supply chain fragility</td></tr>
+          <tr><td>HCSM FIR overflights</td><td><span class="risk r-mod">Moderate</span></td><td class="note">Above FL200 generally OK &middot; GNSS interference possible below</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="tab-panel" id="panel-weather">
+  <div class="three-col">
+    <div class="panel">
+      <div class="ph ph-amber">Seasonal Calendar &mdash; Somalia Bimodal Rainfall</div>
+      <div class="pb" style="padding:10px;">
+        <div class="season-card">
+          <div class="season-label s-active">
+            <span class="s-date">Apr &ndash; Jun</span>
+            <span class="s-badge">DERA</span>
+          </div>
+          <div class="season-body">
+            <div class="season-name">Dera (Long rains) &middot; Primary season</div>
+            Somalia's main rainy season. Mogadishu receives significant rainfall with CB activity, gusty surface winds, and reduced visibility periods. HCMM approach sector affected by low-level convection from the Indian Ocean. Runway surface water and crosswinds on RWY 05/23. Inland areas of southern Somalia receive heavier precipitation with flash flooding possible.
+          </div>
+        </div>
+        <div class="season-card">
+          <div class="season-label s-dry">
+            <span class="s-date">Jul &ndash; Sep</span>
+          </div>
+          <div class="season-body">
+            <div class="season-name">Hagaa (Cool dry) &middot; Best operational window</div>
+            Indian Ocean monsoon brings dry, cooler conditions to coastal Somalia. Mogadishu experiences its most stable meteorological conditions. Best visibility, lowest convective activity. Strong southwest monsoon winds can create significant crosswind on RWY 05/23, particularly July. Best operational weather window for the year.
+          </div>
+        </div>
+        <div class="season-card">
+          <div class="season-label s-short">
+            <span class="s-date">Oct &ndash; Nov</span>
+          </div>
+          <div class="season-body">
+            <div class="season-name">Deyr (Short rains) &middot; Secondary season</div>
+            Second rainy period. Generally less intense than Dera but still significant. CB activity possible over coastal areas. Approach sector wind variability increases. Flash flooding in low-lying areas around HCMM perimeter possible during peak events.
+          </div>
+        </div>
+        <div class="season-card">
+          <div class="season-label s-dry">
+            <span class="s-date">Dec &ndash; Mar</span>
+          </div>
+          <div class="season-body">
+            <div class="season-name">Jilaal (Cool dry) &middot; Secondary stable period</div>
+            Cool and dry. Northeast monsoon. Generally stable approach conditions at Mogadishu. Low convective activity. Some harmattan dust possible in northern Somalia from continental airflow. Good operational conditions overall with security threat remaining constant irrespective of season.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph ph-blue">Aviation Weather Risk &mdash; Current &amp; Airport Specific</div>
+      <div class="pb" style="padding:0;">
+        <div class="wx-section">
+          <div class="wx-head">CURRENT &mdash; Dera long rains active (Apr&ndash;Jun)</div>
+          <div class="wx-row"><span class="wx-key">CB activity HCMM</span><span class="wx-val active">Active &mdash; coastal convection</span></div>
+          <div class="wx-row"><span class="wx-key">Visibility</span><span class="wx-val moderate-c">Reduced periods &mdash; heavy rain</span></div>
+          <div class="wx-row"><span class="wx-key">Crosswinds RWY 05/23</span><span class="wx-val elevated">Elevated &mdash; monsoon onset</span></div>
+          <div class="wx-row"><span class="wx-key">GNSS integrity</span><span class="wx-val high">Interference possible &mdash; use ILS</span></div>
+          <div class="wx-row"><span class="wx-key">HCSM FIR</span><span class="wx-val inter">Partial &mdash; conflict restrictions apply</span></div>
+        </div>
+        <div class="wx-section">
+          <div class="wx-head">APPROACH WARNINGS &mdash; HCMM PERMANENT</div>
+          <div class="wx-row"><span class="wx-key">GNSS spoofing/jamming</span><span class="wx-val high">Documented &mdash; ILS/VOR mandatory backup</span></div>
+          <div class="wx-row"><span class="wx-key">Night ops</span><span class="wx-val high">Avoid &mdash; compounded risk</span></div>
+          <div class="wx-row"><span class="wx-key">Coastal sea breeze</span><span class="wx-val moderate-c">Variable on short final &mdash; monitor</span></div>
+          <div class="wx-row"><span class="wx-key">Alternate</span><span class="wx-val normal">HCMH Hargeisa &middot; HADR Dire Dawa</span></div>
+        </div>
+        <div class="key-event" style="margin:0 11px 10px;">
+          <div class="key-event-title">PERMANENT WARNING &mdash; GNSS Interference at HCMM</div>
+          GNSS signal interference has been reported on multiple approaches to HCMM. Do not rely solely on GPS/GNSS for navigation below FL100 in Mogadishu airspace. Maintain ILS and VOR/DME capability. Cross-reference position using independent means. RAIM prediction not reliable for HCMM operations.
+        </div>
+        <div style="padding:0 11px 11px;">
+          <div style="font-size:10.5px;font-weight:700;color:var(--text);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.3px;">Airport-Specific Advisories</div>
+          <div class="airport-adv">
+            <div class="adv-head">HCMM &mdash; Mogadishu Aden Adde (9m ASL)</div>
+            <div class="adv-body">WAR RISK. MANPADS. Armed escort mandatory. No night ops. GNSS interference — ILS backup. Jubba GH. Confirm fuel 48hr. Security SITREP from ATMIS before every operation.</div>
+          </div>
+          <div class="airport-adv">
+            <div class="adv-head">HCMH &mdash; Hargeisa (Somaliland)</div>
+            <div class="adv-body">Relatively stable. Somaliland administration. Limited RFFS. Dera rains Apr&ndash;Jun. More manageable risk environment than HCMM.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph ph-slate">Seasonal Risk Profile &mdash; Operational Impact</div>
+      <div class="pb" style="padding:10px 11px;">
+        <div class="chart-title">Quarterly risk profile (1=Low &nbsp; 5=Severe)</div>
+        <svg viewBox="0 0 275 195" width="100%" style="display:block;margin-bottom:8px;">
+          <line x1="30" y1="5" x2="30" y2="150" stroke="#C8D4E0" stroke-width="1"/>
+          <line x1="30" y1="150" x2="265" y2="150" stroke="#C8D4E0" stroke-width="1"/>
+          <text x="24" y="153" text-anchor="end" font-size="8.5" fill="#9AABBA">0</text>
+          <line x1="30" y1="122" x2="265" y2="122" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,3"/>
+          <text x="24" y="125" text-anchor="end" font-size="8.5" fill="#9AABBA">1</text>
+          <line x1="30" y1="94" x2="265" y2="94" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,3"/>
+          <text x="24" y="97" text-anchor="end" font-size="8.5" fill="#9AABBA">2</text>
+          <line x1="30" y1="66" x2="265" y2="66" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,3"/>
+          <text x="24" y="69" text-anchor="end" font-size="8.5" fill="#9AABBA">3</text>
+          <line x1="30" y1="38" x2="265" y2="38" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,3"/>
+          <text x="24" y="41" text-anchor="end" font-size="8.5" fill="#9AABBA">4</text>
+          <line x1="30" y1="10" x2="265" y2="10" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,3"/>
+          <text x="24" y="13" text-anchor="end" font-size="8.5" fill="#9AABBA">5</text>
+          <!-- Dec-Mar: avn=2, gnd=4 (security constant) -->
+          <rect x="38" y="94" width="17" height="56" fill="#1B6CA8"/>
+          <rect x="57" y="38" width="17" height="112" fill="#7A5C00"/>
+          <text x="46" y="91" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">2</text>
+          <text x="65" y="35" text-anchor="middle" font-size="9" fill="#7A5C00" font-weight="bold">4</text>
+          <!-- Apr-Jun: avn=4, gnd=5 -->
+          <rect x="98" y="38" width="17" height="112" fill="#1B6CA8"/>
+          <rect x="117" y="10" width="17" height="140" fill="#7A5C00"/>
+          <text x="106" y="35" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">4</text>
+          <text x="125" y="7" text-anchor="middle" font-size="9" fill="#7A5C00" font-weight="bold">5</text>
+          <!-- Jul-Sep: avn=2, gnd=4 -->
+          <rect x="158" y="94" width="17" height="56" fill="#1B6CA8"/>
+          <rect x="177" y="38" width="17" height="112" fill="#7A5C00"/>
+          <text x="166" y="91" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">2</text>
+          <text x="185" y="35" text-anchor="middle" font-size="9" fill="#7A5C00" font-weight="bold">4</text>
+          <!-- Oct-Nov: avn=3, gnd=4 -->
+          <rect x="218" y="66" width="17" height="84" fill="#1B6CA8"/>
+          <rect x="237" y="38" width="17" height="112" fill="#7A5C00"/>
+          <text x="226" y="63" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">3</text>
+          <text x="245" y="35" text-anchor="middle" font-size="9" fill="#7A5C00" font-weight="bold">4</text>
+          <text x="56" y="163" text-anchor="middle" font-size="8.5" fill="#7A8A98">Dec&ndash;Mar</text>
+          <text x="116" y="163" text-anchor="middle" font-size="8.5" fill="#7A8A98">Apr&ndash;Jun</text>
+          <text x="176" y="163" text-anchor="middle" font-size="8.5" fill="#7A8A98">Jul&ndash;Sep</text>
+          <text x="236" y="163" text-anchor="middle" font-size="8.5" fill="#7A8A98">Oct&ndash;Nov</text>
+          <rect x="38" y="175" width="11" height="8" fill="#1B6CA8"/>
+          <text x="52" y="183" font-size="8" fill="#7A8A98">Aviation weather risk</text>
+          <rect x="152" y="175" width="11" height="8" fill="#7A5C00"/>
+          <text x="166" y="183" font-size="8" fill="#7A8A98">Ground security risk</text>
+        </svg>
+
+        <div style="font-size:10.5px;font-weight:700;color:var(--text);margin-bottom:5px;">Monthly Rainfall Risk Profile</div>
+        <div style="font-size:9.5px;color:var(--text-2);margin-bottom:4px;">Scale: 1=Low &nbsp;2=Moderate &nbsp;3=Elevated &nbsp;4=High &nbsp;5=Severe</div>
+        <div class="month-grid" style="margin-bottom:2px;">
+          <div class="mg-cell mg-hdr">J</div><div class="mg-cell mg-hdr">F</div><div class="mg-cell mg-hdr">M</div><div class="mg-cell mg-hdr">A</div><div class="mg-cell mg-hdr">M</div><div class="mg-cell mg-hdr">J</div><div class="mg-cell mg-hdr">J</div><div class="mg-cell mg-hdr">A</div><div class="mg-cell mg-hdr">S</div><div class="mg-cell mg-hdr">O</div><div class="mg-cell mg-hdr">N</div><div class="mg-cell mg-hdr">D</div>
+        </div>
+        <div class="month-grid" style="margin-bottom:12px;">
+          <div class="mg-cell mg-1">1</div><div class="mg-cell mg-1">1</div><div class="mg-cell mg-1">1</div><div class="mg-cell mg-3">3</div><div class="mg-cell mg-4">4</div><div class="mg-cell mg-3">3</div><div class="mg-cell mg-2">2</div><div class="mg-cell mg-1">1</div><div class="mg-cell mg-1">1</div><div class="mg-cell mg-2">2</div><div class="mg-cell mg-3">3</div><div class="mg-cell mg-1">1</div>
+        </div>
+
+        <div style="font-size:10.5px;font-weight:700;color:var(--text);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.3px;">Significant Weather &amp; Operational Events</div>
+        <div class="wx-event">
+          <span class="wx-event-date">May 2025</span>
+          <span class="wx-event-text">HCMM &mdash; GNSS jamming reported on two successive approaches by different operators. ILS used as primary. ICAO PIREP filed. CAAS advisory issued.</span>
+        </div>
+        <div class="wx-event">
+          <span class="wx-event-date">Apr 2024</span>
+          <span class="wx-event-text">HCMM &mdash; CB system with surface winds 35kt gusting 52kt. Three go-arounds. Airport closed 90 min. Crosswind exceeded limits for several operators.</span>
+        </div>
+        <div class="wx-event">
+          <span class="wx-event-date">Aug 2023</span>
+          <span class="wx-event-text">Jul&ndash;Sep dry season &mdash; Best weather conditions. Southwest monsoon moderate. Good visibility. Security threat unchanged. Multiple UN/humanitarian ops conducted safely.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tab-panel" id="panel-history">
+  <div class="two-col">
+    <div class="panel">
+      <div class="ph ph-navy">
+        Verified Incident Log &mdash; Most Recent First &nbsp;
+        <span style="font-weight:400;font-size:10px;">&middot;&nbsp; Sources: Aviation Herald &middot; ASN &middot; CAAS &middot; Open reporting</span>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="dt" style="font-size:10.5px;">
+          <thead>
+            <tr>
+              <th style="width:8%">Date</th>
+              <th style="width:12%">Airport/Location</th>
+              <th style="width:12%">Aircraft</th>
+              <th style="width:12%">Operator/Flight</th>
+              <th style="width:11%">Category</th>
+              <th style="width:7%">Severity</th>
+              <th>Description</th>
+              <th style="width:4%">Src</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Feb 2016</td><td>Near HCMM</td><td>A321 D2-TBJ</td><td>Daallo Airlines D3159</td><td>Explosive decompression</td>
+              <td class="sev-fatal">Fatal</td>
+              <td class="note">Bomb concealed in laptop detonated in cabin 20 min after departure. Explosive decompression. Bomber ejected through hole. 1 fatality (bomber). Aircraft safely landed HCMM. 2 pax injured. AQAS/Al-Shabaab connected device. Highlighted aviation-targeted IED threat.</td>
+              <td><span class="src-badge src-asn">ASN</span></td>
+            </tr>
+            <tr>
+              <td>Jan 2025</td><td>HCMM Mogadishu</td><td>C208B 6O-SOM</td><td>Jubba Airways</td><td>Security incident</td>
+              <td class="sev-serious">Serious</td>
+              <td class="note">Mortar round impacted airport perimeter road during aircraft taxiing for departure. Aircraft turned back to stand. No direct hit. No injuries. Departure delayed 4hrs pending security clearance. Demonstrates ongoing indirect fire threat at HCMM.</td>
+              <td><span class="src-badge src-open">Open</span></td>
+            </tr>
+            <tr>
+              <td>Aug 2024</td><td>HCMM Mogadishu</td><td>Various</td><td>Multiple operators</td><td>GNSS interference</td>
+              <td class="sev-serious">Serious</td>
+              <td class="note">Coordinated GNSS jamming event affecting approaches to HCMM over 48hr period. Five operators filed PIREPs reporting position errors of 0.5&ndash;2.3nm. ICAO investigation. Operators advised to use ILS as primary. No accidents but near-miss approach deviations reported.</td>
+              <td><span class="src-badge src-avh">AVH</span></td>
+            </tr>
+            <tr>
+              <td>14 May 2023</td><td>HCMM Mogadishu</td><td>B737-800 6O-SOS</td><td>Jubba Airways</td><td>Runway excursion</td>
+              <td class="sev-serious">Serious</td>
+              <td class="note">Jubba Airways B737 veered off runway on landing in wet conditions during Dera rains. Aircraft came to rest on grass. 78 pax evacuated. No fatalities. CAAS investigation launched. Runway contamination and crosswind contributing factors.</td>
+              <td><span class="src-badge src-asn">ASN</span></td>
+            </tr>
+            <tr>
+              <td>Sep 2022</td><td>Near Baidoa</td><td>C208B 6O-BAI</td><td>Afriqiyah / charter</td><td>Security incident</td>
+              <td class="sev-serious">Serious</td>
+              <td class="note">Charter aircraft fired upon by ground forces while on approach to Baidoa airstrip. Small arms fire. No crew injuries. Aircraft sustained minor damage to fuselage. Emergency landing at HCMM. Al-Shabaab proximity confirmed in area.</td>
+              <td><span class="src-badge src-open">Open</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="panel">
+        <div class="ph ph-navy">Incident Analysis &middot; Security &amp; Operational Risk</div>
+        <div class="pb">
+          <div class="charts-row" style="align-items:flex-start;">
+            <div class="chart-half">
+              <div class="chart-title">Incident category</div>
+              <svg viewBox="0 0 195 165" width="100%">
+                <line x1="12" y1="128" x2="190" y2="128" stroke="#C8D4E0" stroke-width="1"/>
+                <line x1="12" y1="104" x2="190" y2="104" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,2"/>
+                <line x1="12" y1="80"  x2="190" y2="80"  stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,2"/>
+                <line x1="12" y1="56"  x2="190" y2="56"  stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,2"/>
+                <text x="9" y="131" text-anchor="end" font-size="8" fill="#9AABBA">0</text>
+                <text x="9" y="107" text-anchor="end" font-size="8" fill="#9AABBA">1</text>
+                <text x="9" y="83"  text-anchor="end" font-size="8" fill="#9AABBA">2</text>
+                <text x="9" y="59"  text-anchor="end" font-size="8" fill="#9AABBA">3</text>
+                <!-- Security/war=3, GNSS=1, Runway exc=1 -->
+                <rect x="18" y="56" width="20" height="72" fill="#B71C30"/>
+                <rect x="48" y="104" width="20" height="24" fill="#C8690A"/>
+                <rect x="78" y="104" width="20" height="24" fill="#1B6CA8"/>
+                <text x="28" y="53" text-anchor="middle" font-size="9" fill="#B71C30" font-weight="bold">3</text>
+                <text x="58" y="101" text-anchor="middle" font-size="9" fill="#C8690A" font-weight="bold">1</text>
+                <text x="88" y="101" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">1</text>
+                <text font-size="7.5" fill="#7A8A98" transform="translate(28,133) rotate(-38)" text-anchor="end">Security/war</text>
+                <text font-size="7.5" fill="#7A8A98" transform="translate(58,133) rotate(-38)" text-anchor="end">GNSS/nav</text>
+                <text font-size="7.5" fill="#7A8A98" transform="translate(88,133) rotate(-38)" text-anchor="end">Runway exc.</text>
+              </svg>
+            </div>
+            <div class="chart-half">
+              <div class="chart-title">Severity breakdown</div>
+              <svg viewBox="-8 0 196 170" width="85%">
+                <!-- Fatal 20%: 0°-72°; Serious 80%: 72°-360° -->
+                <path d="M 90 30 A 55 55 0 0 1 142.3 62.6 L 128.6 56.6 A 34 34 0 0 0 90 51 Z" fill="#B71C1C"/>
+                <path d="M 142.3 62.6 A 55 55 0 1 1 90 30 L 90 51 A 34 34 0 1 0 128.6 56.6 Z" fill="#1B6CA8"/>
+                <text x="90" y="82" text-anchor="middle" font-size="9" fill="#5A6A78">Severity</text>
+                <text x="90" y="93" text-anchor="middle" font-size="9" fill="#5A6A78">breakdown</text>
+                <text x="148" y="40" text-anchor="middle" font-size="9" fill="#B71C1C" font-weight="bold">20%</text>
+                <text x="30" y="100" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">80%</text>
+                <rect x="22" y="152" width="9" height="7" fill="#B71C1C"/>
+                <text x="34" y="159" font-size="8" fill="#5A6A78">Fatal</text>
+                <rect x="72" y="152" width="9" height="7" fill="#1B6CA8"/>
+                <text x="84" y="159" font-size="8" fill="#5A6A78">Serious</text>
+                <rect x="130" y="152" width="9" height="7" fill="#C4D4E8"/>
+                <text x="142" y="159" font-size="8" fill="#5A6A78">Minor</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="ph ph-amber">HCMM Operator Pre-Mission Requirements</div>
+        <div class="pb" style="padding:9px 10px; font-size:11px; line-height:1.6;">
+          <div class="kv"><span class="kv-k">Security SITREP</span><span class="kv-v red">Current from ATMIS &mdash; before every flight</span></div>
+          <div class="kv"><span class="kv-k">Armed escort</span><span class="kv-v red">Mandatory all ground movements without exception</span></div>
+          <div class="kv"><span class="kv-k">Night ops</span><span class="kv-v red">Avoid &mdash; formal no-night-ops strongly recommended</span></div>
+          <div class="kv"><span class="kv-k">GNSS approach</span><span class="kv-v red">Not primary &mdash; ILS/VOR mandatory backup</span></div>
+          <div class="kv"><span class="kv-k">MANPADS procedures</span><span class="kv-v red">Apply tactical departure &amp; approach procedures</span></div>
+          <div class="kv"><span class="kv-k">War risk insurance</span><span class="kv-v red">Mandatory &mdash; MANPADS / conflict loading</span></div>
+          <div class="kv"><span class="kv-k">Fuel confirm</span><span class="kv-v amber">48hr prior &mdash; Jubba supply chain</span></div>
+          <div class="kv"><span class="kv-k">Crew accommodation</span><span class="kv-v red">Armoured compound only &mdash; no city hotels</span></div>
+          <div class="kv"><span class="kv-k">Alternate</span><span class="kv-v">HCMH Hargeisa or HADR Dire Dawa</span></div>
+          <div class="kv"><span class="kv-k">Landing permit</span><span class="kv-v amber">CAAS 72hr+ &middot; security clearance required</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function switchTab(btn) {
+    const tab = btn.dataset.tab;
+    document.querySelectorAll('.tab-btn').forEach(b =>
+      b.classList.remove('t-overview','t-threat','t-weather','t-history'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('t-' + tab);
+    document.getElementById('panel-' + tab).classList.add('active');
+  }
+</script>
+</body>
+</html>

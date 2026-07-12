@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aviation Contacts Directory</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@600;700&display=swap" rel="stylesheet">
+  <script src="theme.js"></script>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body { padding: 16px 20px 0; overflow-y: auto; }
+
+    body[data-tab="civil"]       { --acc: var(--accent); --acc-bg: var(--accent-dim); }
+    body[data-tab="emergency"]   { --acc: var(--danger);  --acc-bg: var(--danger-dim); }
+    body[data-tab="insurance"]   { --acc: var(--success); --acc-bg: var(--success-dim); }
+    body[data-tab="maintenance"] { --acc: var(--warn);    --acc-bg: var(--warn-dim); }
+
+    .page-title { font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 700; color: var(--text); }
+
+    .search-wrap { position: relative; flex: 0 0 240px; }
+    .search-wrap svg { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--text-3); }
+    #search-input { width: 100%; padding: 6px 10px 6px 30px; border: 1px solid var(--border-2); border-radius: var(--r-md); font-size: 12.5px; color: var(--text); outline: none; background: var(--bg-3); font-family: 'Inter', sans-serif; }
+    #search-input:focus { border-color: var(--accent); }
+    #search-input::placeholder { color: var(--text-3); }
+
+    .tab-bar { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
+    .tab-btn {
+      font-size: 12.5px; font-weight: 600; padding: 8px 18px;
+      border: none; background: var(--bg-3); color: var(--text-2); cursor: pointer;
+      border-bottom: 2px solid transparent; margin-bottom: -1px;
+      border-radius: 4px 4px 0 0;
+      transition: background 0.15s, color 0.15s, border-color 0.15s; white-space: nowrap;
+      font-family: 'Inter', sans-serif;
+    }
+    .tab-btn:hover { background: var(--bg-hover); color: var(--text); }
+    .tab-btn.active-civil       { background: var(--accent-dim);  color: var(--accent);  border-bottom-color: var(--accent); }
+    .tab-btn.active-emergency   { background: var(--danger-dim);  color: var(--danger);  border-bottom-color: var(--danger); }
+    .tab-btn.active-insurance   { background: var(--success-dim); color: var(--success); border-bottom-color: var(--success); }
+    .tab-btn.active-maintenance { background: var(--warn-dim);    color: var(--warn);    border-bottom-color: var(--warn); }
+
+    .tab-count { display: inline-block; font-size: 10px; font-weight: 700; background: rgba(255,255,255,0.1); color: inherit; border-radius: 8px; padding: 0 5px; margin-left: 4px; }
+
+    .controls-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; gap: 12px; }
+
+    .group-toggle { display: flex; background: var(--bg-3); border-radius: var(--r-md); padding: 3px; gap: 2px; }
+    .group-btn { font-size: 11.5px; font-weight: 600; padding: 4px 14px; border: none; border-radius: var(--r-sm); background: transparent; color: var(--text-2); cursor: pointer; transition: background 0.15s, color 0.15s; white-space: nowrap; font-family: 'Inter', sans-serif; }
+    .group-btn.active { background: var(--accent); color: #FFF; }
+    .group-btn:not(.active):hover { background: var(--bg-hover); color: var(--text); }
+
+    .result-count { font-size: 11.5px; color: var(--text-3); font-style: italic; }
+    .no-results { display: none; padding: 32px; text-align: center; color: var(--text-2); font-size: 13px; }
+
+    .cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+
+    .contact-card {
+      border: 1px solid var(--border); border-radius: var(--r-md); padding: 12px 14px;
+      background: var(--bg-2); border-left: 3px solid var(--accent);
+      transition: box-shadow 0.15s, border-color 0.15s;
+    }
+    .contact-card:hover { box-shadow: var(--shadow-md); border-color: var(--border-2); border-left-color: var(--accent); }
+    .contact-card.hidden { display: none; }
+
+    .card-header { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 5px; }
+    .card-flag { flex-shrink: 0; margin-top: 2px; }
+    .flag-code { display: inline-block; width: 22px; height: 15px; border-radius: 1px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg-3) center/cover no-repeat; vertical-align: middle; }
+    .flag-ke { background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 900 600'><rect width='900' height='600' fill='%23006600'/><rect width='900' height='500' fill='%23fff'/><rect width='900' height='450' fill='%23bb0000'/><rect width='900' height='150' fill='%23fff'/><rect width='900' height='100' fill='%23000'/><ellipse cx='450' cy='300' rx='75' ry='105' fill='%23000' stroke='%23fff' stroke-width='10'/><ellipse cx='450' cy='300' rx='55' ry='85' fill='%23bb0000'/><line x1='450' y1='195' x2='450' y2='405' stroke='%23fff' stroke-width='10'/></svg>"); }
+    .flag-tz { background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 48'><path fill='%231eb53a' d='M0 48V0h72z'/><path fill='%2300a3dd' d='M72 0v48H0z'/><path fill='none' stroke='%23fcd116' stroke-width='19' d='M0 48 72 0'/><path fill='none' stroke='%23000' stroke-width='13' d='M0 48 72 0'/></svg>"); }
+    .flag-ug { background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 900 600'><rect width='900' height='600' fill='%23DE2010'/><rect width='900' height='500' fill='%23FCD116'/><rect width='900' height='400' fill='%23000'/><rect width='900' height='300' fill='%23DE2010'/><rect width='900' height='200' fill='%23FCD116'/><rect width='900' height='100' fill='%23000'/><circle cx='450' cy='300' r='94' fill='%23fff'/></svg>"); }
+    .flag-rw { background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1560 1040'><path fill='%23fad201' d='M0 0h1560v1040H0z'/><path fill='%2300a3e0' d='M0 0h1560v520H0z'/><path fill='%2320603d' d='M0 780h1560v260H0z'/><g transform='translate(1280 272)'><path fill='%23e5be01' d='M0-168 6.79-51.56l36.69-110.72L19.9-48.04 84-145.49 31.66-41.25l87.13-77.54-77.54 87.13L145.49-84 48.04-19.9l23.58 114.24L6.79 51.56 168 0 51.56 6.79l110.72 36.69L48.04 19.9 145.49 84 41.25 31.66l77.54 87.13-87.13-77.54L84 145.49 19.9 48.04l23.58 114.24L6.79 51.56 0 168-6.79 51.56l-36.69 110.72L-19.9 48.04-84 145.49l52.34-104.24-87.13 77.54 77.54-87.13L-145.49 84l97.45-64.1-114.24 23.58L-51.56 6.79-168 0l116.44-6.79-110.72-36.69L-48.04-19.9-145.49-84l104.24 52.34-77.54-87.13 87.13 77.54L-84-145.49l64.1 97.45-23.58-114.24L-6.79-51.56z'/><circle fill='none' stroke='%2300a3e0' r='49' stroke-width='6'/></g></svg>"); }
+    .flag-bi { background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='-50 -30 100 60' fill='%23c8102e'><defs><clipPath id='bi_a'><path d='M-50-30H50v60H-50z'/></clipPath></defs><path d='M-50-30H50v60H-50z'/><path fill='%2343b02a' stroke='%23fff' stroke-width='8' clip-path='url(%23bi_a)' d='M-55-33v66L55-33v66z'/><circle fill='%23fff' r='17'/><path id='bi_b' stroke='%2343b02a' stroke-width='.36' d='m0-12.44 1.051 1.82h2.101L2.102-8.8l1.05 1.82H1.051L0-5.16l-1.051-1.82h-2.101l1.05-1.82-1.05-1.82h2.101z'/><use xlink:href='%23bi_b' transform='rotate(120)'/><use xlink:href='%23bi_b' transform='rotate(240)'/></svg>"); }
+    .flag-cd { background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'><path fill='%23007fff' d='M0 0h800v600H0z'/><path fill='%23f7d618' d='M36 120h84l26-84 26 84h84l-68 52 26 84-68-52-68 52 26-84-68-52zM750 0 0 450v150h50l750-450V0h-50'/><path fill='%23ce1021' d='M800 0 0 480v120l800-480V0'/></svg>"); }
+    .flag-so { background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 900 600'><path stroke='%23418fde' stroke-width='900' d='M450 600V0'/><path fill='%23fff' d='m450 155.555 32.43 99.81h104.945l-84.903 61.685 32.43 99.808L450 355.173l-84.902 61.685 32.43-99.808-84.903-61.686H417.57'/></svg>"); }
+    .flag-et { background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 1200 600'><path fill='%23da121a' d='M0 0h1200v600H0z'/><path fill='%23fcdd09' d='M0 0h1200v400H0z'/><path fill='%23078930' d='M0 0h1200v200H0z'/><g transform='matrix(1.66667 0 0 1.66667 600 300)'><circle r='120' fill='%230f47af'/><g id='et_a'><path d='m0-96-4.206 12.944 17.348 53.39h-23.13l-2.599 8h74.163l11.011-8H21.553Z' fill='%23fcdd09'/><path d='m25.863-35.597 30.564-42.069' stroke='%23fcdd09' stroke-width='4'/></g><use xlink:href='%23et_a' transform='rotate(72)'/><use xlink:href='%23et_a' transform='rotate(144)'/><use xlink:href='%23et_a' transform='rotate(-144)'/><use xlink:href='%23et_a' transform='rotate(-72)'/></g></svg>"); }
+    .flag-ss { background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1140 570'><path fill='%2300914C' d='M0 0h1140v570H0'/><path fill='%23E22028' d='M0 0h1140v400H0'/><path d='M0 0h1140v170H0'/><path fill='%23FFF' d='M0 170h1140v30H0zm0 200h1140v30H0'/><path fill='%2300B6F2' d='m0 0 493.635 285L0 570'/><path fill='%23FFE51A' d='m164.546 190 55.839 171.857-146.19-106.214h180.7l-146.19 106.214Z'/></svg>"); }
+    .flag-sd { background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 600'><path d='M0 0h1200v600H0z'/><path fill='%23fff' d='M0 0h1200v400H0z'/><path fill='%23d21034' d='M0 0h1200v200H0z'/><path fill='%23007229' d='m0 0 400 300L0 600z'/></svg>"); }
+    .flag-dj { background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 900 600'><path fill='%236ab2e7' d='M0 0h900v600H0z'/><path fill='%2312ad2b' d='M0 300h900v300H0z'/><path fill='%23fff' d='M0 0v600l259.808-150 259.807-150-259.807-150z'/><path fill='%23d7141a' d='m198.86 225 18.616 57.295h60.243l-48.738 35.41L247.598 375l-48.738-35.41L120 282.295h60.243z'/></svg>"); }
+    .flag-er { background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 600'><path fill='%2343b02a' d='M0 0h1200v300H0z'/><path fill='%23418fde' d='M0 300h1200v300H0z'/><path fill='%23e4002b' d='M0 0 800 300 0 600z'/></svg>"); }
+    .card-title-block { flex: 1; min-width: 0; }
+    .card-org { font-weight: 700; font-size: 12.5px; color: #0D1A28; line-height: 1.3; margin-bottom: 1px; }
+    .card-country { font-size: 11px; font-weight: 600; color: #5A6A78; text-transform: uppercase; letter-spacing: 0.3px; }
+
+    .card-badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 2px; flex-shrink: 0; white-space: nowrap; background: var(--acc-bg, #E0EEF9); color: var(--acc-txt, #1B5E8A); }
+
+    .card-org { font-weight: 700; font-size: 12.5px; color: var(--text); line-height: 1.3; margin-bottom: 1px; }
+    .card-country { font-size: 11px; font-weight: 600; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.3px; }
+    .card-badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; flex-shrink: 0; white-space: nowrap; background: var(--accent-dim); color: var(--accent); }
+    .card-divider { height: 1px; background: var(--border); margin: 7px 0; }
+
+    .card-details { display: flex; flex-direction: column; gap: 3px; }
+    .card-detail { display: flex; align-items: flex-start; gap: 6px; font-size: 12px; color: var(--text); }
+    .card-detail svg { flex-shrink: 0; margin-top: 1px; color: var(--text-3); }
+    .card-detail a { color: var(--accent); text-decoration: none; font-size: 11.5px; }
+    .card-detail a:hover { text-decoration: underline; }
+    .card-detail .sm { font-size: 11px; color: var(--text-2); }
+    .card-detail .mu { color: var(--text-3); }
+
+    .emerg-rows { display: flex; flex-direction: column; gap: 4px; }
+    .emerg-row { display: grid; grid-template-columns: 18px 1fr; gap: 6px; align-items: start; }
+    .e-icon { width: 16px; height: 16px; border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 8.5px; font-weight: 700; color: #FFF; flex-shrink: 0; }
+    .e-p { background: var(--accent); }
+    .e-f { background: var(--danger); }
+    .e-m { background: var(--success); }
+    .e-o { background: var(--text-3); }
+    .e-val { font-weight: 700; color: var(--danger); font-size: 12px; line-height: 1.4; }
+    .e-note { font-size: 11px; color: var(--text-2); line-height: 1.45; }
+    .e-mute { color: var(--text-3); font-size: 12px; }
+
+    .ins-logo-row { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 6px; }
+    .ins-logo { width: 42px; height: 42px; border: 1px solid var(--border); border-radius: 3px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; background: var(--bg-3); }
+    .ins-nb { flex: 1; }
+    .ins-name { font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.3; }
+    .ins-type { font-size: 11px; font-weight: 600; color: var(--success); }
+    .ins-type-gold { color: var(--warn); font-size: 10.5px; line-height: 1.4; font-weight: 600; }
+    .badge-ke { display: inline-block; font-size: 9.5px; font-weight: 700; padding: 1px 6px; border-radius: 2px; background: var(--success-dim); color: var(--success); border: 1px solid rgba(16,185,129,.25); margin-bottom: 5px; }
+    .partners-sep { padding: 8px 0 4px; font-size: 11px; font-weight: 700; color: var(--success); text-transform: uppercase; letter-spacing: 0.5px; border-top: 1px solid var(--border); margin-top: 4px; }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .ic { flex-shrink: 0; margin-top: 1px; }
+  </style>
+</head>
+<body data-tab="civil">
+
+  <!-- ─── HEADER ─────────────────────────────────────── -->
+  <div class="page-header">
+    <h1 class="page-title">Aviation Contacts Directory</h1>
+    <div class="search-wrap">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="search-input" placeholder="Search country or organisation…" oninput="handleSearch()">
+    </div>
+  </div>
+
+  <!-- ─── TABS ───────────────────────────────────────── -->
+  <div class="tab-bar">
+    <button class="tab-btn active-civil" data-tab="civil" onclick="switchTab(this)">
+      Civil Aviation Authorities <span class="tab-count" id="tc-civil">12</span>
+    </button>
+    <button class="tab-btn" data-tab="emergency" onclick="switchTab(this)">
+      Emergency Contacts <span class="tab-count" id="tc-emergency">12</span>
+    </button>
+    <button class="tab-btn" data-tab="insurance" onclick="switchTab(this)">
+      Insurance Brokers &amp; Partners <span class="tab-count" id="tc-insurance">3</span>
+    </button>
+    <button class="tab-btn" data-tab="maintenance" onclick="switchTab(this)">
+      MRO &amp; Engineering Systems <span class="tab-count" id="tc-maintenance">0</span>
+    </button>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════
+       TAB 1 · CIVIL AVIATION
+  ════════════════════════════════════════════════════ -->
+  <div class="tab-panel active" id="panel-civil">
+    <div class="controls-row">
+      <div class="group-toggle">
+        <button class="group-btn active" onclick="switchGroup('civil','east',this)">East Africa</button>
+        <button class="group-btn" onclick="switchGroup('civil','horn',this)">Horn &amp; Central Africa</button>
+      </div>
+      <span class="result-count" id="rc-civil"></span>
+    </div>
+    <div class="cards-grid" id="grid-civil">
+
+      <!-- EAST AFRICA -->
+      <div class="contact-card" data-group="east" data-search="kenya kcaa nairobi jkia">
+        <div class="card-header">
+          <div class="card-flag"><span class="flag-code flag-ke"></span></div>
+          <div class="card-title-block">
+            <div class="card-org">Kenya Civil Aviation Authority (KCAA)</div>
+            <div class="card-country">Kenya</div>
+          </div>
+          <span class="card-badge">Civil</span>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-details">
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span>+254 020 827 4075</span></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><a href="mailto:info@kcaa.or.ke">info@kcaa.or.ke</a></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="sm">Aviation House, Jomo Kenyatta International Airport (JKIA), Nairobi</span></div>
+        </div>
+      </div>
+
+      <div class="contact-card" data-group="east" data-search="tanzania tcaa dar es salaam">
+        <div class="card-header">
+          <div class="card-flag"><span class="flag-code flag-tz"></span></div>
+          <div class="card-title-block">
+            <div class="card-org">Tanzania Civil Aviation Authority (TCAA)</div>
+            <div class="card-country">Tanzania</div>
+          </div>
+          <span class="card-badge">Civil</span>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-details">
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span>+255 222 198 100</span></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><a href="mailto:bansa@tcaa.go.tz">bansa@tcaa.go.tz</a></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="sm">Aviation House, Nyerere Road, Banana Ubungo Area, Dar es Salaam</span></div>
+        </div>
+      </div>
+
+      <div class="contact-card" data-group="east" data-search="uganda ucaa entebbe">
+        <div class="card-header">
+          <div class="card-flag"><span class="flag-code flag-ug"></span></div>
+          <div class="card-title-block">
+            <div class="card-org">Uganda Civil Aviation Authority (UCAA)</div>
+            <div class="card-country">Uganda</div>
+          </div>
+          <span class="card-badge">Civil</span>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-details">
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span>+256 414 352000 | +256 312 352000</span></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><a href="mailto:aviation@caa.co.ug">aviation@caa.co.ug</a></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="sm">UCAA Head Office, Entebbe International Airport, Entebbe</span></div>
+        </div>
+      </div>
+
+      <div class="contact-card" data-group="east" data-search="rwanda rcaa kigali">
+        <div class="card-header">
+          <div class="card-flag"><span class="flag-code flag-rw"></span></div>
+          <div class="card-title-block">
+            <div class="card-org">Rwanda Civil Aviation Authority (RCAA)</div>
+            <div class="card-country">Rwanda</div>
+          </div>
+          <span class="card-badge">Civil</span>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-details">
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span>+250 726 936 583</span></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><a href="mailto:info@caa.gov.rw">info@caa.gov.rw</a></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="sm">SCNN 5 Rd, Kigali International Airport, Kigali</span></div>
+        </div>
+      </div>
+
+      <div class="contact-card" data-group="east" data-search="burundi bcaa bujumbura">
+        <div class="card-header">
+          <div class="card-flag"><span class="flag-code flag-bi"></span></div>
+          <div class="card-title-block">
+            <div class="card-org">Burundi Civil Aviation Authority (BCAA)</div>
+            <div class="card-country">Burundi</div>
+          </div>
+          <span class="card-badge">Civil</span>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-details">
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span>+257 222 03100 | +257 222 03101</span></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><a href="mailto:aacburundi@gmail.com">aacburundi@gmail.com</a></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="sm">SCTP Building, Avenue de la Justice, Commune de la Gombe, Bujumbura</span></div>
+        </div>
+      </div>
+
+      <!-- HORN & CENTRAL AFRICA -->
+      <div class="contact-card" data-group="horn" data-search="dr congo drc caa kinshasa">
+        <div class="card-header">
+          <div class="card-flag"><span class="flag-code flag-cd"></span></div>
+          <div class="card-title-block">
+            <div class="card-org">Civil Aviation Authority at DRC (CAA-DRC)</div>
+            <div class="card-country">DR Congo</div>
+          </div>
+          <span class="card-badge">Civil</span>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-details">
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span>+243 812 237602</span></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><a href="mailto:info@aacdrc.org">info@aacdrc.org</a></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="sm">SCTP Building, Avenue de la Justice, Commune de la Gombe, Kinshasa</span></div>
+        </div>
+      </div>
+
+      <div class="contact-card" data-group="horn" data-search="somalia scaa mogadishu aden adde">
+        <div class="card-header">
+          <div class="card-flag"><span class="flag-code flag-so"></span></div>
+          <div class="card-title-block">
+            <div class="card-org">Somali Civil Aviation Authority (SCAA)</div>
+            <div class="card-country">Somalia</div>
+          </div>
+          <span class="card-badge">Civil</span>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-details">
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span>+252 1853675</span></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><a href="mailto:info@scaa.gov.so">info@scaa.gov.so</a></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="sm">Aden Adde International Airport, Mogadishu</span></div>
+        </div>
+      </div>
+
+      <div class="contact-card" data-group="horn" data-search="ethiopia ecaa addis ababa bole">
+        <div class="card-header">
+          <div class="card-flag"><span class="flag-code flag-et"></span></div>
+          <div class="card-title-block">
+            <div class="card-org">Ethiopian Civil Aviation Authority (ECAA)</div>
+            <div class="card-country">Ethiopia</div>
+          </div>
+          <span class="card-badge">Civil</span>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-details">
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span>+251 116 650 200</span></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><a href="mailto:contact@ecaa.gov.et">contact@ecaa.gov.et</a></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="sm">Bole International Airport Area, P.O. Box 1755, Addis Ababa</span></div>
+        </div>
+      </div>
+
+      <div class="contact-card" data-group="horn" data-search="south sudan sscaa juba">
+        <div class="card-header">
+          <div class="card-flag"><span class="flag-code flag-ss"></span></div>
+          <div class="card-title-block">
+            <div class="card-org">South Sudan Civil Aviation Authority (SSCAA)</div>
+            <div class="card-country">South Sudan</div>
+          </div>
+          <span class="card-badge">Civil</span>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-details">
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span>+211 912 150 047</span></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><a href="mailto:info@sscaa.gov.ss">info@sscaa.gov.ss</a></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="sm">Juba International Airport Area, Juba, South Sudan</span></div>
+        </div>
+      </div>
+
+      <div class="contact-card" data-group="horn" data-search="sudan scaa khartoum">
+        <div class="card-header">
+          <div class="card-flag"><span class="flag-code flag-sd"></span></div>
+          <div class="card-title-block">
+            <div class="card-org">Sudan Civil Aviation Authority (SCAA)</div>
+            <div class="card-country">Sudan</div>
+          </div>
+          <span class="card-badge">Civil</span>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-details">
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span>+249 183 795 000</span></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><a href="mailto:info@scaa.gov.sd">info@scaa.gov.sd</a></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="sm">Khartoum International Airport Area, Khartoum</span></div>
+        </div>
+      </div>
+
+      <div class="contact-card" data-group="horn" data-search="djibouti aacd autorite aviation civile ambouli">
+        <div class="card-header">
+          <div class="card-flag"><span class="flag-code flag-dj"></span></div>
+          <div class="card-title-block">
+            <div class="card-org">Autorité de l'Aviation Civile de Djibouti (AACD)</div>
+            <div class="card-country">Djibouti</div>
+          </div>
+          <span class="card-badge">Civil</span>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-details">
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span>+253 21 33 51 00</span></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><a href="mailto:contact@aacd.dj">contact@aacd.dj</a></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="sm">Aéroport International de Djibouti-Ambouli, BP 1877, Djibouti City</span></div>
+        </div>
+      </div>
+
+      <div class="contact-card" data-group="horn" data-search="eritrea ecaa asmara">
+        <div class="card-header">
+          <div class="card-flag"><span class="flag-code flag-er"></span></div>
+          <div class="card-title-block">
+            <div class="card-org">Eritrean Civil Aviation Authority (ECAA)</div>
+            <div class="card-country">Eritrea</div>
+          </div>
+          <span class="card-badge">Civil</span>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-details">
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span>+291 1 189121 | +291 1 181424</span></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><span class="mu">—</span></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="sm">Asmara International Airport Area, Asmara</span></div>
+        </div>
+      </div>
+
+    </div><!-- #grid-civil -->
+    <div class="no-results" id="nr-civil">No contacts match your search.</div>
+  </div><!-- #panel-civil -->
+
+
+  <!-- ════════════════════════════════════════════════════
+       TAB 2 · EMERGENCY CONTACTS
+  ════════════════════════════════════════════════════ -->
+  <div class="tab-panel" id="panel-emergency">
+    <div class="controls-row">
+      <div class="group-toggle">
+        <button class="group-btn active" onclick="switchGroup('emergency','east',this)">East Africa</button>
+        <button class="group-btn" onclick="switchGroup('emergency','horn',this)">Horn &amp; Central Africa</button>
+      </div>
+      <span class="result-count" id="rc-emergency"></span>
+    </div>
+    <div class="cards-grid" id="grid-emergency">
+
+      <!-- EAST AFRICA -->
+      <div class="contact-card" data-group="east" data-search="kenya police fire ambulance medical red cross">
+        <div class="card-header">
+          <div class="card-flag"><span class="flag-code flag-ke"></span></div>
+          <div class="card-title-block">
+            <div class="card-org">Emergency Services</div>
+            <div class="card-country">Kenya</div>
+          </div>
+          <span class="card-badge">Emergency</span>
+        </div>
+        <div class="card-divider"></div>
+        <div class="emerg-rows">
+          <div class="emerg-row"><div class="e-icon e-p">P</div><span class="e-val">999</span></div>
+          <div class="emerg-row"><div class="e-icon e-f">F</div><span class="e-val">112</span></div>
+          <div class="emerg-row"><div class="e-icon e-m">M</div><span class="e-val">911</span></div>
+          <div class="emerg-row"><div class="e-icon e-o">+</div><span class="e-note">Kenya Red Cross: 1199 · St John Ambulance: +254 722 125285 | +254 733 930000</span></div>
+        </div>
+      </div>
+
+      <div class="contact-card" data-group="east" data-search="tanzania police fire ambulance medical red cross">
+        <div class="card-header">
+          <div class="card-flag"><span class="flag-code flag-tz"></span></div>
+          <div class="card-title-block">
+            <div class="card-org">Emergency Services</div>
+            <div class="card-country">Tanzania</div>
+          </div>
+          <span class="card-badge">Emergency</span>
+        </div>
+        <div class="card-divider"></div>
+        <div class="emerg-rows">
+          <div class="emerg-row"><div class="e-icon e-p">P</div><span class="e-val">112 | 111</span></div>
+          <div class="emerg-row"><div class="e-icon e-f">F</div><span class="e-mute">—</span></div>
+          <div class="emerg-row"><div class="e-icon e-m">M</div><span class="e-val">114</span></div>
+          <div class="emerg-row"><div class="e-icon e-o">+</div><span class="e-note">Tanzania Red Cross Society: +255 080 075 0153</span></div>
+        </div>
+      </div>
+
+      <div class="contact-card" data-group="east" data-search="uganda police fire ambulance medical red cross">
+        <div class="card-header">
+          <div class="card-flag"><span class="flag-code flag-ug"></span></div>
+          <div class="card-title-block">
+            <div class="card-org">Emergency Services</div>
+            <div class="card-country">Uganda</div>
+          </div>
+          <span class="card-badge">Emergency</span>
+        </div>
+        <div class="card-divider"></div>
+        <div class="emerg-rows">
+          <div class="emerg-row"><div class="e-icon e-p">P</div><span class="e-val">999 | 112</span></div>
+          <div class="emerg-row"><div class="e-icon e-f">F</div><span class="e-mute">—</span></div>
+          <div class="emerg-row"><div class="e-icon e-m">M</div><span class="e-val">912</span></div>
+          <div class="emerg-row"><div class="e-icon e-o">+</div><span class="e-note">Uganda Red Cross Society: +256 800 100066 · St John Ambulance Uganda: +256 414 258001</span></div>
+        </div>
+      </div>
+
+      <div class="contact-card" data-group="east" data-search="rwanda police fire ambulance medical red cross">
+        <div class="card-header">
+          <div class="card-flag"><span class="flag-code flag-rw"></span></div>
+          <div class="card-title-block">
+            <div class="card-org">Emergency Services</div>
+            <div class="card-country">Rwanda</div>
+          </div>
+          <span class="card-badge">Emergency</span>
+        </div>
+        <div class="card-divider"></div>
+        <div class="emerg-rows">
+          <div class="emerg-row"><div class="e-icon e-p">P</div><span class="e-val">112</span></div>
+          <div class="emerg-row"><div class="e-icon e-f">F</div><span class="e-val">111</span></div>
+          <div class="emerg-row"><div class="e-icon e-m">M</div><span class="e-val">912</span></div>
+          <div class="emerg-row"><div class="e-icon e-o">+</div><span class="e-note">Rwanda Red Cross Society: +250 788 123600 | +250 255 105260 · Hotline: 2100</span></div>
+        </div>
+      </div>
+
+      <div class="contact-card" data-group="east" data-search="burundi police fire ambulance medical red cross">
+        <div class="card-header">
+          <div class="card-flag"><span class="flag-code flag-bi"></span></div>
+          <div class="card-title-block">
+            <div class="card-org">Emergency Services</div>
+            <div class="card-country">Burundi</div>
+          </div>
+          <span class="card-badge">Emergency</span>
+        </div>
+        <div class="card-divider"></div>
+        <div class="emerg-rows">
+          <div class="emerg-row"><div class="e-icon e-p">P</div><span class="e-val">112</span></div>
+          <div class="emerg-row"><div class="e-icon e-f">F</div><span class="e-val">118</span></div>
+          <div class="emerg-row"><div class="e-icon e-m">M</div><span class="e-mute">—</span></div>
+          <div class="emerg-row"><div class="e-icon e-o">+</div><span class="e-note">Burundi Red Cross: +257 222 218870 | +257 222 18871 · Hotline: 109</span></div>
+        </div>
+      </div>
+
+      <!-- HORN & CENTRAL AFRICA -->
+      <div class="contact-card" data-group="horn" data-search="dr congo drc police fire medical red cross kinshasa">
+        <div class="card-header">
+          <div class="card-flag"><span class="flag-code flag-cd"></span></div>
+          <div class="card-title-block">
+            <div class="card-org">Emergency Services</div>
+            <div class="card-country">DR Congo</div>
+          </div>
+          <span class="card-badge">Emergency</span>
+        </div>
+        <div class="card-divider"></div>
+        <div class="emerg-rows">
+          <div class="emerg-row"><div class="e-icon e-p">P</div><span class="e-val">112 | 117</span></div>
+          <div class="emerg-row"><div class="e-icon e-f">F</div><span class="e-val">118</span></div>
+          <div class="emerg-row"><div class="e-icon e-m">M</div><span class="e-mute">—</span></div>
+          <div class="emerg-row"><div class="e-icon e-o">+</div><span class="e-note">Kinshasa – DRC Red Cross: +243 822 388209 | +243 998 225234</span></div>
+        </div>
+      </div>
+
+      <div class="contact-card" data-group="horn" data-search="somalia police medical red crescent mogadishu">
+        <div class="card-header">
+          <div class="card-flag"><span class="flag-code flag-so"></span></div>
+          <div class="card-title-block">
+            <div class="card-org">Emergency Services</div>
+            <div class="card-country">Somalia</div>
+          </div>
+          <span class="card-badge">Emergency</span>
+        </div>
+        <div class="card-divider"></div>
+        <div class="emerg-rows">
+          <div class="emerg-row"><div class="e-icon e-p">P</div><span class="e-val">888</span></div>
+          <div class="emerg-row"><div class="e-icon e-f">F</div><span class="e-mute">—</span></div>
+          <div class="emerg-row"><div class="e-icon e-m">M</div><span class="e-val">999</span></div>
+          <div class="emerg-row"><div class="e-icon e-o">+</div><span class="e-note">Somali Red Crescent Society: 446 | +252 615 866606</span></div>
+        </div>
+      </div>
+
+      <div class="contact-card" data-group="horn" data-search="ethiopia police fire medical addis ababa">
+        <div class="card-header">
+          <div class="card-flag"><span class="flag-code flag-et"></span></div>
+          <div class="card-title-block">
+            <div class="card-org">Emergency Services</div>
+            <div class="card-country">Ethiopia</div>
+          </div>
+          <span class="card-badge">Emergency</span>
+        </div>
+        <div class="card-divider"></div>
+        <div class="emerg-rows">
+          <div class="emerg-row"><div class="e-icon e-p">P</div><span class="e-val">991 | 911</span></div>
+          <div class="emerg-row"><div class="e-icon e-f">F</div><span class="e-val">931</span></div>
+          <div class="emerg-row"><div class="e-icon e-m">M</div><span class="e-val">907</span></div>
+          <div class="emerg-row"><div class="e-icon e-o">+</div><span class="e-mute">—</span></div>
+        </div>
+      </div>
+
+      <div class="contact-card" data-group="horn" data-search="south sudan police red cross juba">
+        <div class="card-header">
+          <div class="card-flag"><span class="flag-code flag-ss"></span></div>
+          <div class="card-title-block">
+            <div class="card-org">Emergency Services</div>
+            <div class="card-country">South Sudan</div>
+          </div>
+          <span class="card-badge">Emergency</span>
+        </div>
+        <div class="card-divider"></div>
+        <div class="emerg-rows">
+          <div class="emerg-row"><div class="e-icon e-p">P</div><span class="e-val">999</span></div>
+          <div class="emerg-row"><div class="e-icon e-f">F</div><span class="e-mute">—</span></div>
+          <div class="emerg-row"><div class="e-icon e-m">M</div><span class="e-mute">—</span></div>
+          <div class="emerg-row"><div class="e-icon e-o">+</div><span class="e-note">South Sudan Red Cross: +211 926 255358 | +211 927 580870</span></div>
+        </div>
+      </div>
+
+      <div class="contact-card" data-group="horn" data-search="sudan police red crescent khartoum">
+        <div class="card-header">
+          <div class="card-flag"><span class="flag-code flag-sd"></span></div>
+          <div class="card-title-block">
+            <div class="card-org">Emergency Services</div>
+            <div class="card-country">Sudan</div>
+          </div>
+          <span class="card-badge">Emergency</span>
+        </div>
+        <div class="card-divider"></div>
+        <div class="emerg-rows">
+          <div class="emerg-row"><div class="e-icon e-p">P</div><span class="e-val">999</span></div>
+          <div class="emerg-row"><div class="e-icon e-f">F</div><span class="e-mute">—</span></div>
+          <div class="emerg-row"><div class="e-icon e-m">M</div><span class="e-mute">—</span></div>
+          <div class="emerg-row"><div class="e-icon e-o">+</div><span class="e-note">Sudanese Red Crescent Society: +249 183 772011</span></div>
+        </div>
+      </div>
+
+      <div class="contact-card" data-group="horn" data-search="djibouti police fire medical gendarmerie red crescent">
+        <div class="card-header">
+          <div class="card-flag"><span class="flag-code flag-dj"></span></div>
+          <div class="card-title-block">
+            <div class="card-org">Emergency Services</div>
+            <div class="card-country">Djibouti</div>
+          </div>
+          <span class="card-badge">Emergency</span>
+        </div>
+        <div class="card-divider"></div>
+        <div class="emerg-rows">
+          <div class="emerg-row"><div class="e-icon e-p">P</div><span class="e-val">999</span></div>
+          <div class="emerg-row"><div class="e-icon e-f">F</div><span class="e-val">18</span></div>
+          <div class="emerg-row"><div class="e-icon e-m">M</div><span class="e-val">119</span></div>
+          <div class="emerg-row"><div class="e-icon e-o">+</div><span class="e-note">Gendarmerie: +253 21352222 · Red Crescent Society: +253 21351252 | +253 21362528</span></div>
+        </div>
+      </div>
+
+      <div class="contact-card" data-group="horn" data-search="eritrea police fire medical asmara">
+        <div class="card-header">
+          <div class="card-flag"><span class="flag-code flag-er"></span></div>
+          <div class="card-title-block">
+            <div class="card-org">Emergency Services</div>
+            <div class="card-country">Eritrea</div>
+          </div>
+          <span class="card-badge">Emergency</span>
+        </div>
+        <div class="card-divider"></div>
+        <div class="emerg-rows">
+          <div class="emerg-row"><div class="e-icon e-p">P</div><span class="e-val">127</span></div>
+          <div class="emerg-row"><div class="e-icon e-f">F</div><span class="e-val">116</span></div>
+          <div class="emerg-row"><div class="e-icon e-m">M</div><span class="e-val">134</span></div>
+          <div class="emerg-row"><div class="e-icon e-o">+</div><span class="e-mute">—</span></div>
+        </div>
+      </div>
+
+    </div><!-- #grid-emergency -->
+    <div class="no-results" id="nr-emergency">No contacts match your search.</div>
+  </div><!-- #panel-emergency -->
+
+
+  <!-- ════════════════════════════════════════════════════
+       TAB 3 · INSURANCE BROKERS & PARTNERS
+  ════════════════════════════════════════════════════ -->
+  <div class="tab-panel" id="panel-insurance">
+    <div class="controls-row">
+      <div class="group-toggle">
+        <button class="group-btn active" onclick="switchGroup('insurance','brokers',this)">Aviation Brokers</button>
+        <button class="group-btn" onclick="switchGroup('insurance','partners',this)">Partners</button>
+      </div>
+      <span class="result-count" id="rc-insurance"></span>
+    </div>
+    <div class="cards-grid" id="grid-insurance">
+
+      <!-- AVIATION BROKERS -->
+      <div class="contact-card" data-group="brokers" data-search="price forbes speciality insurance broker london">
+        <div class="card-header">
+          <div class="card-flag">
+            <div style="width:22px;height:15px;background:#1B4F82;border-radius:1px;display:flex;align-items:center;justify-content:center;">
+              <span style="font-size:6px;color:#FFF;font-weight:900;">PF</span>
+            </div>
+          </div>
+          <div class="card-title-block">
+            <div class="card-org">Price Forbes</div>
+            <div class="card-country">Speciality Insurance Broker</div>
+          </div>
+          <span class="card-badge">Broker</span>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-details">
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span class="mu">—</span></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><a href="https://www.priceforbes.com" target="_blank">www.priceforbes.com</a></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="sm">The Minster Building, 21 Mincing Lane, London, England</span></div>
+        </div>
+      </div>
+
+      <div class="contact-card" data-group="brokers" data-search="fred black insurance brokers aviation specialist kenya nairobi karen watermark">
+        <div class="ins-logo-row">
+          <div class="ins-logo" style="background:#111;">
+            <span style="font-size:8px;color:#FFF;font-weight:900;letter-spacing:1px;">FRED</span>
+          </div>
+          <div class="ins-nb">
+            <div class="ins-name">Fred Black Insurance Brokers Ltd</div>
+            <div class="ins-type">Aviation Insurance Specialist</div>
+          </div>
+        </div>
+        <span class="badge-ke">Kenya Office</span>
+        <div class="card-divider"></div>
+        <div class="card-details">
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span>+254 718 792430 | +254 790 498445</span></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><a href="mailto:info@fredblack.net">info@fredblack.net</a></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="sm">Ground Floor, Bay Court Office Block, Watermark Business Park, Karen, Nairobi</span></div>
+        </div>
+      </div>
+
+      <!-- PARTNERS -->
+      <div class="contact-card" data-group="partners" data-search="stone africa ioc security risk management aviation logistics crisis response karen nairobi">
+        <div class="ins-logo-row">
+          <div class="ins-logo" style="background:#F7F0E4;">
+            <span style="font-size:7px;color:#A87C2A;font-weight:900;text-align:center;line-height:1.5;">stone<br>africa</span>
+          </div>
+          <div class="ins-nb">
+            <div class="ins-name">Stone Africa IOC</div>
+            <div class="ins-type-gold">Security Risk Management Capabilities in Operations, Logistics, Aviation, and Crisis Response</div>
+          </div>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-details">
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span>+254 116 043568 | +254 030 7903866</span></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><a href="mailto:info@stone-africa.co">info@stone-africa.co</a></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="sm">Annex B, Watermark Business Park, Karen, Nairobi</span></div>
+        </div>
+      </div>
+
+    </div><!-- #grid-insurance -->
+    <div class="no-results" id="nr-insurance">No contacts match your search.</div>
+  </div><!-- #panel-insurance -->
+
+
+  <!-- ════════════════════════════════════════════════════
+       TAB 4 · MRO & ENGINEERING SYSTEMS
+  ════════════════════════════════════════════════════ -->
+  <div class="tab-panel" id="panel-maintenance">
+    <div class="controls-row">
+      <div class="group-toggle">
+        <button class="group-btn active" onclick="switchGroup('maintenance','east',this)">East Africa</button>
+        <button class="group-btn" onclick="switchGroup('maintenance','horn',this)">Horn &amp; Central Africa</button>
+      </div>
+      <span class="result-count" id="rc-maintenance"></span>
+    </div>
+    <div class="cards-grid" id="grid-maintenance">
+
+      <!-- EAST AFRICA -->
+      <div class="contact-card" data-group="east" data-search="kenya kq kenya airways engineering maintenance mro jkia nairobi heavy base line">
+        <div class="card-header">
+          <div class="card-flag"><span class="flag-code flag-ke"></span></div>
+          <div class="card-title-block">
+            <div class="card-org">Kenya Airways Engineering</div>
+            <div class="card-country">Kenya</div>
+          </div>
+          <span class="card-badge" style="background:var(--warn-dim);color:var(--warn);">Heavy MRO</span>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-details">
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span>+254 020 327 4000</span></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><a href="mailto:engineering@kenya-airways.com">engineering@kenya-airways.com</a></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="sm">Kenya Airways Engineering Base, JKIA, Nairobi</span></div>
+        </div>
+      </div>
+
+      <div class="contact-card" data-group="east" data-search="precision air technical services tanzania dar es salaam line maintenance mro">
+        <div class="card-header">
+          <div class="card-flag"><span class="flag-code flag-tz"></span></div>
+          <div class="card-title-block">
+            <div class="card-org">Precision Air Technical Services</div>
+            <div class="card-country">Tanzania</div>
+          </div>
+          <span class="card-badge" style="background:var(--warn-dim);color:var(--warn);">Line Maintenance</span>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-details">
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span>+255 22 213 0800</span></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><a href="mailto:technical@precisionairtz.com">technical@precisionairtz.com</a></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="sm">Julius Nyerere International Airport, Terminal 1, Dar es Salaam</span></div>
+        </div>
+      </div>
+
+      <div class="contact-card" data-group="east" data-search="air tanzania engineering maintenance technical dar es salaam jnia">
+        <div class="card-header">
+          <div class="card-flag"><span class="flag-code flag-tz"></span></div>
+          <div class="card-title-block">
+            <div class="card-org">Air Tanzania Engineering</div>
+            <div class="card-country">Tanzania</div>
+          </div>
+          <span class="card-badge" style="background:var(--warn-dim);color:var(--warn);">Line Maintenance</span>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-details">
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span>+255 22 284 0204</span></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><a href="mailto:engineering@airtanzania.co.tz">engineering@airtanzania.co.tz</a></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="sm">Julius Nyerere International Airport, Dar es Salaam</span></div>
+        </div>
+      </div>
+
+      <div class="contact-card" data-group="east" data-search="uganda airlines technical services maintenance engineering entebbe">
+        <div class="card-header">
+          <div class="card-flag"><span class="flag-code flag-ug"></span></div>
+          <div class="card-title-block">
+            <div class="card-org">Uganda Airlines Technical Services</div>
+            <div class="card-country">Uganda</div>
+          </div>
+          <span class="card-badge" style="background:var(--warn-dim);color:var(--warn);">Line Maintenance</span>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-details">
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span>+256 200 525 000</span></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><a href="mailto:technical@ugandaairlines.co.ug">technical@ugandaairlines.co.ug</a></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="sm">Entebbe International Airport, Entebbe</span></div>
+        </div>
+      </div>
+
+      <div class="contact-card" data-group="east" data-search="rwandair technical operations maintenance engineering kigali rwanda base line mro">
+        <div class="card-header">
+          <div class="card-flag"><span class="flag-code flag-rw"></span></div>
+          <div class="card-title-block">
+            <div class="card-org">RwandAir Technical Operations</div>
+            <div class="card-country">Rwanda</div>
+          </div>
+          <span class="card-badge" style="background:var(--warn-dim);color:var(--warn);">Line &amp; Base MRO</span>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-details">
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span>+250 252 588 521</span></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><a href="mailto:technical@rwandair.com">technical@rwandair.com</a></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="sm">Kigali International Airport (RwandAir Maintenance Base), Kigali</span></div>
+        </div>
+      </div>
+
+      <!-- HORN & CENTRAL AFRICA -->
+      <div class="contact-card" data-group="horn" data-search="ethiopian airlines mro maintenance repair overhaul heavy engineering addis ababa bole ethiopia">
+        <div class="card-header">
+          <div class="card-flag"><span class="flag-code flag-et"></span></div>
+          <div class="card-title-block">
+            <div class="card-org">Ethiopian Airlines MRO</div>
+            <div class="card-country">Ethiopia</div>
+          </div>
+          <span class="card-badge" style="background:var(--warn-dim);color:var(--warn);">Heavy MRO</span>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-details">
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span>+251 116 178 000</span></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><a href="mailto:mro@ethiopianairlines.com">mro@ethiopianairlines.com</a></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="sm">Ethiopian Airlines Maintenance Base, Bole International Airport, Addis Ababa</span></div>
+        </div>
+      </div>
+
+      <div class="contact-card" data-group="horn" data-search="congo airways technical maintenance engineering kinshasa drc ndili">
+        <div class="card-header">
+          <div class="card-flag"><span class="flag-code flag-cd"></span></div>
+          <div class="card-title-block">
+            <div class="card-org">Congo Airways Technical</div>
+            <div class="card-country">DR Congo</div>
+          </div>
+          <span class="card-badge" style="background:var(--warn-dim);color:var(--warn);">Line Maintenance</span>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-details">
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span>+243 81 698 1000</span></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><a href="mailto:technique@congoairways.com">technique@congoairways.com</a></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="sm">N'Djili International Airport, Kinshasa</span></div>
+        </div>
+      </div>
+
+      <div class="contact-card" data-group="horn" data-search="sudan airways engineering maintenance technical khartoum">
+        <div class="card-header">
+          <div class="card-flag"><span class="flag-code flag-sd"></span></div>
+          <div class="card-title-block">
+            <div class="card-org">Sudan Airways Engineering</div>
+            <div class="card-country">Sudan</div>
+          </div>
+          <span class="card-badge" style="background:var(--warn-dim);color:var(--warn);">Line Maintenance</span>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-details">
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span>+249 183 784 000</span></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><a href="mailto:engineering@sudanairways.com">engineering@sudanairways.com</a></div>
+          <div class="card-detail"><svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="sm">Khartoum International Airport Area, Khartoum <span style="color:var(--danger);font-size:10px;">· Operations affected since 2023</span></span></div>
+        </div>
+      </div>
+
+    </div><!-- #grid-maintenance -->
+    <div class="no-results" id="nr-maintenance">No contacts match your search.</div>
+  </div><!-- #panel-maintenance -->
+
+<script>
+  /* ── state ─────────────────────────────────── */
+  let activeTab   = 'civil';
+  let activeGroup = { civil: 'east', emergency: 'east', insurance: 'brokers', maintenance: 'east' };
+  let searchTerm  = '';
+
+  /* ── tab switching ──────────────────────────── */
+  function switchTab(btn) {
+    const tab = btn.dataset.tab;
+    document.querySelectorAll('.tab-btn').forEach(b =>
+      b.classList.remove('active-civil','active-emergency','active-insurance','active-maintenance'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active-' + tab);
+    document.getElementById('panel-' + tab).classList.add('active');
+    document.body.setAttribute('data-tab', tab);
+    activeTab = tab;
+    applyFilters();
+  }
+
+  /* ── group switching ────────────────────────── */
+  function switchGroup(tab, group, btn) {
+    document.querySelectorAll('#panel-' + tab + ' .group-btn')
+      .forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeGroup[tab] = group;
+    applyFilters();
+  }
+
+  /* ── search ─────────────────────────────────── */
+  function handleSearch() {
+    searchTerm = document.getElementById('search-input').value.trim().toLowerCase();
+    applyFilters();
+  }
+
+  /* ── core filter ────────────────────────────── */
+  function applyFilters() {
+    ['civil','emergency','insurance','maintenance'].forEach(tab => {
+      const grid  = document.getElementById('grid-' + tab);
+      const noRes = document.getElementById('nr-' + tab);
+      const grp   = activeGroup[tab];
+      let vis = 0;
+
+      grid.querySelectorAll('.contact-card').forEach(card => {
+        const inGroup  = card.getAttribute('data-group') === grp;
+        const haystack = (card.getAttribute('data-search') || '') + ' ' + card.innerText.toLowerCase();
+        const matches  = !searchTerm || haystack.includes(searchTerm);
+        const show = inGroup && matches;
+        card.classList.toggle('hidden', !show);
+        if (show) vis++;
+      });
+
+      if (tab === activeTab) {
+        document.getElementById('rc-' + tab).textContent =
+          vis > 0 ? vis + ' contact' + (vis !== 1 ? 's' : '') + ' shown' : '';
+        noRes.style.display = vis === 0 ? 'block' : 'none';
+      }
+    });
+  }
+
+  /* ── init counts ────────────────────────────── */
+  document.addEventListener('DOMContentLoaded', () => {
+    ['civil','emergency','insurance','maintenance'].forEach(tab => {
+      const total = document.querySelectorAll('#grid-' + tab + ' .contact-card').length;
+      document.getElementById('tc-' + tab).textContent = total;
+    });
+    applyFilters();
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stone Africa |  Africa-Led. AI-Enabled. Operationally Focused.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+  <script src="theme.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+
+    /* ─── FLATPICKR THEME ───────────────────────────────────────── */
+    .flatpickr-calendar {
+      font-family: var(--sans) !important;
+      border: 1px solid var(--border-h) !important;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.10) !important;
+      border-radius: 4px !important;
+    }
+    .flatpickr-months, .flatpickr-weekdays { background: var(--bg-2) !important; }
+    .flatpickr-month { color: var(--txt) !important; fill: var(--txt) !important; }
+    .flatpickr-weekday { color: var(--txt-2) !important; font-size: 11px !important; }
+    .flatpickr-day.selected,
+    .flatpickr-day.selected:hover {
+      background: var(--accent) !important;
+      border-color: var(--accent) !important;
+      color: #fff !important;
+    }
+    .flatpickr-day:hover { background: var(--accent-dim) !important; border-color: transparent !important; }
+    .flatpickr-day.today { border-color: var(--accent) !important; }
+    .flatpickr-time input:hover,
+    .flatpickr-time input:focus,
+    .flatpickr-time .flatpickr-am-pm:hover,
+    .flatpickr-time .flatpickr-am-pm:focus { background: var(--accent-dim) !important; }
+    .numInputWrapper:hover { background: var(--accent-dim) !important; }
+    .flatpickr-current-month .flatpickr-monthDropdown-months,
+    .flatpickr-current-month input.cur-year { color: var(--txt) !important; }
+    .flatpickr-prev-month svg, .flatpickr-next-month svg { fill: var(--txt-2) !important; }
+    .flatpickr-prev-month:hover svg, .flatpickr-next-month:hover svg { fill: var(--accent) !important; }
+    /* input read-only styling — keep consistent with other form fields */
+    input.flatpickr-input { cursor: pointer; background: var(--bg) !important; }
+    input.flatpickr-input:focus { border-color: var(--accent) !important; outline: none; }
+    /* ─── RESET & ROOT ─────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #0B0F1A;
+      --bg-2:         #111827;
+      --bg-card:      #111827;
+      --bg-card-h:    #1A2235;
+      --border:       #1E2D45;
+      --border-h:     #243554;
+      --accent:       #1A6FE8;
+      --accent-h:     #2B7EF5;
+      --accent-dim:   rgba(26,111,232,0.12);
+      --accent-glow:  rgba(26,111,232,0.22);
+      --txt:          #F1F5F9;
+      --txt-2:        #94A3B8;
+      --txt-3:        #4B5E78;
+      --hero-side-bg: #0B0F1A;
+      --sans:         'Inter', sans-serif;
+      --cond:         'Inter', sans-serif;
+    }
+
+    [data-theme="light"] {
+      --bg:           #F0F4F9;
+      --bg-2:         #FFFFFF;
+      --bg-card:      #FFFFFF;
+      --bg-card-h:    #F1F5F9;
+      --border:       #DDE4EE;
+      --border-h:     #C8D4E4;
+      --accent:       #1860D0;
+      --accent-h:     #1A6FE8;
+      --accent-dim:   rgba(24,96,208,0.09);
+      --accent-glow:  rgba(24,96,208,0.16);
+      --txt:          #0F1C2E;
+      --txt-2:        #475569;
+      --txt-3:        #94A3B8;
+      --hero-side-bg: #0F1C2E;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--txt);
+      font-family: var(--sans);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ─── LOADER ───────────────────────────────────────────────── */
+    #loader {
+      position: fixed;
+      inset: 0;
+      z-index: 5000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      background: #000;
+      transition: opacity 0.9s ease, visibility 0.9s ease;
+    }
+    #loader.out { opacity: 0; visibility: hidden; }
+
+    #loader-bg {
+      position: absolute;
+      inset: 0;
+      background: url('images/ioc_image.jpeg') center / cover no-repeat;
+      opacity: 0;
+      animation: lBgIn 1.4s ease forwards 0.2s;
+    }
+    #loader-vignette {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at center, transparent 25%, rgba(0,0,0,0.80) 100%),
+        linear-gradient(to bottom, rgba(0,0,0,0.60) 0%, rgba(0,0,0,0.30) 50%, rgba(0,0,0,0.80) 100%);
+    }
+
+    @keyframes lBgIn { to { opacity: 1; } }
+
+    .loader-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(16px);
+      animation: lContentIn 0.8s ease forwards 0.7s;
+    }
+    @keyframes lContentIn { to { opacity: 1; transform: none; } }
+
+    .loader-logo { width: 210px; margin-bottom: 28px; }
+
+    .loader-tag {
+      font-family: var(--cond);
+      font-size: 14px;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.95);
+      margin-bottom: 28px;
+    }
+
+    .loader-bar {
+      width: 160px;
+      height: 1px;
+      background: rgba(255,255,255,0.15);
+      margin: 0 auto;
+      position: relative;
+      overflow: hidden;
+    }
+    .loader-bar::after {
+      content: '';
+      position: absolute;
+      left: -100%;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to right, transparent, var(--accent));
+      animation: lBarFill 1.6s cubic-bezier(.4,0,.2,1) forwards 0.9s;
+    }
+    @keyframes lBarFill { to { left: 0; } }
+
+    /* ─── HERO ─────────────────────────────────────────────────── */
+    .hero {
+      display: grid;
+      grid-template-columns: 70% 30%;
+      height: 68vh;
+      min-height: 420px;
+      max-height: 620px;
+    }
+
+    .hero-img {
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transform: scale(1.02);
+      animation: heroImgSettle 1.8s cubic-bezier(.4,0,.2,1) forwards;
+    }
+    @keyframes heroImgSettle { to { transform: scale(1); } }
+
+    .hero-img-overlay {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(to top,  rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.18) 55%, rgba(0,0,0,0.35) 100%),
+        linear-gradient(to right, rgba(0,0,0,0.52) 0%, transparent 70%);
+    }
+
+    .hero-corner {
+      position: absolute;
+      top: 32px; left: 32px;
+      width: 44px; height: 44px;
+      border-top: 1px solid rgba(26,111,232,0.45);
+      border-left: 1px solid rgba(26,111,232,0.45);
+    }
+    .hero-corner-br {
+      top: auto; left: auto;
+      bottom: 32px; right: 32px;
+      border-top: none; border-left: none;
+      border-bottom: 1px solid rgba(26,111,232,0.45);
+      border-right: 1px solid rgba(26,111,232,0.45);
+    }
+
+    .hero-about {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 52px 56px;
+      animation: heroAboutIn 0.9s ease forwards;
+      animation-delay: 3.2s;
+      opacity: 0;
+    }
+    @keyframes heroAboutIn { to { opacity: 1; } }
+
+    .hero-eyebrow {
+      font-family: var(--cond);
+      font-size: 11px;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .hero-eyebrow::before {
+      content: '';
+      display: inline-block;
+      width: 24px; height: 1px;
+      background: var(--accent);
+    }
+
+    .hero-about h1 {
+      font-family: var(--cond);
+      font-size: clamp(40px, 5.5vw, 72px);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: -0.5px;
+      line-height: 1.0;
+      margin-bottom: 20px;
+      color: #FFFFFF;
+    }
+
+    .hero-about p {
+      font-size: 14px;
+      color: rgba(255,255,255,0.6);
+      max-width: 520px;
+      line-height: 1.75;
+    }
+
+    .hero-side {
+      background: var(--hero-side-bg);
+      border-left: 1px solid #1A1A1A;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 44px 28px;
+      gap: 26px;
+      animation: heroSideIn 0.8s ease forwards;
+      animation-delay: 3.2s;
+      opacity: 0;
+    }
+    @keyframes heroSideIn { to { opacity: 1; } }
+
+    .hero-side-logo { width: 180px; }
+    .h-rule { width: 32px; height: 1px; background: var(--accent); opacity: 0.55; }
+
+    .side-group { text-align: center; }
+    .side-group-label {
+      font-size: 12px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--txt-2);
+      display: block;
+      margin-bottom: 5px;
+    }
+    .side-group-name {
+      font-family: var(--cond);
+      font-size: 16px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--txt);
+    }
+
+    .side-copy {
+      font-family: var(--cond);
+      font-size: 16px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--txt-2);
+      text-align: center;
+      line-height: 1.8;
+    }
+
+    .side-ctas { display: flex; flex-direction: column; gap: 10px; width: 60%; }
+
+    /* ─── BUTTONS ──────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 20px;
+      font-family: var(--cond);
+      font-size: 12px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      text-decoration: none;
+      border: 1px solid var(--border-h);
+      color: var(--txt-2);
+      background: transparent;
+      cursor: pointer;
+      transition: border-color 0.22s, color 0.22s, background 0.22s;
+      white-space: nowrap;
+    }
+    .btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    .btn-primary {
+      border-color: var(--accent);
+      color: #fff;
+      background: var(--accent);
+      font-weight: 700;
+    }
+    .btn-primary:hover { background: var(--accent-h); border-color: var(--accent-h); color: #fff; }
+
+    /* ─── STATS STRIP ──────────────────────────────────────────── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      background: var(--bg-2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .stat {
+      padding: 28px 36px;
+      border-right: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+    .stat:last-child { border-right: none; }
+
+    .stat::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--accent);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.55s ease;
+    }
+    .stat.visible::after { transform: scaleX(1); }
+
+    .stat-val {
+      font-family: var(--cond);
+      font-size: 42px;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 5px;
+    }
+    .stat-lbl {
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--txt-2);
+    }
+
+    /* ─── SERVICES SECTION ─────────────────────────────────────── */
+    .services {
+      padding: 40px 56px 96px;   /* reduced top from 80px */
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+
+    .sec-head { margin-bottom: 36px; }
+
+    .sec-title {
+      font-family: var(--cond);
+      font-size: clamp(32px, 3vw, 44px);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: -0.5px;
+      color: var(--txt);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    /* ─── SERVICE CARD ─────────────────────────────────────────── */
+    .card {
+      background: var(--bg-card);
+      padding: 36px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      position: relative;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: background 0.3s ease, opacity 0.5s ease, transform 0.5s ease,
+                  box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+    .card.visible { opacity: 1; transform: none; }
+    .card:hover {
+      background: var(--bg-card-h);
+      border-color: var(--border-h);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; bottom: 0;
+      width: 2px;
+      background: var(--accent);
+      transform: scaleY(0);
+      transform-origin: bottom;
+      transition: transform 0.35s cubic-bezier(.4,0,.2,1);
+    }
+    .card:hover::before { transform: scaleY(1); }
+
+    .card::after {
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 120px; height: 120px;
+      background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+    }
+    .card:hover::after { opacity: 1; }
+
+    /* Standard card layout */
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .card-title-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+
+    .card-ico {
+      width: 38px; height: 38px;
+      border: 1px solid var(--border-h);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+      background: var(--bg-2);
+    }
+    .card-ico svg {
+      width: 17px; height: 17px;
+      stroke: var(--accent);
+      fill: none;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .card-title {
+      font-family: var(--cond);
+      font-size: 20px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: -0.2px;
+      line-height: 1.15;
+      color: var(--txt);
+    }
+
+    /* ─── CENTERED CARD (Speak to Analyst, Crisis Management) ─── */
+    /* Vertically centres content within the card, text stays left-aligned */
+    .card-centered {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* ─── CTA CHIP ─────────────────────────────────────────────── */
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-family: var(--cond);
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: var(--txt-2);
+      border: 1px solid var(--border-h);
+      padding: 6px 12px;
+      flex-shrink: 0;
+      white-space: nowrap;
+      transition: border-color 0.22s, color 0.22s, background 0.22s;
+      background: transparent;
+      cursor: pointer;
+      font-family: var(--cond);
+    }
+    .chip:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+    .chip svg { width: 9px; height: 9px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+    .chip-hi {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-dim);
+    }
+    .chip-hi:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    /* ─── CARD BODY ────────────────────────────────────────────── */
+    .card-body { display: flex; flex-direction: column; gap: 16px; }
+
+    .card-desc {
+      font-size: 13.5px;
+      color: var(--txt-2);
+      line-height: 1.8;
+    }
+
+    .card-bullets {
+      list-style: none;
+      border-top: 1px solid var(--border);
+      padding-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+    .card-bullets li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--txt-2);
+      line-height: 1.55;
+    }
+    .card-bullets li::before {
+      content: '';
+      width: 5px; height: 5px;
+      background: var(--accent);
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 6px;
+      opacity: 0.65;
+    }
+
+    /* ─── LIGHTBOX ─────────────────────────────────────────────── */
+    #lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 4000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+      cursor: pointer;
+    }
+    #lightbox.open { opacity: 1; visibility: visible; }
+
+    .lb-inner {
+      position: relative;
+      cursor: default;
+      animation: overlayIn 0.3s cubic-bezier(.4,0,.2,1);
+    }
+    @keyframes overlayIn {
+      from { transform: scale(0.93); opacity: 0; }
+      to   { transform: scale(1);    opacity: 1; }
+    }
+
+    .lb-inner img {
+      max-width: 88vw;
+      max-height: 85vh;
+      display: block;
+      box-shadow: 0 32px 96px rgba(0,0,0,0.55);
+      border-radius: 2px;
+    }
+
+    .lb-close {
+      position: absolute;
+      top: -14px; right: -14px;
+      width: 34px; height: 34px;
+      background: var(--bg-2);
+      border: 1px solid var(--border-h);
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      line-height: 1;
+      color: var(--txt-2);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+      transition: background 0.2s, color 0.2s;
+      z-index: 1;
+    }
+    .lb-close:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    /* ─── BOOKING MODAL ────────────────────────────────────────── */
+    #booking-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 4000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+      cursor: pointer;
+    }
+    #booking-modal.open { opacity: 1; visibility: visible; }
+
+    .modal-inner {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 48px 44px 40px;
+      max-width: 520px;
+      width: 100%;
+      position: relative;
+      cursor: default;
+      animation: overlayIn 0.3s cubic-bezier(.4,0,.2,1);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px; right: 16px;
+      width: 30px; height: 30px;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--txt-2);
+      font-size: 16px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .modal-close:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    .modal-eyebrow {
+      font-family: var(--cond);
+      font-size: 10px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .modal-title {
+      font-family: var(--cond);
+      font-size: 26px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: -0.3px;
+      color: var(--txt);
+      margin-bottom: 6px;
+    }
+    .modal-sub {
+      font-size: 13px;
+      color: var(--txt-2);
+      margin-bottom: 28px;
+      line-height: 1.65;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .form-group.full { grid-column: 1 / -1; }
+    .form-group label {
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--txt-2);
+      font-family: var(--cond);
+    }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      padding: 10px 13px;
+      border: 1px solid var(--border-h);
+      background: var(--bg);
+      font-family: var(--sans);
+      font-size: 13.5px;
+      color: var(--txt);
+      outline: none;
+      border-radius: 3px;
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus { border-color: var(--accent); }
+    .form-group textarea { resize: vertical; min-height: 90px; }
+    .form-group select { appearance: none; cursor: pointer; }
+
+    .form-submit {
+      width: 100%;
+      padding: 13px;
+      background: var(--accent);
+      border: none;
+      font-family: var(--cond);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: #000;
+      cursor: pointer;
+      transition: background 0.22s;
+      border-radius: 3px;
+      margin-top: 8px;
+    }
+    .form-submit:hover { background: var(--accent-h); }
+
+    .form-note {
+      font-size: 11px;
+      color: var(--txt-3);
+      text-align: center;
+      margin-top: 12px;
+      line-height: 1.5;
+    }
+
+    /* ─── SETUP NOTICE (delete once Formspree is live) ─────────── */
+    .setup-notice {
+      background: var(--accent-dim);
+      border: 1px solid var(--border-h);
+      border-radius: 3px;
+      padding: 14px 16px;
+      margin-bottom: 20px;
+      font-size: 12.5px;
+      color: var(--txt-2);
+      line-height: 1.6;
+    }
+    .setup-notice strong { display: block; margin-bottom: 8px; font-size: 12px; letter-spacing: 0.3px; color: var(--txt); }
+    .setup-notice ol { padding-left: 18px; }
+    .setup-notice li { margin-bottom: 3px; }
+    .setup-notice a { color: var(--accent); }
+    .setup-notice code {
+      background: rgba(255,255,255,0.07);
+      padding: 1px 5px;
+      border-radius: 2px;
+      font-size: 11.5px;
+      font-family: monospace;
+    }
+
+    /* ─── CONTACT BAR (single line) ───────────────────────────── */
+    .contact-bar {
+      background: var(--bg-2);
+      border-top: 1px solid var(--border);
+      padding: 14px 56px;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px 0;
+    }
+
+    .contact-bar-label {
+      font-family: var(--cond);
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-right: 20px;
+      white-space: nowrap;
+    }
+
+    .contact-bar-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .contact-bar-item + .contact-bar-item::before {
+      content: '';
+      display: inline-block;
+      width: 1px;
+      height: 12px;
+      background: var(--border-h);
+      margin: 0 14px;
+    }
+
+    .cbi-label {
+      font-family: var(--cond);
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--txt-3);
+    }
+
+    .cbi-value {
+      font-size: 12.5px;
+      color: var(--txt-2);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .cbi-value:hover { color: var(--accent); }
+
+    .contact-bar-location {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-left: 24px;
+      border-left: 1px solid var(--border-h);
+      white-space: nowrap;
+    }
+
+    .contact-bar-location svg {
+      width: 12px; height: 12px;
+      stroke: var(--accent); fill: none;
+      stroke-width: 1.5;
+      flex-shrink: 0;
+    }
+
+    .cbi-loc {
+      font-size: 12px;
+      color: var(--txt-2);
+    }
+
+    /* ─── FOOTER (dark) ────────────────────────────────────────── */
+    footer {
+      background: #0D0C0A;
+      border-top: 1px solid #1C1C1C;
+      padding: 14px 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    .footer-logo { width: 110px; opacity: 0.75; }
+    .footer-ioc {
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #bebbb5;
+      text-align: center;
+    }
+    .footer-grp {
+      font-family: var(--cond);
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #dad5cf;
+    }
+
+    @media (max-width: 960px) {
+      .contact-bar { padding: 14px 20px; flex-direction: column; align-items: flex-start; gap: 8px; }
+      .contact-bar-location { margin-left: 0; padding-left: 0; border-left: none; border-top: 1px solid var(--border); padding-top: 8px; width: 100%; }
+      .contact-bar-item + .contact-bar-item::before { display: none; }
+      .contact-bar-item { flex-wrap: wrap; }
+    }
+
+    /* ─── UTILITY ──────────────────────────────────────────────── */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .fade-up.visible { opacity: 1; transform: none; }
+
+    /* ─── RESPONSIVE ───────────────────────────────────────────── */
+    @media (max-width: 960px) {
+      .hero { grid-template-columns: 1fr; height: auto; max-height: none; }
+      .hero-img { height: 52vw; min-height: 280px; max-height: 400px; }
+      .hero-about { padding: 36px 28px; }
+      .hero-side {
+        border-left: none;
+        border-top: 1px solid #1A1A1A;
+        padding: 40px 28px;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .services { padding: 32px 20px 72px; }
+      .grid { grid-template-columns: 1fr; }
+      footer { flex-direction: column; text-align: center; padding: 28px 20px; }
+    }
+
+    @media (max-width: 540px) {
+      .hero-about h1 { font-size: 38px; }
+      .stats { grid-template-columns: 1fr 1fr; }
+      .card { padding: 24px 20px; }
+      .card-head { flex-direction: column; }
+      .form-row { grid-template-columns: 1fr; }
+      .modal-inner { padding: 36px 24px 28px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     LOADING SCREEN
+     ══════════════════════════════════════════ -->
+<div id="loader">
+  <div id="loader-bg"></div>
+  <div id="loader-vignette"></div>
+  <div class="loader-content">
+    <img class="loader-logo" src="images/logo.png" alt="Stone Africa">
+    <p class="loader-tag"> Africa-Led. AI-Enabled. Operationally Focused.</p>
+    <div class="loader-bar"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     LIGHTBOX OVERLAY
+     ══════════════════════════════════════════ -->
+<div id="lightbox" onclick="closeLightbox()">
+  <div class="lb-inner" onclick="event.stopPropagation()">
+    <button class="lb-close" onclick="closeLightbox()" aria-label="Close">&#x2715;</button>
+    <img id="lb-img" src="" alt="Preview">
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     BOOKING MODAL
+     ══════════════════════════════════════════ -->
+<div id="booking-modal" onclick="closeBooking()">
+  <div class="modal-inner" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeBooking()" aria-label="Close">&#x2715;</button>
+    <p class="modal-eyebrow">Stone Africa · Aviation</p>
+    <h2 class="modal-title">Speak to an Analyst</h2>
+    <p class="modal-sub">Complete the form below and a senior aviation risk analyst will be in touch to confirm a call time.</p>
+
+    <form action="https://formspree.io/f/xlgzlypl" method="POST" onsubmit="handleSubmit(event)">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="f-name">Full Name *</label>
+          <input type="text" id="f-name" name="name" required placeholder="Jane Smith">
+        </div>
+        <div class="form-group">
+          <label for="f-email">Email Address *</label>
+          <input type="email" id="f-email" name="email" required placeholder="jane@airline.com">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="f-org">Organisation</label>
+          <input type="text" id="f-org" name="organisation" placeholder="Airline / Operator">
+        </div>
+        <div class="form-group">
+          <label for="f-topic">Topic</label>
+          <select id="f-topic" name="topic">
+            <option value="">Select a topic…</option>
+            <option>Route / Location Risk</option>
+            <option>Country Intelligence</option>
+            <option>Emergency Response Planning</option>
+            <option>Crisis Management</option>
+            <option>Security & Logistics</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="f-date">Preferred Date</label>
+          <input type="text" id="f-date" name="preferred_date" placeholder="Select a date…" readonly>
+        </div>
+        <div class="form-group">
+          <label for="f-time">Preferred Time (EAT)</label>
+          <input type="text" id="f-time" name="preferred_time" placeholder="Select a time…" readonly>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group full">
+          <label for="f-msg">Message</label>
+          <textarea id="f-msg" name="message" placeholder="Briefly describe the location, route, or subject you'd like to discuss…"></textarea>
+        </div>
+      </div>
+      <button type="submit" class="form-submit">Request a Call</button>
+      <p class="form-note">Your details are treated in strict confidence and will not be shared with third parties.</p>
+    </form>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     HERO
+     ══════════════════════════════════════════ -->
+<header class="hero">
+  <div class="hero-img">
+    <img src="images/ioc_image.jpeg" alt="Stone Africa Integrated Operations Centre">
+    <div class="hero-img-overlay"></div>
+    <div class="hero-corner"></div>
+    <div class="hero-corner hero-corner-br"></div>
+    <div class="hero-about">
+      <p class="sec-label">Stone Africa</p>
+      <h1>Operational<br>Intelligence<br>for Aviation</h1>
+      <p>A specialist 24/7 operational oversight and delivery partner. Providing intelligence-led risk management, crisis response, and ground support across Africa's most complex environments - from our IOC.</p>
+    </div>
+  </div>
+
+  <aside class="hero-side">
+    <img class="hero-side-logo" src="images/logo.png" alt="Stone Africa">
+    <div class="h-rule"></div>
+    <div class="side-group">
+      <span class="side-group-label">Part of the</span>
+      <span class="side-group-name">Alamaya Group</span>
+    </div>
+    <p class="side-copy">Aviation Risk<br>&amp; Security Services</p>
+    <div class="side-ctas">
+      <button onclick="openBooking()" class="btn btn-primary">Contact Our Team</button>
+      <a href="https://stone-africa.co" class="btn" target="_blank" rel="noopener"><strong>Visit Stone Africa ↗</strong></a>
+    </div>
+  </aside>
+</header>
+
+<!-- ══════════════════════════════════════════
+     STATS STRIP
+     ══════════════════════════════════════════ -->
+<div class="stats">
+  <div class="stat fade-up">
+    <div class="stat-val">24/7</div>
+    <div class="stat-lbl">Security Oversight</div>
+  </div>
+  <div class="stat fade-up" style="transition-delay:.08s">
+    <div class="stat-val">30+</div>
+    <div class="stat-lbl">Countries Active</div>
+  </div>
+  <div class="stat fade-up" style="transition-delay:.16s">
+    <div class="stat-val">IOC</div>
+    <div class="stat-lbl">Integrated Operations Centre</div>
+  </div>
+  <div class="stat fade-up" style="transition-delay:.24s">
+    <div class="stat-val">AI</div>
+    <div class="stat-lbl">Fused Intelligence</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SERVICES GRID
+     ══════════════════════════════════════════ -->
+<section class="services">
+  <div class="sec-head fade-up">
+    <h2 class="sec-title">Our Capabilities</h2>
+  </div>
+
+  <div class="grid">
+
+    <!-- ① Risk & Threat Assessments ─────────────────────────── -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title-row">
+          <div class="card-ico">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 2L2 7v5c0 5.25 4.25 10.15 10 11.35C17.75 22.15 22 17.25 22 12V7L12 2z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+          </div>
+          <h3 class="card-title">Risk &amp; Threat<br>Assessments</h3>
+        </div>
+        <button class="chip" onclick="openLightbox('images/Risk Assessment Sample Report.png')">
+          Example Report
+          <svg viewBox="0 0 10 10"><path d="M1 9L9 1M9 1H4M9 1v5"/></svg>
+        </button>
+      </div>
+      <div class="card-body">
+        <p class="card-desc">Real-time risk monitoring and intelligence-led threat analysis across Africa's most complex environments. Combining live data feeds, AI-enabled analytics, and on-ground insight to enable proactive decision-making and mission assurance before risk escalates.</p>
+        <ul class="card-bullets">
+          <li>Location or itinerary risk assessments</li>
+          <li>Aviation-specific risk assessments</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ② Country Reporting ──────────────────────────────────── -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title-row">
+          <div class="card-ico">
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="2" y1="12" x2="22" y2="12"/>
+              <path d="M12 2a15 15 0 010 20M12 2a15 15 0 000 20"/>
+            </svg>
+          </div>
+          <h3 class="card-title">Country<br>Reporting</h3>
+        </div>
+        <button class="chip" onclick="openLightbox('images/Kenya Country Reporting Sample.png')">
+          Example Report
+          <svg viewBox="0 0 10 10"><path d="M1 9L9 1M9 1H4M9 1v5"/></svg>
+        </button>
+      </div>
+      <div class="card-body">
+        <p class="card-desc">Security and geopolitical reporting derived from HUMINT networks and AI fusion of social and local media. Written with clear language and a focus on the 'so-what?' — with deep, nuanced understanding of the places we operate.</p>
+        <ul class="card-bullets">
+          <li>Country-level reporting (weekly or monthly)</li>
+          <li>Sector-specific reporting</li>
+          <li>Kenyan National Elections reporting</li>
+          <li>Bespoke / regional trends analysis</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ③ Emergency Response Review ─────────────────────────── -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title-row">
+          <div class="card-ico">
+            <svg viewBox="0 0 24 24">
+              <polyline points="9 11 12 14 22 4"/>
+              <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+            </svg>
+          </div>
+          <h3 class="card-title">Emergency<br>Response Review</h3>
+        </div>
+        <a href="docs/Risk Management Service Offering - East African Aviation.pdf" class="chip" target="_blank">
+          Our Offering
+          <svg viewBox="0 0 10 10"><path d="M1 9L9 1M9 1H4M9 1v5"/></svg>
+        </a>
+      </div>
+      <div class="card-body">
+        <p class="card-desc">Independent 3rd-party review of your emergency response and crisis management plans — aligned to ICAO Annex 19 principles. Designed to reduce friction and contain loss, ensuring your team is prepared and your plans will work.</p>
+        <ul class="card-bullets">
+          <li>ERP audit &amp; gap analysis (ICAO Annex 19–aligned), remediation roadmap, and vendor network mapping</li>
+          <li>ERP rewrite / enhancement: triggers, escalation ladders, notification templates, SITREP and incident log templates</li>
+          <li>Tabletop exercises (TTX) and scenario-based exercises testing first-hour actions, communications discipline, and stakeholder coordination</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ④ Speak to an Analyst — CENTERED ────────────────────── -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title-row">
+          <div class="card-ico">
+            <svg viewBox="0 0 24 24">
+              <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z"/>
+            </svg>
+          </div>
+          <h3 class="card-title">Speak to<br>an Analyst</h3>
+        </div>
+        <button class="chip chip-hi" onclick="openBooking()">
+          Book a Call
+          <svg viewBox="0 0 10 10"><path d="M1 9L9 1M9 1H4M9 1v5"/></svg>
+        </button>
+      </div>
+      <div class="card-body">
+        <p class="card-desc">Book a call to speak directly with one of our senior aviation risk analysts. <br>
+          Discuss a particular location, route, or emerging threat trend with an expert who knows the terrain.</p>
+      </div>
+    </div>
+
+    <!-- ⑤ Security & Logistics Support ─────────────────────── -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title-row">
+          <div class="card-ico">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+          </div>
+          <h3 class="card-title">Security &amp; Logistics<br>Support</h3>
+        </div>
+        <button class="chip" onclick="openLightbox('images/Stone Africa Map Page.png')">
+          Our Footprint
+          <svg viewBox="0 0 10 10"><path d="M1 9L9 1M9 1H4M9 1v5"/></svg>
+        </button>
+      </div>
+      <div class="card-body">
+        <p class="card-desc">Nairobi-based operations providing secure movement, duty of care, and coordinated support across Africa's most complex environments. Active presence in Kenya, South Sudan, Uganda, Tanzania, Mauritius, and the UAE — combining regional depth with international standards.</p>
+        <ul class="card-bullets">
+          <li>Protective Services: Team Leads, CPOs, vetted drivers, secure vehicles, and executive movement planning across all of Africa</li>
+          <li>Journey Management &amp; Security Coordination: vetted local support for logistics, verification, and on-ground facilitation</li>
+          <li>Duty of Care: remote personnel monitoring, real-time alerting, incident response, and 24/7 emergency line</li>
+          <li>Integrated Medical Support: MERP, 24/7 clinician access, medevac response management alongside partner Response Med</li>
+          <li>Embedded Support: full-time embedded security managers with full IOC systems and process support</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ⑥ Crisis Management — CENTERED ──────────────────────── -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title-row">
+          <div class="card-ico">
+            <svg viewBox="0 0 24 24">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+          </div>
+          <h3 class="card-title">Crisis<br>Management</h3>
+        </div>
+        <button class="chip chip-hi" onclick="openBooking()">
+          Book a Call
+          <svg viewBox="0 0 10 10"><path d="M1 9L9 1M9 1H4M9 1v5"/></svg>
+        </button>
+      </div>
+      <div class="card-body">
+        <p class="card-desc">Stone Africa's Integrated Operations Centre provides a best-in-class hub for crisis response management. <br>Air, land, systems, AI, and intelligence reporting desks co-located — enabling a single operating picture and the ability to scale rapidly. <br>Already 24/7, we work with your team in advance to build SOPs and defined roles that enable a handover or seamless integration alongside yours.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     CONTACT BAR
+     ══════════════════════════════════════════ -->
+<div class="contact-bar fade-up">
+  <span class="contact-bar-label">Get in Touch</span>
+
+  <div class="contact-bar-item">
+    <span class="cbi-label">Tel</span>
+    <a class="cbi-value" href="tel:+254116043568">+254 (0) 11 604 3568</a>
+  </div>
+
+  <div class="contact-bar-item">
+    <span class="cbi-label">Land Ops</span>
+    <a class="cbi-value" href="tel:+254207903866">+254 (0) 20 790 3866</a>
+  </div>
+
+  <div class="contact-bar-item">
+    <span class="cbi-label">Flight Ops</span>
+    <a class="cbi-value" href="tel:+254207903867">+254 (0) 20 790 3867</a>
+  </div>
+
+  <div class="contact-bar-item">
+    <span class="cbi-label">Email</span>
+    <a class="cbi-value" href="mailto:info@stone-africa.co">info@stone-africa.co</a>
+  </div>
+
+  <div class="contact-bar-location">
+    <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/></svg>
+    <span class="cbi-loc">Watermark Business Park, Annex B, Nairobi, Kenya</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     FOOTER
+     ══════════════════════════════════════════ -->
+<footer>
+  <img class="footer-logo" src="images/logo.png" alt="Stone Africa">
+  <p class="footer-ioc">24/7 Integrated Operations Centre · Nairobi, Kenya</p>
+  <span class="footer-grp">Part of the Alamaya Group</span>
+</footer>
+
+<!-- ══════════════════════════════════════════
+     SCRIPTS
+     ══════════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+  /* ── Loader dismiss (first load) ── */
+  window.addEventListener('load', () => {
+    setTimeout(() => document.getElementById('loader').classList.add('out'), 2900);
+  });
+
+  /* ── resetSplash — called by parent frame on every subsequent visit ──
+     The parent cover handles all visuals; this just silently resets page
+     state so the content is ready when the cover lifts at ~1.8s.          */
+  window.resetSplash = function() {
+    var loader        = document.getElementById('loader');
+    var loaderBg      = document.getElementById('loader-bg');
+    var loaderContent = document.querySelector('.loader-content');
+    var heroAbout     = document.querySelector('.hero-about');
+    var heroSide      = document.querySelector('.hero-side');
+
+    // Scroll to top
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+
+    // Reset hero sections to hidden
+    if (heroAbout) { heroAbout.style.transition = 'none'; heroAbout.style.opacity = '0'; heroAbout.style.animation = 'none'; }
+    if (heroSide)  { heroSide.style.transition  = 'none'; heroSide.style.opacity  = '0'; heroSide.style.animation  = 'none'; }
+
+    // Keep loader hidden — parent cover is driving visuals
+    // Reveal hero sections timed to when the parent cover lifts (~1.8s)
+    setTimeout(function() {
+      if (heroAbout) { heroAbout.style.transition = 'opacity 0.7s ease'; heroAbout.style.opacity = '1'; }
+      if (heroSide)  { heroSide.style.transition  = 'opacity 0.7s ease'; heroSide.style.opacity  = '1'; }
+    }, 1750);
+  };
+
+  /* ── Scroll animations ── */
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.card').forEach((c, i) => { c.style.transitionDelay = `${i * 0.07}s`; io.observe(c); });
+  document.querySelectorAll('.fade-up, .stat').forEach(el => io.observe(el));
+
+  /* ── Lightbox ── */
+  function openLightbox(src) {
+    document.getElementById('lb-img').src = src;
+    document.getElementById('lightbox').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeLightbox(); closeBooking(); } });
+
+  /* ── Booking modal ── */
+  function openBooking() {
+    document.getElementById('booking-modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    /* Initialise pickers lazily so Flatpickr is ready when modal opens */
+    if (!window._fpDate) {
+      window._fpDate = flatpickr('#f-date', {
+        minDate: 'today',
+        disableMobile: false,
+        dateFormat: 'd M Y',
+        locale: { firstDayOfWeek: 1 }
+      });
+      window._fpTime = flatpickr('#f-time', {
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: 'H:i',
+        time_24hr: true,
+        minuteIncrement: 30,
+        minTime: '07:00',
+        maxTime: '18:00'
+      });
+    }
+  }
+  function closeBooking() {
+    document.getElementById('booking-modal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  /* ── Form submission (Formspree) ── */
+  function handleSubmit(e) {
+    e.preventDefault();
+    const form = e.target;
+    const btn = form.querySelector('.form-submit');
+    btn.textContent = 'Sending…';
+    btn.disabled = true;
+
+    fetch(form.action, {
+      method: 'POST',
+      body: new FormData(form),
+      headers: { 'Accept': 'application/json' }
+    }).then(r => {
+      if (r.ok) {
+        btn.textContent = 'Request sent ✓';
+        form.reset();
+        setTimeout(closeBooking, 1800);
+      } else {
+        btn.textContent = 'Error — please try again';
+        btn.disabled = false;
+      }
+    }).catch(() => {
+      btn.textContent = 'Error — please try again';
+      btn.disabled = false;
+    });
+  }
+</script>
+
+</body>
+</html>

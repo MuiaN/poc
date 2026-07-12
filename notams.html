@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FAA NOTAMs</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@600;700&display=swap" rel="stylesheet">
+  <script src="theme.js"></script>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body { padding: 16px 20px 0; overflow-y: auto; height: 100vh; }
+
+    .notam-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    .col-loc    { width: 6%; }
+    .col-num    { width: 9%; }
+    .col-class  { width: 10%; }
+    .col-start  { width: 11%; }
+    .col-end    { width: 11%; }
+    .col-cond   { width: 53%; }
+
+    .notam-table thead th {
+      background: var(--bg-3);
+      color: var(--text-2);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-align: left;
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .notam-table thead th:last-child { border-right: none; }
+
+    .notam-table tbody tr:nth-child(odd)  { background: var(--bg-2); }
+    .notam-table tbody tr:nth-child(even) { background: var(--bg-3); }
+    .notam-table tbody tr.hidden { display: none; }
+    .notam-table tbody tr:hover { background: var(--bg-hover); }
+
+    .notam-table tbody td {
+      padding: 8px 10px;
+      vertical-align: top;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      font-size: 12.5px;
+      line-height: 1.45;
+      color: var(--text);
+    }
+    .notam-table tbody td:last-child { border-right: none; }
+
+    .cell-loc  { font-weight: 700; color: var(--text); }
+    .cell-num  { font-family: 'Courier New', monospace; font-size: 12px; color: var(--accent); }
+    .cell-date { font-size: 12px; white-space: pre-line; color: var(--text-2); }
+    .cell-cond { white-space: pre-wrap; color: var(--text); }
+
+    .badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600; white-space: nowrap; }
+    .badge-intl    { background: var(--accent-dim); color: var(--accent); }
+    .badge-mil     { background: var(--warn-dim);   color: var(--warn); }
+    .badge-trigger { background: rgba(124,58,237,.12); color: #a78bfa; }
+
+    .footer-bar { background: var(--bg-3); margin: 12px -20px 0; padding: 6px 20px; text-align: right; border-top: 1px solid var(--border); }
+    .footer-bar a { font-size: 12px; color: var(--text-2); text-decoration: none; font-style: italic; }
+    .footer-bar a:hover { color: var(--accent); }
+
+    .filter-btn.active-all  { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .filter-btn.active-intl { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .filter-btn.active-mil  { background: var(--warn);   border-color: var(--warn);   color: #0B0F1A; }
+  </style>
+</head>
+<body>
+
+  <div class="page-header">
+    <h1 class="page-title">NOTAMs</h1>
+    <div class="filter-group">
+      <span class="filter-label">Filter by Class:</span>
+      <button class="filter-btn active-all" onclick="filterClass('all', this)">
+        All <span class="filter-count" id="count-all"></span>
+      </button>
+      <button class="filter-btn" onclick="filterClass('international', this)">
+        International <span class="filter-count" id="count-intl"></span>
+      </button>
+      <button class="filter-btn" onclick="filterClass('military', this)">
+        Military <span class="filter-count" id="count-mil"></span>
+      </button>
+    </div>
+  </div>
+
+  <table class="notam-table">
+    <colgroup>
+      <col class="col-loc">
+      <col class="col-num">
+      <col class="col-class">
+      <col class="col-start">
+      <col class="col-end">
+      <col class="col-cond">
+    </colgroup>
+    <thead>
+      <tr>
+        <th>Location</th>
+        <th>NOTAM #</th>
+        <th>Class</th>
+        <th>Start Date UTC</th>
+        <th>End Date UTC</th>
+        <th>Condition</th>
+      </tr>
+    </thead>
+    <tbody>
+
+      <tr>
+        <td class="cell-loc">HKJK</td>
+        <td class="cell-num">A0063/26</td>
+        <td><span class="badge badge-intl">International</span></td>
+        <td class="cell-date">05/14/2026&#10;0001</td>
+        <td class="cell-date">05/27/2026 2359</td>
+        <td class="cell-cond">TRIGGER NOTAM - AIRAC AIP SUP 21/26 WEF 14 MAY 2026. JOMO KENYATTA INTERNATIONAL AIRPORT RADAR MINIMUM TERRAIN CLEARANCE CHART</td>
+      </tr>
+
+      <tr>
+        <td class="cell-loc">HDAM</td>
+        <td class="cell-num">M0037/26</td>
+        <td><span class="badge badge-mil">Military</span></td>
+        <td class="cell-date">05/09/2026&#10;1000</td>
+        <td class="cell-date">05/09/2026 1600</td>
+        <td class="cell-cond">AERODROME SINGLE MILITARY AIRCRAFT WILL BE PERFORMING MULTIPLE PASSES OF HIGH-ALTITUDE AIRDROPS AT KATHERINE DZ, LOCATED APPROXIMATELY DTI VOR R-101/005 DME AT N11-31.850 E043-10.723 FOR 5 NM RADIUS, SURFACE TO FL130. ALL TRAFFIC IS ADVISED TO AVOID THIS AIRSPACE FOR THE DURATION OF PLANNED ACTIVITY. COMMON TRAFFIC FREQUENCY 128.1 WILL BE MONITORED AT ALL TIMES BY PARTICIPATING AIRCRAFT.</td>
+      </tr>
+
+      <tr>
+        <td class="cell-loc">HUEN</td>
+        <td class="cell-num">A0056/26</td>
+        <td><span class="badge badge-intl">International</span></td>
+        <td class="cell-date">05/07/2026&#10;0000</td>
+        <td class="cell-date">05/10/2026 2359</td>
+        <td class="cell-cond">RWY 12/30 WIP REF: AIP UGANDA AD 2-HUEN-2-1(22 JAN 26)</td>
+      </tr>
+
+      <tr>
+        <td class="cell-loc">HKJK</td>
+        <td class="cell-num">A0082/26</td>
+        <td><span class="badge badge-intl">International</span></td>
+        <td class="cell-date">05/05/2026&#10;1300</td>
+        <td class="cell-date">05/19/2026 0800EST</td>
+        <td class="cell-cond">PRESENCE OF LOOSE DEBRIS BEHIND BAY F3.ALL ACFT PCD TO BAY F3-F9 TO SHUT DOWN ENGINES BEHIND BAY F2 FOR TOWING.ACFT PCD OUT OF BAY F3-F9 TO BE TOWED AND START ENGINES BEHIND BAY F2.</td>
+      </tr>
+
+      <tr>
+        <td class="cell-loc">HAAB</td>
+        <td class="cell-num">A0146/26</td>
+        <td><span class="badge badge-intl">International</span></td>
+        <td class="cell-date">05/05/2026&#10;0830</td>
+        <td class="cell-date">06/06/2026 0900</td>
+        <td class="cell-cond">AERODROME FUEL SERVICE LIMITATION:
+  1.SCHEDULED OPERATORS:REFUELING SERVICE IS AVAILABLE WITH
+  A MAXIMUM LIMIT OF 20,000 LITERS PER FLIGHT.
+  2.NON-SCHEDULED OPERATORS AND CHARTER FLIGHTS,JET FUEL IS NOT
+  AVAILABLE DURING THIS PERIOD.
+  ALL OPERATORS ARE ADVISED TO PLAN THEIR OPERATION</td>
+      </tr>
+
+      <tr>
+        <td class="cell-loc">HRYR</td>
+        <td class="cell-num">A0036/26</td>
+        <td><span class="badge badge-intl">International</span></td>
+        <td class="cell-date">05/03/2026&#10;0000</td>
+        <td class="cell-date">07/31/2026 1200EST</td>
+        <td class="cell-cond">MET RADIOSONDE BALLOON ASCENT WILL TAKE PLACE FM COORD 023541.316S 0294355.2E  ON A RADIUS OF 162NM
+PILOTS ARE ADVISED TO EXER CTN FLYING THIS AREA
+GND TO UNL.</td>
+      </tr>
+
+      <tr>
+        <td class="cell-loc">HTDA</td>
+        <td class="cell-num">A0089/26</td>
+        <td><span class="badge badge-intl">International</span></td>
+        <td class="cell-date">05/02/2026&#10;0400</td>
+        <td class="cell-date">08/02/2026 1500EST</td>
+        <td class="cell-cond">RWY 23 RESA GRADING WIP. PILOTS TO TAKE CTN DRG LDG/TKOF.</td>
+      </tr>
+
+      <tr>
+        <td class="cell-loc">HSSS</td>
+        <td class="cell-num">A0030/26</td>
+        <td><span class="badge badge-intl">International</span></td>
+        <td class="cell-date">05/01/2026&#10;0000</td>
+        <td class="cell-date">05/31/2026 2359</td>
+        <td class="cell-cond">DUE TO SECURITY REASONS NO AIR TFC CONTROL SVC  AVBL IN KHARTOUM FIR OVER SOUTH SUDAN ABOVE  FL245,CONTINGENCY ROUTING PROCEDURE WILL BE IN EFF IN ACCORDANCE WITH KHARTOUM FIR  CONTINGENCY PLAN AT HTTPS://WWW.ICAO.INT/MID/PAGES/FIR/KHARTOUM-FIR-CP.ASPX</td>
+      </tr>
+
+      <tr>
+        <td class="cell-loc">HDAM</td>
+        <td class="cell-num">M0034/26</td>
+        <td><span class="badge badge-mil">Military</span></td>
+        <td class="cell-date">04/29/2026&#10;0808</td>
+        <td class="cell-date">07/27/2026 2359</td>
+        <td class="cell-cond">AERODROME BASH BIRD WATCH CONDITION MODERATE FROM 29 APRIL TO 27 JULY 2026. BASH BHC MODERATE REPRESENTS HEAVIER THAN NORMAL MIGRATORY BIRD ACTIVITY. REMAIN VIGILANT FOR MIGRATORY BIRD ACTIVITY AND THE CURRENT BIRD WATCH CONDITION FOR FLIGHT RESTRICTIONS.</td>
+      </tr>
+
+      <tr>
+        <td class="cell-loc">HCMM</td>
+        <td class="cell-num">A0007/26</td>
+        <td><span class="badge badge-intl">International</span></td>
+        <td class="cell-date">02/05/2026&#10;0000</td>
+        <td class="cell-date">02/19/2026 2359EST</td>
+        <td class="cell-cond">TWY F CLSD FOR MAINT. NORTH RAMP ACCESS VIA TWY G.</td>
+      </tr>
+
+      <tr>
+        <td class="cell-loc">HRYR</td>
+        <td class="cell-num">V0410/25</td>
+        <td><span class="badge badge-mil">Military</span></td>
+        <td class="cell-date">07/02/2025&#10;1227</td>
+        <td class="cell-date">08/31/2026 2355</td>
+        <td class="cell-cond">[US DOD PROCEDURAL NOTAM] INSTRUMENT APPROACH PROCEDURE NOT AUTHORIZED ILS Z RWY 28 DUE TO NAME AND PROCEDURE CHANGES.</td>
+      </tr>
+
+      <tr>
+        <td class="cell-loc">HDAM</td>
+        <td class="cell-num">A0051/19</td>
+        <td><span class="badge badge-intl">International</span></td>
+        <td class="cell-date">03/10/2019&#10;0645</td>
+        <td class="cell-date">PERM</td>
+        <td class="cell-cond">DJIBOUTI AMBOULI INTERNATIONAL AIRPORT RNAV RWY 09/27
+PROCEDURES CALIBRATED AND OPERATIONAL.</td>
+      </tr>
+
+    </tbody>
+  </table>
+
+  <div class="footer-bar">
+    <a href="https://notams.aim.faa.gov/" target="_blank">notams.aim.faa.gov/</a>
+  </div>
+
+<script>
+  function filterClass(cls, btn) {
+    const rows = document.querySelectorAll('.notam-table tbody tr');
+
+    rows.forEach(row => {
+      const badge = row.querySelector('.badge');
+      const rowClass = badge ? badge.textContent.trim().toLowerCase() : '';
+      row.classList.toggle('hidden', cls !== 'all' && rowClass !== cls);
+    });
+
+    /* swap active state */
+    document.querySelectorAll('.filter-btn').forEach(b => {
+      b.classList.remove('active-all', 'active-intl', 'active-mil');
+    });
+    if (cls === 'all')           btn.classList.add('active-all');
+    if (cls === 'international') btn.classList.add('active-intl');
+    if (cls === 'military')      btn.classList.add('active-mil');
+  }
+
+  /* populate counts on load */
+  document.addEventListener('DOMContentLoaded', () => {
+    const rows = document.querySelectorAll('.notam-table tbody tr');
+    let intl = 0, mil = 0;
+    rows.forEach(row => {
+      const badge = row.querySelector('.badge');
+      if (!badge) return;
+      const cls = badge.textContent.trim().toLowerCase();
+      if (cls === 'international') intl++;
+      if (cls === 'military')      mil++;
+    });
+    document.getElementById('count-all').textContent  = intl + mil;
+    document.getElementById('count-intl').textContent = intl;
+    document.getElementById('count-mil').textContent  = mil;
+  });
+</script>
+</body>
+</html>

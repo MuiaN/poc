@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>South Sudan — Country Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="../theme.js"></script>
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-body); font-size: 12px; background: var(--bg); color: var(--text); }
+
+    /* ── HEADER ─────────────────────────────────── */
+    .page-header {
+      background: var(--bg-2);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 18px;
+    }
+    .header-title { color: var(--text); font-size: 16px; font-weight: 700; letter-spacing: 0.2px; }
+    .header-tz    { color: var(--accent); font-size: 13px; font-weight: 700; }
+
+    /* ── TAB BAR ─────────────────────────────────── */
+    .tab-bar { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--bg-3); border-bottom: 1px solid var(--border); }
+    .tab-btn {
+      padding: 10px 14px; text-align: center; font-size: 12px; font-weight: 600;
+      color: var(--text-2); background: var(--bg-3); border: none; cursor: pointer;
+      border-right: 1px solid var(--border); transition: background 0.15s, color 0.15s;
+      white-space: nowrap; font-family: var(--font-body);
+    }
+    .tab-btn:last-child { border-right: none; }
+    .tab-btn:hover { background: var(--bg-hover); color: var(--text); }
+    .tab-btn.t-overview { background: var(--accent); color: #fff; }
+    .tab-btn.t-threat   { background: var(--danger); color: #fff; }
+    .tab-btn.t-weather  { background: var(--warn); color: #0B0F1A; }
+    .tab-btn.t-history  { background: var(--bg-hover); color: var(--text); }
+
+    /* ── TAB PANELS ──────────────────────────────── */
+    .tab-panel { display: none; padding: 12px 14px 18px; }
+    .tab-panel.active { display: block; }
+
+    /* ── KPI STRIP ───────────────────────────────── */
+    .kpi-strip {
+      display: grid; grid-template-columns: repeat(5, 1fr);
+      border: 1px solid var(--border); margin-bottom: 12px; background: var(--bg-2);
+    }
+    .kpi-card { padding: 9px 13px; border-right: 1px solid var(--border); }
+    .kpi-card:last-child { border-right: none; }
+    .kpi-label { font-size: 9.5px; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 3px; }
+    .kpi-val   { font-size: 18px; font-weight: 700; line-height: 1.2; }
+    .kpi-sub   { font-size: 10px; color: var(--text-2); margin-top: 3px; line-height: 1.4; }
+    .c-orange  { color: var(--warn); }
+    .c-green   { color: var(--success); }
+    .c-navy    { color: var(--text); }
+    .c-red     { color: var(--danger); }
+    .c-amber   { color: var(--warn); }
+
+    /* ── THREE COL ───────────────────────────────── */
+    .three-col { display: grid; grid-template-columns: 27% 1fr 28%; gap: 12px; }
+    .two-col   { display: grid; grid-template-columns: 56% 1fr; gap: 12px; }
+
+    /* ── PANEL ───────────────────────────────────── */
+    .panel { background: var(--bg-2); border: 1px solid var(--border); }
+    .ph { padding: 6px 11px; font-size: 11.5px; font-weight: 700; border-bottom: 1px solid var(--border); }
+    .ph-blue   { background: var(--bg-3); color: var(--accent);   border-left: 3px solid var(--accent); }
+    .ph-navy   { background: var(--bg-3); color: var(--text);     border-left: 3px solid var(--text-2); }
+    .ph-maroon { background: rgba(239,68,68,0.08);  color: var(--danger);  border-left: 3px solid var(--danger); }
+    .ph-amber  { background: rgba(245,158,11,0.08); color: var(--warn);    border-left: 3px solid var(--warn); }
+    .ph-slate  { background: var(--bg-3); color: var(--text-2);   border-left: 3px solid var(--text-2); }
+    .ph-green  { background: rgba(16,185,129,0.08); color: var(--success); border-left: 3px solid var(--success); }
+    .ph-red    { background: rgba(239,68,68,0.08);  color: var(--danger);  border-left: 3px solid var(--danger); }
+    .pb { padding: 11px 12px; font-size: 11.5px; line-height: 1.58; color: var(--text); }
+    .pb p { margin-bottom: 8px; }
+    .pb p:last-child { margin-bottom: 0; }
+
+    /* ── DATA TABLE ──────────────────────────────── */
+    .dt { width: 100%; border-collapse: collapse; font-size: 11px; }
+    .dt thead th {
+      background: var(--bg-3); padding: 5px 8px; text-align: left;
+      font-weight: 700; border-bottom: 2px solid var(--border);
+      white-space: nowrap; color: var(--text-2);
+    }
+    .dt tbody tr:nth-child(even) { background: var(--bg-3); }
+    .dt tbody tr:hover { background: var(--bg-hover); }
+    .dt tbody td { padding: 5px 8px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.45; color: var(--text); }
+    .dt-sm td { font-size: 10.5px; }
+    .dt tbody td.note { font-size: 10.5px; color: var(--text-2); }
+
+    /* ── RISK BADGES ─────────────────────────────── */
+    .risk { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 2px; white-space: nowrap; }
+    .r-low      { background: rgba(16,185,129,0.15);  color: var(--success); }
+    .r-mod      { background: rgba(245,158,11,0.15);  color: var(--warn); }
+    .r-mod-el   { background: rgba(249,115,22,0.15);  color: #f97316; font-style: italic; }
+    .r-el       { background: rgba(239,68,68,0.12);   color: #f97316; }
+    .r-high     { background: var(--danger);           color: #fff; }
+    .r-seasonal { background: rgba(139,92,246,0.15);  color: #a78bfa; }
+    .r-monitor  { background: var(--accent-dim);       color: var(--accent); }
+
+    /* ── KV ROWS ─────────────────────────────────── */
+    .kv { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid var(--border); font-size: 11px; gap: 6px; align-items: flex-start; }
+    .kv:last-child { border-bottom: none; }
+    .kv-k { color: var(--text-2); flex-shrink: 0; }
+    .kv-v { text-align: right; font-weight: 600; color: var(--text); font-size: 10.5px; }
+    .kv-v.blue  { color: var(--accent); }
+    .kv-v.red   { color: var(--danger); }
+    .kv-v.green { color: var(--success); font-weight: 700; }
+    .kv-v.amber { color: var(--warn); }
+
+    /* ── THREAT CARDS ────────────────────────────── */
+    .threat-card { border: 1px solid var(--border); margin-bottom: 10px; }
+    .threat-card:last-child { margin-bottom: 0; }
+    .tc-head { display: flex; align-items: center; gap: 10px; padding: 7px 11px; border-bottom: 1px solid var(--border); }
+    .tc-badge { display: inline-block; font-size: 9.5px; font-weight: 800; padding: 2px 8px; border-radius: 2px; white-space: nowrap; letter-spacing: 0.5px; }
+    .tc-high  { background: var(--danger);  color: #fff; }
+    .tc-mod   { background: var(--warn);    color: #0B0F1A; }
+    .tc-watch { background: var(--success); color: #0B0F1A; }
+    .tc-title { font-size: 12px; font-weight: 700; color: var(--text); }
+    .tc-body  { padding: 9px 11px; font-size: 11px; line-height: 1.55; color: var(--text); }
+    .tc-body p { margin-bottom: 5px; }
+    .tc-body p:last-child { margin-bottom: 0; }
+    .tc-italic { font-style: italic; color: var(--text-2); margin-top: 6px; }
+    .tc-border-high  { border-left: 3px solid var(--danger); }
+    .tc-border-mod   { border-left: 3px solid var(--warn); }
+    .tc-border-watch { border-left: 3px solid var(--success); }
+
+    /* ── SEASONAL CARDS ──────────────────────────── */
+    .season-card { display: flex; border: 1px solid var(--border); background: var(--bg-2); margin-bottom: 8px; }
+    .season-card:last-child { margin-bottom: 0; }
+    .season-label { width: 58px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 8px 6px; font-size: 10px; font-weight: 700; text-align: center; }
+    .s-active { background: var(--warn);   color: #0B0F1A; }
+    .s-dry    { background: var(--accent); color: #fff; }
+    .s-short  { background: #475569;       color: #fff; }
+    .season-label .s-date  { font-size: 11px; font-weight: 800; line-height: 1.3; }
+    .season-label .s-badge { font-size: 8px; background: rgba(255,255,255,0.25); border-radius: 2px; padding: 1px 4px; margin-top: 3px; }
+    .season-body { padding: 9px 11px; font-size: 11px; line-height: 1.5; color: var(--text-2); }
+    .season-name { font-weight: 700; font-size: 11.5px; color: var(--text); margin-bottom: 4px; }
+
+    /* ── WEATHER TABLE ───────────────────────────── */
+    .wx-section { margin-bottom: 10px; }
+    .wx-head { font-size: 10.5px; font-weight: 700; color: var(--text-2); background: var(--bg-3); padding: 4px 10px; }
+    .wx-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 10px; border-bottom: 1px solid var(--border); font-size: 11px; }
+    .wx-row:last-child { border-bottom: none; }
+    .wx-key { color: var(--text-2); }
+    .wx-val { font-weight: 600; color: var(--text); }
+    .wx-val.elevated   { color: var(--danger); }
+    .wx-val.possible   { color: var(--warn); }
+    .wx-val.active     { color: var(--warn); }
+    .wx-val.soft       { color: var(--warn); }
+    .wx-val.normal     { color: var(--success); }
+    .wx-val.full       { color: var(--success); }
+    .wx-val.high       { color: var(--danger); font-weight: 800; }
+    .wx-val.inter      { color: var(--warn); }
+    .wx-val.moderate-c { color: var(--warn); }
+
+    .key-event { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); padding: 8px 11px; margin: 8px 0; font-size: 11px; line-height: 1.5; color: var(--text); }
+    .key-event-title { font-weight: 800; font-size: 11px; color: var(--danger); margin-bottom: 3px; }
+
+    .airport-adv { border: 1px solid var(--border); background: var(--bg-2); margin-bottom: 6px; }
+    .airport-adv:last-child { margin-bottom: 0; }
+    .adv-head { background: var(--bg-3); padding: 5px 10px; font-size: 11px; font-weight: 700; color: var(--text); border-bottom: 1px solid var(--border); }
+    .adv-body { padding: 7px 10px; font-size: 11px; color: var(--text-2); line-height: 1.5; }
+
+    /* ── MONTHLY RISK TABLE ──────────────────────── */
+    .month-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 2px; margin-bottom: 2px; }
+    .mg-cell { text-align: center; font-size: 9px; font-weight: 700; padding: 3px 1px; }
+    .mg-hdr  { background: var(--bg-3); color: var(--text-2); }
+    .mg-1    { background: rgba(16,185,129,0.2);  color: var(--success); }
+    .mg-2    { background: rgba(245,158,11,0.2);  color: var(--warn); }
+    .mg-3    { background: rgba(249,115,22,0.2);  color: #f97316; }
+    .mg-4    { background: rgba(239,68,68,0.15);  color: var(--danger); }
+    .mg-5    { background: var(--danger);          color: #fff; }
+
+    /* ── WEATHER EVENTS ──────────────────────────── */
+    .wx-event { display: flex; align-items: flex-start; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 11px; }
+    .wx-event:last-child { border-bottom: none; }
+    .wx-event-date { flex-shrink: 0; font-size: 10px; color: var(--text-2); width: 68px; }
+    .wx-event-text { color: var(--text); line-height: 1.45; }
+
+    /* ── INCIDENT TABLE ──────────────────────────── */
+    .sev-fatal   { color: var(--danger);  font-weight: 800; }
+    .sev-serious { color: var(--warn);    font-weight: 700; }
+    .sev-minor   { color: var(--accent);  font-weight: 600; }
+    .src-badge { display: inline-block; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 2px; }
+    .src-open  { background: var(--bg-3);         color: var(--text-2); }
+    .src-avh   { background: var(--accent-dim);   color: var(--accent); }
+    .src-asn   { background: var(--success-dim);  color: var(--success); }
+
+    /* ── BIRD STRIKE HOTSPOTS ────────────────────── */
+    .bs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .bs-card { border: 1px solid var(--border); background: var(--bg-2); padding: 9px 11px; }
+    .bs-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; gap: 6px; }
+    .bs-loc  { font-size: 11px; font-weight: 700; color: var(--text); }
+    .bs-species { font-size: 10px; color: var(--text-2); font-style: italic; margin-bottom: 4px; }
+    .bs-note { font-size: 10.5px; color: var(--text-2); line-height: 1.45; }
+    .bs-5    { grid-column: 1 / -1; }
+
+    /* ── CHART CONTAINERS ─────────────────────────── */
+    .chart-title { font-size: 10.5px; font-weight: 700; color: var(--text); margin-bottom: 6px; text-align: center; }
+    .chart-sub   { font-size: 9px; color: var(--text-2); text-align: center; margin-bottom: 4px; }
+    .charts-row  { display: flex; gap: 12px; align-items: flex-start; }
+    .chart-half  { flex: 1; }
+    .log-src { font-size: 10px; font-weight: 600; color: var(--text-2); font-style: italic; margin-bottom: 2px; }
+
+    /* SVG axis / label text */
+    .pb svg text, .panel svg text { fill: #94A3B8; }
+  </style>
+</head>
+<body>
+
+<!-- ── PAGE HEADER ─────────────────────────────────────────────── -->
+<div class="page-header">
+  <span class="header-title">South Sudan &mdash; Country Profile</span>
+  <span class="header-tz">GMT+3</span>
+</div>
+
+<!-- ── TAB BAR ────────────────────────────────────────────────── -->
+<div class="tab-bar">
+  <button class="tab-btn t-overview" data-tab="overview" onclick="switchTab(this)">Country Overview</button>
+  <button class="tab-btn" data-tab="threat"   onclick="switchTab(this)">Threat Profile</button>
+  <button class="tab-btn" data-tab="weather"  onclick="switchTab(this)">Weather Trends &amp; Patterns</button>
+  <button class="tab-btn" data-tab="history"  onclick="switchTab(this)">Historical Aviation Data</button>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     TAB 1 · COUNTRY OVERVIEW
+════════════════════════════════════════════════════════════ -->
+<div class="tab-panel active" id="panel-overview">
+
+  <!-- KPI Strip -->
+  <div class="kpi-strip">
+    <div class="kpi-card">
+      <div class="kpi-label">Hull risk rating</div>
+      <div class="kpi-val c-red">High</div>
+      <div class="kpi-sub">Conflict damage &middot; degraded infra</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">War risk (aviation)</div>
+      <div class="kpi-val c-red">High</div>
+      <div class="kpi-sub">Armed factions active &middot; MANPADS exposure &middot; all ops</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Terrorism exposure</div>
+      <div class="kpi-val c-red">High</div>
+      <div class="kpi-sub">Inter-ethnic militia &middot; LRA legacy &middot; armed escorts req.</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Airspace status</div>
+      <div class="kpi-val c-orange">Degraded</div>
+      <div class="kpi-sub">HSSJ FIR &middot; limited radar &middot; ATC unreliable after dark</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Regulatory standing</div>
+      <div class="kpi-val c-red">Non-compliant</div>
+      <div class="kpi-sub">EU blacklist &middot; SSCA severely under-resourced</div>
+    </div>
+  </div>
+
+  <!-- 3-column body -->
+  <div class="three-col">
+
+    <!-- LEFT: Aviation System Overview -->
+    <div class="panel">
+      <div class="ph ph-blue">Aviation System Overview</div>
+      <div class="pb">
+        <p>South Sudan's aviation system is defined almost entirely by humanitarian and NGO operations. The country gained independence in 2011 but descended into civil war in December 2013. A fragile peace agreement signed in 2018 has not produced durable stability, and aviation infrastructure remains severely degraded by years of conflict, extreme underfunding, and near-total absence of commercial investment.</p>
+        <p>Juba International Airport (HSSJ) is the only airport in the country with paved runways and functional IFR instrumentation. It sits at 457m ASL and handles the entirety of South Sudan's commercial and humanitarian air traffic. The airport is operated jointly by civilian and military authorities and has sustained periodic damage from conflict activity. Ground services are extremely limited — fuel availability must be pre-confirmed, and handling capacity can be overwhelmed during UN or NGO surge operations.</p>
+        <p>Beyond Juba, the country has approximately 80 registered airstrips of varying serviceability. Malakal (HSSM), Wau (HSWW), Bentiu (HSNB), Bor (HSBO), and Rumbek (HSMK) handle WFP and UN Mission in South Sudan (UNMISS) airbridge traffic. Most are unpaved, subject to seasonal flooding, and lack any ground emergency services. Serviceability of these strips is highly time-sensitive and must be confirmed within 24–48 hours of planned operations.</p>
+        <p>The Nile basin location of Juba creates persistent crosswind and windshear exposure on approach to Runway 03/21, particularly during afternoon convective activity. Armed escort is mandatory for all crew and passenger ground movements outside the airport perimeter. Pre-arrangement of all services — fuel, handling, security — is required a minimum of 48 hours in advance.</p>
+      </div>
+    </div>
+
+    <!-- CENTRE: Hull Risk & War Risk by location -->
+    <div class="panel">
+      <div class="ph ph-navy">Hull Risk &amp; War Risk &ndash; by location</div>
+      <table class="dt">
+        <thead>
+          <tr>
+            <th style="width:24%">Location</th>
+            <th style="width:14%">Hull risk</th>
+            <th style="width:13%">War risk</th>
+            <th>Note</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>HSSJ &mdash; Juba Intl</td>
+            <td><span class="risk r-high">High</span></td>
+            <td><span class="risk r-high">High</span></td>
+            <td class="note">Military co-located &middot; armed factions proximity &middot; limited RFFS &middot; perimeter incidents</td>
+          </tr>
+          <tr>
+            <td>HSSM &mdash; Malakal</td>
+            <td><span class="risk r-high">High</span></td>
+            <td><span class="risk r-high">High</span></td>
+            <td class="note">Former frontline &middot; active UNMISS &middot; unpaved &middot; no services</td>
+          </tr>
+          <tr>
+            <td>HSWW &mdash; Wau</td>
+            <td><span class="risk r-high">High</span></td>
+            <td><span class="risk r-high">High</span></td>
+            <td class="note">Intercommunal conflict &middot; UN-only ops recommended</td>
+          </tr>
+          <tr>
+            <td>HSNB &mdash; Bentiu</td>
+            <td><span class="risk r-high">High</span></td>
+            <td><span class="risk r-high">High</span></td>
+            <td class="note">Unity State conflict zone &middot; IDP camp adjacent &middot; seasonal flooding</td>
+          </tr>
+          <tr>
+            <td>HSBO &mdash; Bor</td>
+            <td><span class="risk r-high">High</span></td>
+            <td><span class="risk r-high">High</span></td>
+            <td class="note">Jonglei State &middot; heavily conflict-affected &middot; SPLA proximity</td>
+          </tr>
+          <tr>
+            <td>HSMK &mdash; Rumbek</td>
+            <td><span class="risk r-el">Elevated</span></td>
+            <td><span class="risk r-high">High</span></td>
+            <td class="note">Lakes State intercommunal violence &middot; grass strip &middot; WFP ops only</td>
+          </tr>
+          <tr>
+            <td>Remote humanitarian strips</td>
+            <td><span class="risk r-high">High</span></td>
+            <td><span class="risk r-high">High</span></td>
+            <td class="note">No RFFS &middot; unverified serviceability &middot; armed group proximity</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- RIGHT: Regulatory Status & Compliance -->
+    <div class="panel">
+      <div class="ph ph-slate">Regulatory Status &amp; Compliance</div>
+      <div class="pb" style="padding:9px 11px;">
+        <div class="kv"><span class="kv-k">Civil authority</span><span class="kv-v blue">South Sudan Civil Aviation Authority (SSCA)</span></div>
+        <div class="kv"><span class="kv-k">SSCA capacity</span><span class="kv-v red">Severely under-resourced &mdash; limited enforcement</span></div>
+        <div class="kv"><span class="kv-k">ICAO AVSEC</span><span class="kv-v red">Significant Concerns &mdash; active Notice of Concern</span></div>
+        <div class="kv"><span class="kv-k">EU Air Safety List</span><span class="kv-v red">All SS carriers banned &mdash; on blacklist</span></div>
+        <div class="kv"><span class="kv-k">IATA IOSA</span><span class="kv-v">No SS carrier certified</span></div>
+        <div class="kv"><span class="kv-k">TSA OSS</span><span class="kv-v red">Not participated</span></div>
+        <div class="kv"><span class="kv-k">RFFS &mdash; HSSJ</span><span class="kv-v amber">CAT 5&ndash;6 &mdash; well below CAT 9 requirement</span></div>
+        <div class="kv"><span class="kv-k">ATC coverage</span><span class="kv-v amber">VHF only &middot; no radar &middot; unreliable after 2200L</span></div>
+        <div class="kv"><span class="kv-k">Fuel availability</span><span class="kv-v red">Pre-confirm 48hrs &mdash; periodic shortages documented</span></div>
+        <div class="kv"><span class="kv-k">Ground handling</span><span class="kv-v">NASAG &middot; WFP logistics &middot; UNMISS support</span></div>
+        <div class="kv"><span class="kv-k">Overflight permits</span><span class="kv-v amber">HSSJ FIR &mdash; notify SSCA 24hrs minimum</span></div>
+        <div class="kv"><span class="kv-k">Armed escort</span><span class="kv-v red">Mandatory for all ground movement outside airside</span></div>
+        <div class="kv"><span class="kv-k">Pre-mission lead time</span><span class="kv-v red">Minimum 48hrs all services &mdash; 72hrs recommended</span></div>
+      </div>
+    </div>
+
+  </div><!-- .three-col -->
+</div><!-- #panel-overview -->
+
+
+<!-- ════════════════════════════════════════════════════════════
+     TAB 2 · THREAT PROFILE
+════════════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="panel-threat">
+  <div class="three-col">
+
+    <!-- LEFT: Top-Line Security Assessment -->
+    <div class="panel">
+      <div class="ph ph-maroon">Top-Line Security Assessment</div>
+      <div class="pb">
+        <p>South Sudan represents one of the highest-risk operating environments in sub-Saharan Africa. The security environment is characterised by multiple armed factions, persistent intercommunal violence, a legacy of civil war infrastructure destruction, and an absence of effective state authority outside Juba. Aviation assets are neither targeted nor protected in any systematic way — they operate in and around an active conflict zone.</p>
+        <p>MANPADS weapons captured from SPLA and opposition forces during the 2013–2018 civil war remain unaccounted for. The threat of missile attack on aircraft — particularly on departure and approach at HSSJ — is a credible and documented concern that underpins war risk loadings across the country. No confirmed MANPADS attack on a civil aircraft has occurred, but documented military use of the weapons against aircraft during intra-government clashes is on record.</p>
+        <p>Intercommunal violence is geographically pervasive across all ten states, driven by cattle raiding, land disputes, and political manipulation of ethnic grievances. The armed groups involved are not structured terrorist organisations but are capable of firing on aircraft perceived as belonging to a rival faction or government force. This has occurred at multiple locations including Malakal, Bor, and Wau.</p>
+        <p>Armed escorts are mandatory for all personnel movements outside the airport boundary. This is not a precautionary recommendation — it reflects the actual ground threat level in and around all populated centres including Juba. Operations after 1800 local are strongly discouraged at all locations outside HSSJ.</p>
+      </div>
+    </div>
+
+    <!-- CENTRE: Active Threat Vectors -->
+    <div class="panel">
+      <div class="ph ph-red">Active Threat Vectors</div>
+      <div class="pb">
+
+        <div class="threat-card tc-border-high">
+          <div class="tc-head">
+            <span class="tc-badge tc-high">HIGH</span>
+            <span class="tc-title">MANPADS &amp; small arms &nbsp;&middot;&nbsp; Nationwide</span>
+          </div>
+          <div class="tc-body">
+            <p>Unaccounted MANPADS inventory from 2013&ndash;2018 civil war. Multiple armed factions hold IGLA/SA-7 class weapons. Aircraft on approach and departure from HSSJ, Malakal, Bor, and Wau are within threat envelope. No confirmed civil aircraft strike since 2018 ceasefire, but military aircraft fired on documented in conflict period.</p>
+            <p class="tc-italic">Aviation exposure: all civil and humanitarian aircraft on approach/departure to all South Sudan airports. War risk loadings fully justified. No safe operating altitude corridor below FL100 over contested territory.</p>
+          </div>
+        </div>
+
+        <div class="threat-card tc-border-high">
+          <div class="tc-head">
+            <span class="tc-badge tc-high">HIGH</span>
+            <span class="tc-title">Intercommunal armed violence &nbsp;&middot;&nbsp; All states</span>
+          </div>
+          <div class="tc-body">
+            <p>Cattle raiding, ethnic conflict, and political militia activity documented in all ten states. SPLA-IO splinter factions active in Equatoria region. LRA legacy presence in Western Equatoria. Jonglei and Unity States remain most active. Armed groups have fired on both military and civilian aircraft in prior incidents at Malakal and Bor.</p>
+            <p class="tc-italic">Aviation exposure: low-level and approach flight paths over armed group territory; ground operations at remote airstrips without perimeter security; helicopter operations in particular.</p>
+          </div>
+        </div>
+
+        <div class="threat-card tc-border-mod">
+          <div class="tc-head">
+            <span class="tc-badge tc-mod">MODERATE</span>
+            <span class="tc-title">Infrastructure failure &nbsp;&middot;&nbsp; HSSJ and upcountry</span>
+          </div>
+          <div class="tc-body">
+            <p>ATC communications unreliable after 2200L at HSSJ. Navigation aids subject to power outages. Fuel supply chains disrupted by poor road infrastructure and periodic armed theft of fuel convoys. Remote airstrip surfaces are often degraded by seasonal flooding with no systematic maintenance regime. Emergency response capability at HSSJ is well below ICAO Annex 14 standards.</p>
+            <p class="tc-italic">Aviation exposure: night operations inadvisable; IFR operations unreliable; fuel planning must include full mission reserves with no expectation of uplifting fuel at destination.</p>
+          </div>
+        </div>
+
+        <div class="threat-card tc-border-mod">
+          <div class="tc-head">
+            <span class="tc-badge tc-mod">MODERATE</span>
+            <span class="tc-title">Political instability &nbsp;&middot;&nbsp; Juba-centric</span>
+          </div>
+          <div class="tc-body">
+            <p>Revitalised Agreement on Resolution of the Conflict in South Sudan (R-ARCSS) remains fragile. Unification of armed forces incomplete. Upcoming elections repeatedly delayed. Political tension has previously produced sudden closures of airspace and airport access checkpoints. Airport authority structure is subject to inter-agency disputes between SSCA, military, and NSS (National Security Service).</p>
+            <p class="tc-italic">Aviation exposure: unpredictable airport access — checkpoint harassment documented; aircraft on ground subject to inspection by multiple agencies; departure clearances can be withheld without notice.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- RIGHT: Exposure & Flags -->
+    <div class="panel">
+      <div class="ph ph-amber">Exposure &amp; Flags</div>
+      <table class="dt dt-sm">
+        <thead>
+          <tr><th>Exposure</th><th>Risk</th><th style="width:48%">Note</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>War risk — HSSJ</td><td><span class="risk r-high">High</span></td><td class="note">Active war risk loading required &middot; MANPADS exposure &middot; armed factions</td></tr>
+          <tr><td>War risk — upcountry</td><td><span class="risk r-high">High</span></td><td class="note">Malakal / Bor / Wau — combat zone proximity &middot; no safe altitude</td></tr>
+          <tr><td>Hull — HSSJ</td><td><span class="risk r-high">High</span></td><td class="note">Aircraft on apron subject to perimeter incursion &middot; military proximity &middot; limited RFFS</td></tr>
+          <tr><td>Hull — remote strips</td><td><span class="risk r-high">High</span></td><td class="note">No RFFS &middot; no maintenance &middot; surface uncertainty &middot; armed group proximity</td></tr>
+          <tr><td>Ground transit — all</td><td><span class="risk r-high">High</span></td><td class="note">Armed escort mandatory &middot; checkpoint harassment &middot; carjacking risk</td></tr>
+          <tr><td>Night ops — HSSJ</td><td><span class="risk r-high">High</span></td><td class="note">ATC unreliable after 2200L &middot; RFFS degraded &middot; security incidents concentrated</td></tr>
+          <tr><td>Night ops — upcountry</td><td><span class="risk r-high">High</span></td><td class="note">Strongly discouraged &mdash; all upcountry locations &middot; no nav lighting</td></tr>
+          <tr><td>Fuel availability</td><td><span class="risk r-high">High</span></td><td class="note">Pre-confirm 48hrs &middot; carry full mission reserves plus contingency</td></tr>
+          <tr><td>ATC coverage</td><td><span class="risk r-el">Elevated</span></td><td class="note">VHF-only &middot; no radar &middot; non-standard phraseology common</td></tr>
+          <tr><td>Airstrip serviceability</td><td><span class="risk r-high">High</span></td><td class="note">Seasonal flooding &middot; no maintenance reporting &middot; verify 24hrs prior</td></tr>
+          <tr><td>Crew welfare</td><td><span class="risk r-high">High</span></td><td class="note">Medical evacuation planning mandatory &middot; no reliable hospital in Juba</td></tr>
+          <tr><td>Cargo theft</td><td><span class="risk r-el">Elevated</span></td><td class="note">Humanitarian cargo targeted &middot; fuel diversion documented</td></tr>
+          <tr><td>Permit/clearance</td><td><span class="risk r-el">Elevated</span></td><td class="note">Permits withheld without notice &middot; NSS inspection risk &middot; use local handler</td></tr>
+          <tr><td>Liability — weather</td><td><span class="risk r-seasonal">Seasonal</span></td><td class="note">Apr&ndash;Oct wet season &mdash; airstrip flooding compound risk</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div><!-- #panel-threat -->
+
+
+<!-- ════════════════════════════════════════════════════════════
+     TAB 3 · WEATHER TRENDS & PATTERNS
+════════════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="panel-weather">
+  <div class="three-col">
+
+    <!-- LEFT: Seasonal Calendar -->
+    <div class="panel">
+      <div class="ph ph-amber">Seasonal Calendar &mdash; South Sudan Single Wet Season</div>
+      <div class="pb" style="padding:10px;">
+
+        <div class="season-card">
+          <div class="season-label s-dry">
+            <span class="s-date">Dec &ndash; Mar</span>
+          </div>
+          <div class="season-body">
+            <div class="season-name">Dry season &middot; Optimal operational period</div>
+            Harmattan influence from north reduces humidity and convective activity. HSSJ visibility excellent. Remote airstrips generally dry and serviceable. Dust haze occasional Dec&ndash;Jan, reducing visibility to 3,000&ndash;5,000m on worst days but rarely operationally limiting. Best period for upcountry strip operations. Grass airstrips firm.
+          </div>
+        </div>
+
+        <div class="season-card">
+          <div class="season-label s-active">
+            <span class="s-date">Apr &ndash; May</span>
+            <span class="s-badge">TRANSITION</span>
+          </div>
+          <div class="season-body">
+            <div class="season-name">Onset of rains &middot; Increasing convective risk</div>
+            ITCZ advances northward. Isolated heavy thunderstorms begin appearing, particularly afternoons. Nile corridor crosswinds intensify. Remote strips beginning to soften. Pre-flight serviceability checks for upcountry destinations become critical from April onwards.
+          </div>
+        </div>
+
+        <div class="season-card">
+          <div class="season-label s-active">
+            <span class="s-date">Jun &ndash; Oct</span>
+            <span class="s-badge">HIGH RISK</span>
+          </div>
+          <div class="season-body">
+            <div class="season-name">Wet season &middot; Severe operational disruption</div>
+            South Sudan's single extended wet season drives widespread flooding. Sudd wetland expands dramatically. Remote airstrips in Upper Nile, Unity, and Jonglei states become waterlogged and impassable for weeks at a time. Juba less affected but afternoon CB activity requires flexible departure planning. LLWS on Rwy 03/21 approach during squall line passage. Visibility frequently below 1,500m in heavy rain. WFP and UNMISS airlift operations operating at surge capacity.
+          </div>
+        </div>
+
+        <div class="season-card">
+          <div class="season-label s-short">
+            <span class="s-date">Nov &ndash; Dec</span>
+          </div>
+          <div class="season-body">
+            <div class="season-name">Late rains / Early dry &middot; Gradual improvement</div>
+            Convective activity diminishing but residual flooding persists in low-lying areas. Sudd drainage takes 4&ndash;6 weeks after last rains. Airstrip serviceability improving but still requires individual pre-confirmation. Dust haze begins returning Nov from the Sahel.
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CENTRE: Airport Weather Detail & SVG Chart -->
+    <div class="panel">
+      <div class="ph ph-navy">HSSJ &mdash; Juba International &middot; Weather Profile</div>
+      <div class="pb">
+
+        <div class="wx-section">
+          <div class="wx-head">General parameters</div>
+          <div class="wx-row"><span class="wx-key">Elevation</span><span class="wx-val">457m (1,499ft) ASL</span></div>
+          <div class="wx-row"><span class="wx-key">Runway orientation</span><span class="wx-val">03/21 &mdash; crosswind from Nile basin</span></div>
+          <div class="wx-row"><span class="wx-key">Peak convective hours</span><span class="wx-val active">1300&ndash;1800L Apr&ndash;Oct</span></div>
+          <div class="wx-row"><span class="wx-key">Harmattan period</span><span class="wx-val">Dec&ndash;Feb &mdash; dust haze possible</span></div>
+          <div class="wx-row"><span class="wx-key">Fog/mist incidence</span><span class="wx-val normal">Rare &mdash; not operationally significant</span></div>
+          <div class="wx-row"><span class="wx-key">Crosswind on Rwy 03/21</span><span class="wx-val active">SE trades 15&ndash;22kt wet season &middot; gusts to 35kt squall lines</span></div>
+          <div class="wx-row"><span class="wx-key">LLWS risk</span><span class="wx-val elevated">Moderate &mdash; squall line passage on approach</span></div>
+          <div class="wx-row"><span class="wx-key">Density altitude</span><span class="wx-val normal">Low concern &mdash; 457m &middot; high humidity offset minor</span></div>
+        </div>
+
+        <div class="wx-section">
+          <div class="wx-head">Critical seasonal hazards</div>
+          <div class="wx-row"><span class="wx-key">Jun&ndash;Sep flood risk</span><span class="wx-val high">Severe — Sudd expansion &middot; strip closures</span></div>
+          <div class="wx-row"><span class="wx-key">Afternoon CB — Jun&ndash;Sep</span><span class="wx-val elevated">CB tops to FL400+ &middot; embedded hail &middot; turbulence</span></div>
+          <div class="wx-row"><span class="wx-key">Squall line LLWS</span><span class="wx-val elevated">Up to 25kt windshear on short final &mdash; Jun&ndash;Sep</span></div>
+          <div class="wx-row"><span class="wx-key">Dust visibility — Dec</span><span class="wx-val soft">3,000&ndash;5,000m &middot; monitor AM METARs</span></div>
+          <div class="wx-row"><span class="wx-key">Upcountry strip flooding</span><span class="wx-val high">Jul&ndash;Sep &mdash; 40&ndash;60% of strips effectively closed</span></div>
+        </div>
+
+        <div class="chart-title" style="margin-top:10px;">Monthly Operational Risk Index &mdash; HSSJ</div>
+        <div class="chart-sub">Combined security + weather + infrastructure risk score</div>
+        <svg viewBox="0 0 275 195" style="width:100%;display:block;">
+          <text x="4" y="13" font-size="9">Risk</text>
+          <text x="4" y="41" font-size="9">5</text>
+          <text x="4" y="69" font-size="9">4</text>
+          <text x="4" y="97" font-size="9">3</text>
+          <text x="4" y="125" font-size="9">2</text>
+          <text x="4" y="153" font-size="9">1</text>
+          <!-- baseline y=150, h=value*28, y=150-h -->
+          <!-- Jan=3 h=84 y=66 -->
+          <rect x="20"  y="66"  width="17" height="84"  fill="#f97316"/>
+          <!-- Feb=3 -->
+          <rect x="40"  y="66"  width="17" height="84"  fill="#f97316"/>
+          <!-- Mar=3 -->
+          <rect x="60"  y="66"  width="17" height="84"  fill="#f97316"/>
+          <!-- Apr=4 h=112 y=38 -->
+          <rect x="80"  y="38"  width="17" height="112" fill="#ef4444"/>
+          <!-- May=4 -->
+          <rect x="100" y="38"  width="17" height="112" fill="#ef4444"/>
+          <!-- Jun=5 h=140 y=10 -->
+          <rect x="120" y="10"  width="17" height="140" fill="#ef4444" opacity="0.85"/>
+          <!-- Jul=5 -->
+          <rect x="140" y="10"  width="17" height="140" fill="#ef4444" opacity="0.85"/>
+          <!-- Aug=5 -->
+          <rect x="160" y="10"  width="17" height="140" fill="#ef4444" opacity="0.85"/>
+          <!-- Sep=4 -->
+          <rect x="180" y="38"  width="17" height="112" fill="#ef4444"/>
+          <!-- Oct=4 -->
+          <rect x="200" y="38"  width="17" height="112" fill="#ef4444"/>
+          <!-- Nov=3 -->
+          <rect x="220" y="66"  width="17" height="84"  fill="#f97316"/>
+          <!-- Dec=3 -->
+          <rect x="240" y="66"  width="17" height="84"  fill="#f97316"/>
+          <!-- month labels -->
+          <text x="21"  y="162" font-size="8">J</text><text x="41"  y="162" font-size="8">F</text>
+          <text x="61"  y="162" font-size="8">M</text><text x="81"  y="162" font-size="8">A</text>
+          <text x="101" y="162" font-size="8">M</text><text x="121" y="162" font-size="8">J</text>
+          <text x="141" y="162" font-size="8">J</text><text x="161" y="162" font-size="8">A</text>
+          <text x="181" y="162" font-size="8">S</text><text x="201" y="162" font-size="8">O</text>
+          <text x="221" y="162" font-size="8">N</text><text x="241" y="162" font-size="8">D</text>
+          <line x1="18" y1="150" x2="262" y2="150" stroke="#334155" stroke-width="1"/>
+        </svg>
+
+      </div>
+    </div>
+
+    <!-- RIGHT: Monthly risk grid + weather events + airport advisories -->
+    <div class="panel">
+      <div class="ph ph-slate">Monthly Risk Summary &amp; Airport Advisories</div>
+      <div class="pb" style="padding:9px 11px;">
+
+        <div style="margin-bottom:10px;">
+          <div style="font-size:10px;color:var(--text-2);margin-bottom:4px;">Combined risk index (1=low · 5=critical) — security + weather + infrastructure</div>
+          <div class="month-grid">
+            <div class="mg-cell mg-hdr">Jan</div><div class="mg-cell mg-hdr">Feb</div><div class="mg-cell mg-hdr">Mar</div>
+            <div class="mg-cell mg-hdr">Apr</div><div class="mg-cell mg-hdr">May</div><div class="mg-cell mg-hdr">Jun</div>
+            <div class="mg-cell mg-hdr">Jul</div><div class="mg-cell mg-hdr">Aug</div><div class="mg-cell mg-hdr">Sep</div>
+            <div class="mg-cell mg-hdr">Oct</div><div class="mg-cell mg-hdr">Nov</div><div class="mg-cell mg-hdr">Dec</div>
+          </div>
+          <div class="month-grid">
+            <div class="mg-cell mg-3">3</div><div class="mg-cell mg-3">3</div><div class="mg-cell mg-3">3</div>
+            <div class="mg-cell mg-4">4</div><div class="mg-cell mg-4">4</div><div class="mg-cell mg-5">5</div>
+            <div class="mg-cell mg-5">5</div><div class="mg-cell mg-5">5</div><div class="mg-cell mg-4">4</div>
+            <div class="mg-cell mg-4">4</div><div class="mg-cell mg-3">3</div><div class="mg-cell mg-3">3</div>
+          </div>
+        </div>
+
+        <div style="margin-bottom:10px;">
+          <div class="wx-head">Notable weather events — recent record</div>
+          <div class="wx-event">
+            <span class="wx-event-date">Aug 2024</span>
+            <span class="wx-event-text">Severe flooding Jonglei State — Bor (HSBO) airstrip inundated for 18 days; WFP suspension of airbridge operations to eastern states.</span>
+          </div>
+          <div class="wx-event">
+            <span class="wx-event-date">Sep 2023</span>
+            <span class="wx-event-text">Sudd wetland reaches highest extent in 40 years — 17 of 22 upcountry WFP strips declared non-operational simultaneously.</span>
+          </div>
+          <div class="wx-event">
+            <span class="wx-event-date">Jul 2023</span>
+            <span class="wx-event-text">Squall line passage HSSJ — windshear 22kt on short final Rwy 03; two aircraft executed go-around; PIREP filed 1547Z.</span>
+          </div>
+          <div class="wx-event">
+            <span class="wx-event-date">Jan 2024</span>
+            <span class="wx-event-text">Harmattan dust event — HSSJ METAR vis 3,200m; IFR departures delayed 1.5 hours morning of 14 Jan; recovered by 1100L.</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="adv-head" style="background:var(--bg-3);padding:5px 0 5px 10px;font-size:11px;font-weight:700;color:var(--text);">Operator pre-mission requirements — HSSJ</div>
+          <div class="adv-body" style="padding:7px 10px;">
+            <div class="kv"><span class="kv-k">Fuel pre-confirmation</span><span class="kv-v red">48hrs mandatory &mdash; shortages documented</span></div>
+            <div class="kv"><span class="kv-k">Ground handling</span><span class="kv-v amber">Pre-arrange NASAG &middot; WFP logistics if humanitarian</span></div>
+            <div class="kv"><span class="kv-k">Armed escort</span><span class="kv-v red">Mandatory all movements outside airside</span></div>
+            <div class="kv"><span class="kv-k">Night ops</span><span class="kv-v red">Discouraged &mdash; ATC unreliable after 2200L</span></div>
+            <div class="kv"><span class="kv-k">Upcountry strip</span><span class="kv-v red">Serviceability verify &lt;24hrs prior all Apr&ndash;Oct</span></div>
+            <div class="kv"><span class="kv-k">Medical planning</span><span class="kv-v red">MEDEVAC contact required &mdash; no reliable hospital</span></div>
+            <div class="kv"><span class="kv-k">Overflight permit</span><span class="kv-v amber">HSSJ FIR &mdash; SSCA 24hrs minimum</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div><!-- #panel-weather -->
+
+
+<!-- ════════════════════════════════════════════════════════════
+     TAB 4 · HISTORICAL AVIATION DATA
+════════════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="panel-history">
+  <div class="two-col">
+
+    <!-- LEFT: Incident Log -->
+    <div class="panel">
+      <div class="ph ph-maroon">Aviation Incident Log &mdash; South Sudan</div>
+      <div class="pb" style="padding:0;">
+        <div class="log-src" style="padding:6px 12px 4px;">Sources: ASN Aviation Safety Network &middot; ACLED &middot; UNMISS Aviation &middot; WFP Air Safety</div>
+        <table class="dt dt-sm">
+          <thead>
+            <tr>
+              <th style="width:9%">Date</th>
+              <th style="width:14%">Airport / Location</th>
+              <th style="width:12%">Aircraft</th>
+              <th style="width:15%">Operator / Flight</th>
+              <th style="width:9%">Category</th>
+              <th style="width:8%">Severity</th>
+              <th style="width:26%">Description</th>
+              <th style="width:7%">Src</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>11 Nov 2020</td>
+              <td>Juba (HSSJ)</td>
+              <td>Dornier Do-228</td>
+              <td>South Star Airways / cargo</td>
+              <td>Crash on landing</td>
+              <td class="sev-fatal">Fatal</td>
+              <td>Overran runway on landing in heavy rain; aircraft caught fire; 2 crew fatalities; RFFS response severely delayed. Rain-soaked runway, no anti-skid equipment.</td>
+              <td><span class="src-badge src-asn">ASN</span></td>
+            </tr>
+            <tr>
+              <td>22 Aug 2017</td>
+              <td>Wau (HSWW)</td>
+              <td>Mil Mi-8</td>
+              <td>UNMISS / humanitarian</td>
+              <td>Small arms fire</td>
+              <td class="sev-serious">Serious</td>
+              <td>UN Mi-8 helicopter on approach to Wau received small arms fire from unknown armed group; 3 rounds struck tail boom; crew landed safely; mission aborted. UNMISS investigation confirmed shots from Wau town perimeter.</td>
+              <td><span class="src-badge src-open">UNMISS</span></td>
+            </tr>
+            <tr>
+              <td>10 Mar 2019</td>
+              <td>Malakal (HSSM)</td>
+              <td>De Havilland DHC-6</td>
+              <td>Feeder Airlines / cargo</td>
+              <td>Runway excursion</td>
+              <td class="sev-serious">Serious</td>
+              <td>DHC-6 Twin Otter overran threshold on landing at Malakal due to soft ground following three days of rain; nose gear collapsed; aircraft a write-off; both crew uninjured. Strip had not been inspected post-rain.</td>
+              <td><span class="src-badge src-asn">ASN</span></td>
+            </tr>
+            <tr>
+              <td>18 Apr 2022</td>
+              <td>Juba (HSSJ)</td>
+              <td>Antonov An-26</td>
+              <td>East African Express / cargo</td>
+              <td>Ground incident</td>
+              <td class="sev-minor">Minor</td>
+              <td>An-26 impacted by airport service vehicle on apron at HSSJ during night fuelling operation; significant damage to left wing tip and flap; no injuries. Inadequate ramp lighting and no ground movement control after 2200L.</td>
+              <td><span class="src-badge src-avh">AVH</span></td>
+            </tr>
+            <tr>
+              <td>07 Jul 2023</td>
+              <td>Bor (HSBO)</td>
+              <td>Cessna Caravan</td>
+              <td>WFP / humanitarian cargo</td>
+              <td>Airstrip condition</td>
+              <td class="sev-serious">Serious</td>
+              <td>WFP Caravan sank main gear in waterlogged strip surface at Bor on landing; aircraft stuck for 8 hours; no injuries but aircraft sustained propeller and belly damage. Strip had been reported serviceable 72hrs earlier but sustained 180mm of rain in intervening period.</td>
+              <td><span class="src-badge src-open">WFP AS</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- RIGHT: Severity breakdown + bird strike + context -->
+    <div>
+
+      <div class="panel" style="margin-bottom:12px;">
+        <div class="ph ph-navy">Incident Severity Distribution</div>
+        <div class="pb">
+          <div class="charts-row">
+            <div class="chart-half">
+              <div class="chart-title">By severity</div>
+              <svg viewBox="0 0 110 110" style="width:100%;display:block;">
+                <!-- Fatal 2/5=40%, Serious 2/5=40%, Minor 1/5=20% -->
+                <!-- fatal: start 0°, sweep 144° -->
+                <path d="M55,55 L55,10 A45,45 0 0,1 90.9,77.5 Z" fill="#ef4444"/>
+                <!-- serious: sweep 144° -->
+                <path d="M55,55 L90.9,77.5 A45,45 0 0,1 19.1,77.5 Z" fill="#f59e0b"/>
+                <!-- minor: sweep 72° -->
+                <path d="M55,55 L19.1,77.5 A45,45 0 0,1 55,10 Z" fill="#3b82f6"/>
+                <circle cx="55" cy="55" r="22" fill="var(--bg-2)"/>
+                <text x="55" y="52" font-size="11" text-anchor="middle" fill="var(--text)" font-weight="700">5</text>
+                <text x="55" y="63" font-size="8" text-anchor="middle" fill="#94A3B8">events</text>
+              </svg>
+              <div style="font-size:9.5px;margin-top:4px;">
+                <div style="display:flex;align-items:center;gap:4px;margin-bottom:2px;"><span style="width:10px;height:10px;background:#ef4444;display:inline-block;border-radius:1px;"></span><span style="color:var(--text-2);">Fatal (2)</span></div>
+                <div style="display:flex;align-items:center;gap:4px;margin-bottom:2px;"><span style="width:10px;height:10px;background:#f59e0b;display:inline-block;border-radius:1px;"></span><span style="color:var(--text-2);">Serious (2)</span></div>
+                <div style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;background:#3b82f6;display:inline-block;border-radius:1px;"></span><span style="color:var(--text-2);">Minor (1)</span></div>
+              </div>
+            </div>
+            <div class="chart-half">
+              <div class="chart-title">By category</div>
+              <svg viewBox="0 0 110 110" style="width:100%;display:block;">
+                <!-- Crash/excursion 2/5, Security 1/5, Ground/infra 2/5 -->
+                <path d="M55,55 L55,10 A45,45 0 0,1 90.9,77.5 Z" fill="#ef4444"/>
+                <path d="M55,55 L90.9,77.5 A45,45 0 0,1 55,100 Z" fill="#f59e0b"/>
+                <path d="M55,55 L55,100 A45,45 0 0,1 19.1,32.5 Z" fill="#3b82f6"/>
+                <path d="M55,55 L19.1,32.5 A45,45 0 0,1 55,10 Z" fill="#94A3B8"/>
+                <circle cx="55" cy="55" r="22" fill="var(--bg-2)"/>
+                <text x="55" y="52" font-size="11" text-anchor="middle" fill="var(--text)" font-weight="700">4</text>
+                <text x="55" y="63" font-size="8" text-anchor="middle" fill="#94A3B8">types</text>
+              </svg>
+              <div style="font-size:9.5px;margin-top:4px;">
+                <div style="display:flex;align-items:center;gap:4px;margin-bottom:2px;"><span style="width:10px;height:10px;background:#ef4444;display:inline-block;border-radius:1px;"></span><span style="color:var(--text-2);">Crash/excursion</span></div>
+                <div style="display:flex;align-items:center;gap:4px;margin-bottom:2px;"><span style="width:10px;height:10px;background:#f59e0b;display:inline-block;border-radius:1px;"></span><span style="color:var(--text-2);">Security/small arms</span></div>
+                <div style="display:flex;align-items:center;gap:4px;margin-bottom:2px;"><span style="width:10px;height:10px;background:#3b82f6;display:inline-block;border-radius:1px;"></span><span style="color:var(--text-2);">Strip condition</span></div>
+                <div style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;background:#94A3B8;display:inline-block;border-radius:1px;"></span><span style="color:var(--text-2);">Ground incident</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-bottom:12px;">
+        <div class="ph ph-amber">Bird Strike Exposure</div>
+        <div class="pb">
+          <div class="bs-grid">
+            <div class="bs-card">
+              <div class="bs-head"><span class="bs-loc">HSSJ &mdash; Juba</span><span class="risk r-mod">Moderate</span></div>
+              <div class="bs-species">Marabou stork, cattle egret, Yellow-billed kite</div>
+              <div class="bs-note">Nile River proximity draws large wading bird populations. Marabou storks concentrate on HSSJ perimeter waste. Kite activity peaks at dawn and dusk. Wildlife management programme severely under-resourced.</div>
+            </div>
+            <div class="bs-card">
+              <div class="bs-head"><span class="bs-loc">Upcountry strips</span><span class="risk r-el">Elevated</span></div>
+              <div class="bs-species">Crowned crane, Openbill stork, Spur-winged goose</div>
+              <div class="bs-note">Sudd wetland edges host extremely high bird densities year-round. Crowned cranes and openbill storks graze on strip margins. No bird strike reporting at remote locations — actual incidence likely significantly under-counted.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="ph ph-slate">Underwriter Context</div>
+        <div class="pb">
+          <p>South Sudan represents the most challenging underwriting environment in the East Africa portfolio. The combination of active conflict exposure, infrastructure failure, and extreme weather creates a compound risk profile that is not adequately reflected by incident records alone — the absence of reporting infrastructure means significant under-counting of events.</p>
+          <p>War risk loadings are fully justified for all operations in South Sudan. Hull risk for operations at upcountry strips should reflect the high probability of surface-related damage, the near-total absence of RFFS, and the impossibility of recovery operations in many locations. Cargo coverage should reflect documented theft and diversion of humanitarian supplies.</p>
+          <p>The UNMISS aviation safety framework represents the best available intelligence on airstrip serviceability and security conditions. Operators outside the UN system should maintain formal liaison with UNMISS Air Operations prior to any upcountry mission.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div><!-- #panel-history -->
+
+
+<script>
+function switchTab(btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    b.classList.remove('t-overview','t-threat','t-weather','t-history');
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  const tab = btn.dataset.tab;
+  btn.classList.add('t-' + tab);
+  document.getElementById('panel-' + tab).classList.add('active');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Set Up Your Account — FRED BLACK</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="theme.js"></script>
+<link rel="stylesheet" href="styles.css">
+<style>
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  overflow: auto;
+  padding: 24px;
+  background: var(--bg);
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(26,111,232,.18) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Logo (shared with login.html) ─────────────── */
+.auth-logo {
+  display: flex; align-items: center; gap: 11px;
+  margin-bottom: 28px; position: relative; z-index: 1;
+}
+.auth-logo-icon {
+  width: 42px; height: 42px; background: var(--accent);
+  border-radius: 12px; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 16px var(--accent-glow);
+}
+.auth-logo-icon svg { width: 22px; height: 22px; fill: white; }
+.auth-logo-name { font-size: 17px; font-weight: 800; letter-spacing: .05em; color: var(--text); }
+.auth-logo-tag  { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+
+/* ── Card ──────────────────────────────────────── */
+.auth-card {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 36px 42px;
+  width: 100%; max-width: 480px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.45), 0 1px 0 rgba(255,255,255,.04) inset;
+  position: relative; z-index: 1;
+}
+
+/* ── Role badge ────────────────────────────────── */
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  border: 1px solid;
+}
+.role-badge.insurer {
+  background: var(--accent-dim);
+  color: var(--accent);
+  border-color: rgba(26,111,232,.25);
+}
+.role-badge.operator {
+  background: var(--warn-dim);
+  color: var(--warn);
+  border-color: rgba(245,158,11,.25);
+}
+.role-badge svg { width: 13px; height: 13px; }
+
+/* ── Form ──────────────────────────────────────── */
+.auth-card-title {
+  font-size: 21px; font-weight: 700; color: var(--text);
+  margin-bottom: 6px; letter-spacing: -0.3px;
+}
+.auth-card-sub {
+  font-size: 13px; color: var(--text-2); margin-bottom: 26px; line-height: 1.55;
+}
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+.field { margin-bottom: 18px; }
+.auth-label {
+  display: block; font-size: 11px; font-weight: 600;
+  color: var(--text-2); text-transform: uppercase;
+  letter-spacing: .055em; margin-bottom: 7px;
+}
+.auth-input {
+  width: 100%; background: var(--bg-3); border: 1px solid var(--border-2);
+  border-radius: 9px; padding: 12px 14px; font-size: 14px;
+  font-family: 'Inter', sans-serif; color: var(--text); outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+.auth-input:focus       { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+.auth-input::placeholder { color: var(--text-3); }
+.auth-input[readonly]   { opacity: .6; cursor: default; }
+.auth-input.error       { border-color: var(--danger); }
+
+.field-error {
+  display: none;
+  font-size: 11px; color: var(--danger);
+  margin-top: 5px;
+}
+
+/* ── Password field ────────────────────────────── */
+.pw-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.pw-wrap .auth-input {
+  padding-right: 90px;
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-size: 13px;
+  letter-spacing: .06em;
+}
+.pw-actions {
+  position: absolute;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.pw-btn {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text-2);
+  font-size: 10px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  padding: 3px 8px;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s;
+  white-space: nowrap;
+}
+.pw-btn:hover { background: var(--bg-hover); border-color: var(--border-2); color: var(--text); }
+
+/* ── Strength bar ──────────────────────────────── */
+.strength-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  margin-bottom: 18px;
+}
+.strength-bar {
+  flex: 1;
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.strength-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width .3s, background .3s;
+}
+.strength-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ── Submit button ─────────────────────────────── */
+.auth-btn {
+  width: 100%; padding: 13px;
+  background: var(--accent); border: none; border-radius: 9px;
+  color: white; font-size: 14px; font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer; transition: background .15s, transform .1s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.auth-btn:hover    { background: var(--accent-h); }
+.auth-btn:active   { transform: scale(.99); }
+.auth-btn:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+.auth-btn.green    { background: var(--success); }
+.auth-btn.green:hover { background: #059669; }
+
+/* ── Success screen ────────────────────────────── */
+.success-screen {
+  display: none;
+  text-align: center;
+  padding: 10px 0;
+}
+.success-icon {
+  width: 64px; height: 64px;
+  background: var(--success-dim);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 18px;
+  border: 1px solid rgba(16,185,129,.2);
+}
+.success-icon svg { width: 30px; height: 30px; }
+.success-title { font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+.success-sub   { font-size: 13px; color: var(--text-2); line-height: 1.55; margin-bottom: 24px; }
+
+/* ── Divider ───────────────────────────────────── */
+.auth-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 22px 0;
+}
+
+/* ── Invalid token screen ──────────────────────── */
+.invalid-screen {
+  display: none;
+  text-align: center;
+  padding: 10px 0;
+}
+
+/* ── Footer ────────────────────────────────────── */
+.auth-footer {
+  margin-top: 24px; font-size: 11px; color: var(--text-3);
+  text-align: center; position: relative; z-index: 1;
+}
+
+/* ── Spinner ───────────────────────────────────── */
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner {
+  width: 16px; height: 16px;
+  border: 2.5px solid rgba(255,255,255,.25);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+  display: none;
+}
+
+/* ── Tooltip ───────────────────────────────────── */
+.pw-hint {
+  font-size: 10.5px;
+  color: var(--text-3);
+  margin-top: 6px;
+  line-height: 1.4;
+}
+</style>
+</head>
+<body>
+
+<!-- Logo -->
+<div class="auth-logo">
+  <div class="auth-logo-icon">
+    <svg viewBox="0 0 24 24"><path d="M21 16v-2l-8-5V3.5A1.5 1.5 0 0 0 11.5 2 1.5 1.5 0 0 0 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg>
+  </div>
+  <div>
+    <div class="auth-logo-name">FRED BLACK</div>
+    <div class="auth-logo-tag">Aviation Intelligence Platform</div>
+  </div>
+</div>
+
+<div class="auth-card">
+
+  <!-- ── Invalid token ── -->
+  <div class="invalid-screen" id="screenInvalid">
+    <div style="font-size:36px;margin-bottom:16px;">⚠️</div>
+    <div class="auth-card-title" style="text-align:center;">Link invalid or expired</div>
+    <div class="auth-card-sub" style="text-align:center;margin-bottom:24px;">This access link has already been used, expired, or is invalid. Please request a new one.</div>
+    <a href="login.html" style="display:block;text-align:center;padding:12px;background:var(--accent);border-radius:9px;color:white;font-weight:600;font-size:14px;text-decoration:none;">Back to Sign In</a>
+  </div>
+
+  <!-- ── Setup form ── -->
+  <div id="screenSetup" style="display:none;">
+    <div id="roleBadge" class="role-badge"></div>
+    <div class="auth-card-title">Set up your account</div>
+    <div class="auth-card-sub" id="setupSub"></div>
+
+    <!-- Email (readonly) -->
+    <div class="field">
+      <label class="auth-label">Email address</label>
+      <input class="auth-input" id="emailDisplay" type="email" readonly>
+    </div>
+
+    <!-- Name + Username side by side -->
+    <div class="form-row">
+      <div class="field">
+        <label class="auth-label">Full name</label>
+        <input class="auth-input" id="fullName" type="text" placeholder="Jane Smith"
+               autocomplete="name" oninput="clearErr('nameError')">
+        <div class="field-error" id="nameError">Please enter your full name.</div>
+      </div>
+      <div class="field">
+        <label class="auth-label">Username</label>
+        <input class="auth-input" id="username" type="text" placeholder="jane_smith"
+               autocomplete="username" maxlength="24" oninput="validateUsername()">
+        <div class="field-error" id="usernameError">3–24 chars: letters, numbers, underscores only.</div>
+      </div>
+    </div>
+
+    <div class="auth-divider"></div>
+
+    <!-- Password -->
+    <div class="field" style="margin-bottom:0;">
+      <label class="auth-label" style="display:flex;align-items:center;justify-content:space-between;">
+        Password
+        <button type="button" onclick="regeneratePw()"
+                style="font-size:10px;font-weight:600;color:var(--accent);background:none;border:none;cursor:pointer;font-family:'Inter',sans-serif;padding:0;letter-spacing:0;">
+          ↻ Regenerate
+        </button>
+      </label>
+      <div class="pw-wrap">
+        <input class="auth-input" id="password" type="password" readonly>
+        <div class="pw-actions">
+          <button class="pw-btn" id="togglePwBtn" onclick="togglePw()">Show</button>
+          <button class="pw-btn" onclick="copyPw()" id="copyBtn">Copy</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Strength meter -->
+    <div class="strength-wrap">
+      <div class="strength-bar"><div class="strength-fill" id="strengthFill" style="width:0%;background:var(--danger)"></div></div>
+      <div class="strength-label" id="strengthLabel" style="color:var(--text-3);">—</div>
+    </div>
+
+    <div class="pw-hint" id="pwHint">
+      Your password has been generated securely. You can copy it and store it in a password manager, or regenerate a new one.
+    </div>
+
+    <div style="margin-top:22px;">
+      <button class="auth-btn" id="completeBtn" onclick="completeSetup()">
+        <span id="completeBtnText">Complete Account Setup</span>
+        <div class="spinner" id="completeSpinner"></div>
+        <svg id="completeBtnIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="15" height="15"><polyline points="20 6 9 17 4 12"/></svg>
+      </button>
+    </div>
+
+    <div style="margin-top:12px;text-align:center;font-size:11.5px;color:var(--text-3);">
+      By completing setup you agree to the
+      <a href="#" style="color:var(--accent);text-decoration:none;">Terms of Service</a> and
+      <a href="#" style="color:var(--accent);text-decoration:none;">Privacy Policy</a>.
+    </div>
+  </div>
+
+  <!-- ── Success screen ── -->
+  <div class="success-screen" id="screenSuccess">
+    <div class="success-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div class="success-title">You're all set!</div>
+    <div class="success-sub">
+      Your account has been created.<br>
+      Redirecting you to the dashboard…
+    </div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:8px;color:var(--text-3);font-size:12px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" style="animation:spin .7s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+      Signing in…
+    </div>
+  </div>
+
+</div>
+
+<div class="auth-footer">© 2026 Stone Africa &nbsp;·&nbsp; FRED BLACK Aviation Intelligence</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────
+let _inviteEmail = null;
+let _inviteRole  = null;
+let _token       = null;
+let _pwVisible   = false;
+let _currentPw   = '';
+
+// ── Init: read token → validate against API ───────────────────
+// The real Express server preserves query params, so we can read
+// the token directly from the URL. We also accept the sessionStorage
+// fallback (written by login.html) for any edge-case proxies.
+(async function init() {
+  // 1. Resolve token
+  let t = new URLSearchParams(location.search).get('t');
+  if (!t) {
+    t = sessionStorage.getItem('av_setup_token');
+    sessionStorage.removeItem('av_setup_token');
+  }
+  if (!t) { showInvalid('No invite token found.'); return; }
+  _token = t;
+
+  // 2. Validate with server
+  let data;
+  try {
+    const res = await fetch('/api/invite/validate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: t }),
+    });
+    data = await res.json();
+    if (!res.ok) { showInvalid(data.error || 'Link is invalid or has expired.'); return; }
+  } catch (e) {
+    showInvalid('Could not reach the server. Please check your connection.'); return;
+  }
+
+  _inviteEmail = data.email;
+  _inviteRole  = data.role;
+
+  // 3. Populate UI
+  const isInsurer = data.role === 'insurer';
+  const badge = document.getElementById('roleBadge');
+  badge.className = 'role-badge ' + (isInsurer ? 'insurer' : 'operator');
+  badge.innerHTML = isInsurer
+    ? '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg> Insurer Access'
+    : '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 16v-2l-8-5V3.5A1.5 1.5 0 0 0 11.5 2 1.5 1.5 0 0 0 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg> Operator Access';
+
+  document.getElementById('setupSub').innerHTML =
+    'You\'ve been invited as an <strong style="color:var(--text);">' +
+    (isInsurer ? 'Insurer' : 'Operator') +
+    '</strong>. This sets your permanent access level. Create your account to continue.';
+
+  document.getElementById('emailDisplay').value = data.email;
+
+  // Generate initial password
+  regeneratePw();
+
+  document.getElementById('screenSetup').style.display = 'block';
+})();
+
+function showInvalid(msg) {
+  const sub = document.querySelector('#screenInvalid .auth-card-sub');
+  if (sub && msg) sub.textContent = msg;
+  document.getElementById('screenInvalid').style.display = 'block';
+}
+
+// ── Password generation ────────────────────────────────────────
+function regeneratePw() {
+  _currentPw = _genPassword();
+  const input = document.getElementById('password');
+  input.value = _currentPw;
+  _pwVisible  = false;
+  input.type  = 'password';
+  document.getElementById('togglePwBtn').textContent = 'Show';
+  document.getElementById('copyBtn').textContent     = 'Copy';
+  _updateStrength(_currentPw);
+}
+
+function _genPassword() {
+  // Build a 20-char password: 5 upper + 5 lower + 5 digits + 5 symbols
+  const up   = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  const lo   = 'abcdefghjkmnpqrstuvwxyz';
+  const di   = '23456789';
+  const sy   = '!@#$%^&*-_+=?';
+  const pick = (s, n) => Array.from(crypto.getRandomValues(new Uint8Array(n))).map(b => s[b % s.length]);
+  const raw  = [...pick(up,5), ...pick(lo,5), ...pick(di,5), ...pick(sy,5)];
+  // Fisher-Yates shuffle
+  for (let i = raw.length - 1; i > 0; i--) {
+    const j = crypto.getRandomValues(new Uint8Array(1))[0] % (i + 1);
+    [raw[i], raw[j]] = [raw[j], raw[i]];
+  }
+  return raw.join('');
+}
+
+function _updateStrength(pw) {
+  let score = 0;
+  if (pw.length >= 12) score++;
+  if (pw.length >= 16) score++;
+  if (/[A-Z]/.test(pw)) score++;
+  if (/[a-z]/.test(pw)) score++;
+  if (/[0-9]/.test(pw)) score++;
+  if (/[^A-Za-z0-9]/.test(pw)) score++;
+
+  const fill  = document.getElementById('strengthFill');
+  const label = document.getElementById('strengthLabel');
+
+  const levels = [
+    { pct:'20%', color:'var(--danger)',  text:'Weak' },
+    { pct:'40%', color:'var(--danger)',  text:'Weak' },
+    { pct:'55%', color:'var(--warn)',    text:'Fair' },
+    { pct:'70%', color:'var(--warn)',    text:'Fair' },
+    { pct:'85%', color:'var(--success)', text:'Strong' },
+    { pct:'100%',color:'var(--success)', text:'Very strong' },
+  ];
+  const lvl = levels[Math.min(score, levels.length - 1)];
+  fill.style.width      = lvl.pct;
+  fill.style.background = lvl.color;
+  label.textContent     = lvl.text;
+  label.style.color     = lvl.color;
+}
+
+function togglePw() {
+  _pwVisible = !_pwVisible;
+  document.getElementById('password').type = _pwVisible ? 'text' : 'password';
+  document.getElementById('togglePwBtn').textContent = _pwVisible ? 'Hide' : 'Show';
+}
+
+function copyPw() {
+  navigator.clipboard.writeText(_currentPw).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 2000);
+  }).catch(() => {
+    // Fallback for non-HTTPS contexts
+    const el = document.createElement('textarea');
+    el.value = _currentPw;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 2000);
+  });
+}
+
+// ── Validation ─────────────────────────────────────────────────
+function validateUsername() {
+  const val = document.getElementById('username').value.trim();
+  const err = document.getElementById('usernameError');
+  const ok  = val.length >= 3 && /^[a-zA-Z0-9_]+$/.test(val);
+  document.getElementById('username').classList.toggle('error', !ok && val.length > 0);
+  err.style.display = (!ok && val.length > 0) ? 'block' : 'none';
+  return ok;
+}
+
+function clearErr(id) {
+  document.getElementById(id).style.display = 'none';
+  const input = id.replace('Error', '');
+  const el = document.getElementById(input === 'name' ? 'fullName' : input);
+  if (el) el.classList.remove('error');
+}
+
+// ── Complete setup ─────────────────────────────────────────────
+async function completeSetup() {
+  let ok = true;
+
+  const name     = document.getElementById('fullName').value.trim();
+  const username = document.getElementById('username').value.trim();
+
+  if (!name) {
+    document.getElementById('fullName').classList.add('error');
+    document.getElementById('nameError').style.display = 'block';
+    ok = false;
+  }
+
+  if (!validateUsername()) ok = false;
+  if (!ok) return;
+
+  // Loading state
+  const btn  = document.getElementById('completeBtn');
+  const txt  = document.getElementById('completeBtnText');
+  const spin = document.getElementById('completeSpinner');
+  const ico  = document.getElementById('completeBtnIcon');
+  btn.disabled    = true;
+  txt.textContent = 'Setting up…';
+  spin.style.display = 'block';
+  ico.style.display  = 'none';
+
+  try {
+    const res = await fetch('/api/auth/setup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        token:       _token,
+        username:    username,
+        displayName: name,
+        password:    _currentPw,
+      }),
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      // Reset button and show error
+      btn.disabled    = false;
+      txt.textContent = 'Complete Account Setup';
+      spin.style.display = 'none';
+      ico.style.display  = '';
+
+      // Show the error inline
+      const errEl = document.getElementById('nameError');
+      errEl.textContent  = data.error || 'Account creation failed. Please try again.';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    // Store JWT + user profile
+    localStorage.setItem('av_token', data.token);
+    localStorage.setItem('av_user',  JSON.stringify(data.user));
+
+    // Show success screen
+    document.getElementById('screenSetup').style.display   = 'none';
+    document.getElementById('screenSuccess').style.display = 'block';
+
+    // Redirect to dashboard after a brief pause
+    setTimeout(() => window.location.replace('index.html'), 1800);
+
+  } catch (e) {
+    btn.disabled    = false;
+    txt.textContent = 'Complete Account Setup';
+    spin.style.display = 'none';
+    ico.style.display  = '';
+    const errEl = document.getElementById('nameError');
+    errEl.textContent   = 'Network error. Please check your connection and try again.';
+    errEl.style.display = 'block';
+  }
+}
+</script>
+</body>
+</html>

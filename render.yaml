@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: fred-black-aviation
+    runtime: node
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: fred-black-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: APP_URL
+        sync: false           # set manually in Render dashboard to your service URL
+      - key: RESEND_API_KEY
+        sync: false           # set manually in Render dashboard
+      - key: EMAIL_FROM
+        sync: false
+
+databases:
+  - name: fred-black-db
+    databaseName: fredblack
+    user: fredblack
+    plan: free

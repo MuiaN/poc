@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rwanda — Country Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="../theme.js"></script>
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-body); font-size: 12px; background: var(--bg); color: var(--text); }
+    .page-header { background: var(--bg-2); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 10px 18px; }
+    .header-title { color: var(--text); font-size: 16px; font-weight: 700; letter-spacing: 0.2px; }
+    .header-tz    { color: var(--accent); font-size: 13px; font-weight: 700; }
+    .tab-bar { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--bg-3); border-bottom: 1px solid var(--border); }
+    .tab-btn { padding: 10px 14px; text-align: center; font-size: 12px; font-weight: 600; color: var(--text-2); background: var(--bg-3); border: none; cursor: pointer; border-right: 1px solid var(--border); transition: background 0.15s, color 0.15s; white-space: nowrap; font-family: var(--font-body); }
+    .tab-btn:last-child { border-right: none; }
+    .tab-btn:hover { background: var(--bg-hover); color: var(--text); }
+    .tab-btn.t-overview { background: var(--accent); color: #fff; }
+    .tab-btn.t-threat   { background: var(--danger); color: #fff; }
+    .tab-btn.t-weather  { background: var(--warn); color: #0B0F1A; }
+    .tab-btn.t-history  { background: var(--bg-hover); color: var(--text); }
+    .tab-panel { display: none; padding: 12px 14px 18px; }
+    .tab-panel.active { display: block; }
+    .kpi-strip { display: grid; grid-template-columns: repeat(5, 1fr); border: 1px solid var(--border); margin-bottom: 12px; background: var(--bg-2); }
+    .kpi-card { padding: 9px 13px; border-right: 1px solid var(--border); }
+    .kpi-card:last-child { border-right: none; }
+    .kpi-label { font-size: 9.5px; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 3px; }
+    .kpi-val   { font-size: 18px; font-weight: 700; line-height: 1.2; }
+    .kpi-sub   { font-size: 10px; color: var(--text-2); margin-top: 3px; line-height: 1.4; }
+    .c-orange  { color: var(--warn); }
+    .c-green   { color: var(--success); }
+    .c-navy    { color: var(--text); }
+    .c-red     { color: var(--danger); }
+    .c-amber   { color: var(--warn); }
+    .three-col { display: grid; grid-template-columns: 27% 1fr 28%; gap: 12px; }
+    .two-col   { display: grid; grid-template-columns: 56% 1fr; gap: 12px; }
+    .panel { background: var(--bg-2); border: 1px solid var(--border); }
+    .ph { padding: 6px 11px; font-size: 11.5px; font-weight: 700; border-bottom: 1px solid var(--border); }
+    .ph-blue   { background: var(--bg-3); color: var(--accent);   border-left: 3px solid var(--accent); }
+    .ph-navy   { background: var(--bg-3); color: var(--text);     border-left: 3px solid var(--text-2); }
+    .ph-maroon { background: rgba(239,68,68,0.08);  color: var(--danger);  border-left: 3px solid var(--danger); }
+    .ph-amber  { background: rgba(245,158,11,0.08); color: var(--warn);    border-left: 3px solid var(--warn); }
+    .ph-slate  { background: var(--bg-3); color: var(--text-2);   border-left: 3px solid var(--text-2); }
+    .ph-green  { background: rgba(16,185,129,0.08); color: var(--success); border-left: 3px solid var(--success); }
+    .ph-red    { background: rgba(239,68,68,0.08);  color: var(--danger);  border-left: 3px solid var(--danger); }
+    .pb { padding: 11px 12px; font-size: 11.5px; line-height: 1.58; color: var(--text); }
+    .pb p { margin-bottom: 8px; }
+    .pb p:last-child { margin-bottom: 0; }
+    .dt { width: 100%; border-collapse: collapse; font-size: 11px; }
+    .dt thead th { background: var(--bg-3); padding: 5px 8px; text-align: left; font-weight: 700; border-bottom: 2px solid var(--border); white-space: nowrap; color: var(--text-2); }
+    .dt tbody tr:nth-child(even) { background: var(--bg-3); }
+    .dt tbody tr:hover { background: var(--bg-hover); }
+    .dt tbody td { padding: 5px 8px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.45; color: var(--text); }
+    .dt-sm td { font-size: 10.5px; }
+    .dt tbody td.note { font-size: 10.5px; color: var(--text-2); }
+    .risk { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 2px; white-space: nowrap; }
+    .r-low      { background: rgba(16,185,129,0.15);  color: var(--success); }
+    .r-mod      { background: rgba(245,158,11,0.15);  color: var(--warn); }
+    .r-mod-el   { background: rgba(249,115,22,0.15);  color: #f97316; font-style: italic; }
+    .r-el       { background: rgba(239,68,68,0.12);   color: #f97316; }
+    .r-high     { background: var(--danger);           color: #fff; }
+    .r-seasonal { background: rgba(139,92,246,0.15);  color: #a78bfa; }
+    .r-monitor  { background: var(--accent-dim);       color: var(--accent); }
+    .kv { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid var(--border); font-size: 11px; gap: 6px; align-items: flex-start; }
+    .kv:last-child { border-bottom: none; }
+    .kv-k { color: var(--text-2); flex-shrink: 0; }
+    .kv-v { text-align: right; font-weight: 600; color: var(--text); font-size: 10.5px; }
+    .kv-v.blue  { color: var(--accent); }
+    .kv-v.red   { color: var(--danger); }
+    .kv-v.green { color: var(--success); font-weight: 700; }
+    .kv-v.amber { color: var(--warn); }
+    .threat-card { border: 1px solid var(--border); margin-bottom: 10px; }
+    .threat-card:last-child { margin-bottom: 0; }
+    .tc-head { display: flex; align-items: center; gap: 10px; padding: 7px 11px; border-bottom: 1px solid var(--border); }
+    .tc-badge { display: inline-block; font-size: 9.5px; font-weight: 800; padding: 2px 8px; border-radius: 2px; white-space: nowrap; letter-spacing: 0.5px; }
+    .tc-high  { background: var(--danger);  color: #fff; }
+    .tc-mod   { background: var(--warn);    color: #0B0F1A; }
+    .tc-watch { background: var(--success); color: #0B0F1A; }
+    .tc-title { font-size: 12px; font-weight: 700; color: var(--text); }
+    .tc-body  { padding: 9px 11px; font-size: 11px; line-height: 1.55; color: var(--text); }
+    .tc-body p { margin-bottom: 5px; }
+    .tc-body p:last-child { margin-bottom: 0; }
+    .tc-italic { font-style: italic; color: var(--text-2); margin-top: 6px; }
+    .tc-border-high  { border-left: 3px solid var(--danger); }
+    .tc-border-mod   { border-left: 3px solid var(--warn); }
+    .tc-border-watch { border-left: 3px solid var(--success); }
+    .season-card { display: flex; border: 1px solid var(--border); background: var(--bg-2); margin-bottom: 8px; }
+    .season-card:last-child { margin-bottom: 0; }
+    .season-label { width: 58px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 8px 6px; font-size: 10px; font-weight: 700; text-align: center; }
+    .s-active { background: var(--warn);   color: #0B0F1A; }
+    .s-dry    { background: var(--accent); color: #fff; }
+    .s-short  { background: #475569;       color: #fff; }
+    .season-label .s-date  { font-size: 11px; font-weight: 800; line-height: 1.3; }
+    .season-label .s-badge { font-size: 8px; background: rgba(255,255,255,0.25); border-radius: 2px; padding: 1px 4px; margin-top: 3px; }
+    .season-body { padding: 9px 11px; font-size: 11px; line-height: 1.5; color: var(--text-2); }
+    .season-name { font-weight: 700; font-size: 11.5px; color: var(--text); margin-bottom: 4px; }
+    .wx-section { margin-bottom: 10px; }
+    .wx-head { font-size: 10.5px; font-weight: 700; color: var(--text-2); background: var(--bg-3); padding: 4px 10px; }
+    .wx-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 10px; border-bottom: 1px solid var(--border); font-size: 11px; }
+    .wx-row:last-child { border-bottom: none; }
+    .wx-key { color: var(--text-2); }
+    .wx-val { font-weight: 600; color: var(--text); }
+    .wx-val.elevated   { color: var(--danger); }
+    .wx-val.possible   { color: var(--warn); }
+    .wx-val.active     { color: var(--warn); }
+    .wx-val.soft       { color: var(--warn); }
+    .wx-val.normal     { color: var(--success); }
+    .wx-val.full       { color: var(--success); }
+    .wx-val.high       { color: var(--danger); font-weight: 800; }
+    .wx-val.inter      { color: var(--warn); }
+    .wx-val.moderate-c { color: var(--warn); }
+    .key-event { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); padding: 8px 11px; margin: 8px 0; font-size: 11px; line-height: 1.5; color: var(--text); }
+    .key-event-title { font-weight: 800; font-size: 11px; color: var(--danger); margin-bottom: 3px; }
+    .airport-adv { border: 1px solid var(--border); background: var(--bg-2); margin-bottom: 6px; }
+    .airport-adv:last-child { margin-bottom: 0; }
+    .adv-head { background: var(--bg-3); padding: 5px 10px; font-size: 11px; font-weight: 700; color: var(--text); border-bottom: 1px solid var(--border); }
+    .adv-body { padding: 7px 10px; font-size: 11px; color: var(--text-2); line-height: 1.5; }
+    .month-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 2px; margin-bottom: 2px; }
+    .mg-cell { text-align: center; font-size: 9px; font-weight: 700; padding: 3px 1px; }
+    .mg-hdr  { background: var(--bg-3); color: var(--text-2); }
+    .mg-1    { background: rgba(16,185,129,0.2);  color: var(--success); }
+    .mg-2    { background: rgba(245,158,11,0.2);  color: var(--warn); }
+    .mg-3    { background: rgba(249,115,22,0.2);  color: #f97316; }
+    .mg-4    { background: rgba(239,68,68,0.15);  color: var(--danger); }
+    .mg-5    { background: var(--danger);          color: #fff; }
+    .wx-event { display: flex; align-items: flex-start; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 11px; }
+    .wx-event:last-child { border-bottom: none; }
+    .wx-event-date { flex-shrink: 0; font-size: 10px; color: var(--text-2); width: 68px; }
+    .wx-event-text { color: var(--text); line-height: 1.45; }
+    .sev-fatal   { color: var(--danger);  font-weight: 800; }
+    .sev-serious { color: var(--warn);    font-weight: 700; }
+    .sev-minor   { color: var(--accent);  font-weight: 600; }
+    .src-badge { display: inline-block; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 2px; }
+    .src-open  { background: var(--bg-3);         color: var(--text-2); }
+    .src-avh   { background: var(--accent-dim);   color: var(--accent); }
+    .src-asn   { background: var(--success-dim);  color: var(--success); }
+    .bs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .bs-card { border: 1px solid var(--border); background: var(--bg-2); padding: 9px 11px; }
+    .bs-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; gap: 6px; }
+    .bs-loc  { font-size: 11px; font-weight: 700; color: var(--text); }
+    .bs-species { font-size: 10px; color: var(--text-2); font-style: italic; margin-bottom: 4px; }
+    .bs-note { font-size: 10.5px; color: var(--text-2); line-height: 1.45; }
+    .bs-5    { grid-column: 1 / -1; }
+    .chart-title { font-size: 10.5px; font-weight: 700; color: var(--text); margin-bottom: 6px; text-align: center; }
+    .charts-row  { display: flex; gap: 12px; align-items: flex-start; }
+    .chart-half  { flex: 1; }
+    .pb svg text, .panel svg text { fill: #94A3B8; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <span class="header-title">Rwanda &mdash; Country Profile</span>
+  <span class="header-tz">GMT+2</span>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn t-overview" data-tab="overview" onclick="switchTab(this)">Country Overview</button>
+  <button class="tab-btn" data-tab="threat"   onclick="switchTab(this)">Threat Profile</button>
+  <button class="tab-btn" data-tab="weather"  onclick="switchTab(this)">Weather Trends &amp; Patterns</button>
+  <button class="tab-btn" data-tab="history"  onclick="switchTab(this)">Historical Aviation Data</button>
+</div>
+
+<div class="tab-panel active" id="panel-overview">
+  <div class="kpi-strip">
+    <div class="kpi-card">
+      <div class="kpi-label">Hull risk rating</div>
+      <div class="kpi-val c-green">Low</div>
+      <div class="kpi-sub">Modern infrastructure &middot; T2 open &middot; RwandAir hub</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">War risk (aviation)</div>
+      <div class="kpi-val c-green">Low</div>
+      <div class="kpi-sub">Stable &middot; M23 activity in DRC not affecting ops</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Terrorism exposure</div>
+      <div class="kpi-val c-green">Very Low</div>
+      <div class="kpi-sub">No active threats &middot; strong state security</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Airspace status</div>
+      <div class="kpi-val c-navy">Normal ops</div>
+      <div class="kpi-sub">HRDC FIR &middot; no restrictions</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Regulatory standing</div>
+      <div class="kpi-val c-green">Excellent</div>
+      <div class="kpi-sub">RCAA &middot; among best-regulated in region</div>
+    </div>
+  </div>
+
+  <div class="three-col">
+    <div class="panel">
+      <div class="ph ph-blue">Aviation System Overview</div>
+      <div class="pb">
+        <p>Rwanda operates one of the most modern and efficiently managed aviation systems in sub-Saharan Africa. Kigali International Airport (HRYR), located at 1,489m ASL on a hilltop plateau to the east of the capital, is the country's sole international gateway and functions as the hub for RwandAir, one of Africa's fastest-growing carriers. The new Terminal 2 opened in 2024, significantly expanding passenger and cargo capacity and positioning Kigali as a major African aviation hub.</p>
+        <p>The airport's physical design and infrastructure are of international standard. Ground handling is provided by AVIA Solutions Group (formerly Aviator), bringing European-standard ground operations to the facility. The RFFS is Category 9, maintained to full operational readiness. ILS approaches are available for both runway ends, and the instrument approach procedures are well-designed to navigate Rwanda's hilly terrain.</p>
+        <p>RwandAir serves over 30 destinations across Africa, Europe, and Asia from Kigali, and the airport handles a diverse mix of international scheduled, cargo, and charter traffic. The Rwanda Civil Aviation Authority (RCAA) is widely regarded as one of the most professional and effectively managed civil aviation regulators in the region, with strong ICAO compliance and a proactive safety culture.</p>
+        <p>The primary weather risk at HRYR is convective build-up in the western highlands, particularly during the two rainy seasons. The Albertine Rift corridor to the west and the proximity of the Virunga Mountains create localised orographic CB development that can affect approach routing, particularly for traffic arriving from the west. CB activity in this corridor is most intense from March to May and October to November.</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph ph-navy">Hull Risk &amp; War Risk &ndash; by location</div>
+      <table class="dt">
+        <thead>
+          <tr>
+            <th style="width:24%">Location</th>
+            <th style="width:14%">Hull risk</th>
+            <th style="width:13%">War risk</th>
+            <th>Note</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>HRYR &mdash; Kigali Intl</td>
+            <td><span class="risk r-low">Low</span></td>
+            <td><span class="risk r-low">Low</span></td>
+            <td class="note">T2 open &middot; RFFS CAT 9 &middot; AVIA Solutions GH &middot; RwandAir hub</td>
+          </tr>
+          <tr>
+            <td>Kigali apron / parking</td>
+            <td><span class="risk r-low">Low</span></td>
+            <td><span class="risk r-low">Low</span></td>
+            <td class="note">Secure perimeter &middot; modern lighting &middot; 24hr ATC &middot; military patrol</td>
+          </tr>
+          <tr>
+            <td>Kigali city transit</td>
+            <td><span class="risk r-low">Low</span></td>
+            <td><span class="risk r-low">Low</span></td>
+            <td class="note">Very safe urban environment &middot; low crime &middot; good infrastructure</td>
+          </tr>
+          <tr>
+            <td>Western highlands / Virunga</td>
+            <td><span class="risk r-mod">Moderate</span></td>
+            <td><span class="risk r-low">Low</span></td>
+            <td class="note">Orographic CB &middot; limited strips &middot; terrain &mdash; not DRC spillover</td>
+          </tr>
+          <tr>
+            <td>DRC border corridor</td>
+            <td><span class="risk r-mod">Moderate</span></td>
+            <td><span class="risk r-mod">Moderate</span></td>
+            <td class="note">M23 active across border &middot; does not affect HRYR ops &middot; monitor FIR boundary</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="panel">
+      <div class="ph ph-slate">Regulatory Status &amp; Compliance</div>
+      <div class="pb" style="padding:9px 11px;">
+        <div class="kv"><span class="kv-k">Civil authority</span><span class="kv-v blue">Rwanda Civil Aviation Authority (RCAA)</span></div>
+        <div class="kv"><span class="kv-k">Tel / Web</span><span class="kv-v" style="font-size:10px;">+250 784 151 800 &middot; www.rcaa.gov.rw</span></div>
+        <div class="kv"><span class="kv-k">ICAO audit</span><span class="kv-v green">Compliant &mdash; among highest scores in region</span></div>
+        <div class="kv"><span class="kv-k">EU Air Safety List</span><span class="kv-v green">Not blacklisted &mdash; cleared for EU operations</span></div>
+        <div class="kv"><span class="kv-k">RFFS HRYR</span><span class="kv-v">CAT 9 &mdash; full emergency capability</span></div>
+        <div class="kv"><span class="kv-k">Ground handling</span><span class="kv-v">AVIA Solutions Group (Aviator)</span></div>
+        <div class="kv"><span class="kv-k">Fuel</span><span class="kv-v">Jet A-1 available &mdash; RwandAir fuel farm &middot; 24hr</span></div>
+        <div class="kv"><span class="kv-k">ATC HRYR</span><span class="kv-v">APP 119.7 &middot; TWR 118.1 &middot; GND 121.8</span></div>
+        <div class="kv"><span class="kv-k">ATIS HRYR</span><span class="kv-v">127.9</span></div>
+        <div class="kv"><span class="kv-k">ILS RWY 10</span><span class="kv-v">Cat I &middot; 111.10 &middot; GP 3.0&deg;</span></div>
+        <div class="kv"><span class="kv-k">ILS RWY 28</span><span class="kv-v">Cat I &middot; 108.30</span></div>
+        <div class="kv"><span class="kv-k">Terminal 2</span><span class="kv-v green">Open &mdash; 2024 &middot; expanded capacity</span></div>
+        <div class="kv"><span class="kv-k">Elevation</span><span class="kv-v">4,885 ft / 1,489m ASL</span></div>
+        <div class="kv"><span class="kv-k">Landing permits</span><span class="kv-v">48hr prior &middot; RCAA online system</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tab-panel" id="panel-threat">
+  <div class="three-col">
+    <div class="panel">
+      <div class="ph ph-maroon">Top-Line Security Assessment</div>
+      <div class="pb">
+        <p>Rwanda operates one of the most secure environments for aviation in sub-Saharan Africa. The country maintains a strong state security apparatus, low crime rates, and an absence of active internal conflict. Kigali is consistently ranked among the safest capital cities in Africa for expatriates and travellers, and the airport environment reflects this broader stability.</p>
+        <p>The primary geopolitical risk vector is the ongoing M23 armed group activity and broader instability in eastern DRC, directly across Rwanda's western border. While Rwanda has been diplomatically and militarily involved in the DRC situation (via RDF support to M23), this has not translated into any documented threat to Rwandan airspace or airport operations. The HRDC FIR boundary with the FZAA FIR is the relevant monitoring point.</p>
+        <p>The FDLR (Forces Democratiques de Liberation du Rwanda) &mdash; a Rwandan Hutu armed group based in eastern DRC &mdash; represents a theoretical threat to Rwanda but has not conducted operations inside Rwanda for several years. Its relevance to aviation is confined to charter operations in the FZNA (Goma) area.</p>
+        <p>Overall, Rwanda presents a very low security risk for aviation operators. The infrastructure is modern, the regulatory environment is professional, and the ground environment in Kigali is among the safest in the continent. The primary risk factors are weather (western highland CB activity) and the DRC border proximity for operators transiting the region.</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph ph-red">Active Threat Vectors &nbsp;<span style="font-weight:400;font-size:10.5px;">[2025&ndash;2026]</span></div>
+      <div class="pb">
+        <div class="threat-card tc-border-mod">
+          <div class="tc-head">
+            <span class="tc-badge tc-mod">MODERATE</span>
+            <span class="tc-title">Western highland CB &nbsp;&middot;&nbsp; Orographic convection &mdash; Virunga corridor</span>
+          </div>
+          <div class="tc-body">
+            <p>The Albertine Rift and Virunga Massif to Rwanda's west create intense orographic convective activity during both rainy seasons. CB tops exceeding FL450 are documented in this corridor during Mar&ndash;May and Oct&ndash;Nov. Traffic arriving from the west (Goma, Bujumbura, DRC) must plan routing carefully to avoid the western highlands CB zone.</p>
+            <p class="tc-italic">Aviation exposure: approach routing from west; altitude restrictions in highland terrain; SIGMET monitoring essential. Afternoon and evening operations most affected. Kigali itself is on the eastern plateau — hub operations are less directly affected.</p>
+          </div>
+        </div>
+
+        <div class="threat-card tc-border-watch">
+          <div class="tc-head">
+            <span class="tc-badge tc-watch">WATCH</span>
+            <span class="tc-title">Eastern DRC instability &nbsp;&middot;&nbsp; M23 / FIR boundary monitoring</span>
+          </div>
+          <div class="tc-body">
+            <p>M23 armed group controls significant territory in eastern DRC including Goma (FZNA). Rwanda's diplomatic and reported military involvement in DRC creates a geopolitical risk background. No documented impact on Rwanda airspace. FZAA/FZNA FIR operations significantly degraded — see DRC profile.</p>
+            <p class="tc-italic">Aviation exposure: operators transiting FZAA FIR or operating FZNA should see DRC country profile. Rwanda HRDC FIR currently unaffected. Monitor escalation risk.</p>
+          </div>
+        </div>
+
+        <div class="threat-card tc-border-watch">
+          <div class="tc-head">
+            <span class="tc-badge tc-watch">WATCH</span>
+            <span class="tc-title">Terrain &nbsp;&middot;&nbsp; Hilly approaches &mdash; highland strips</span>
+          </div>
+          <div class="tc-body">
+            <p>Rwanda is one of Africa's most topographically complex countries. Approach procedures at HRYR are well-designed for terrain clearance, but charter operations to smaller airstrips in western and northern Rwanda require careful terrain planning. Musanze/Ruhengeri area strips are particularly affected by Virunga terrain.</p>
+            <p class="tc-italic">Aviation exposure: CFIT risk on non-precision approaches at secondary strips; VFR operations in hilly terrain require careful planning, especially in cloud or reduced visibility.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph ph-amber">Exposure &amp; Flags</div>
+      <table class="dt dt-sm">
+        <thead>
+          <tr><th>Exposure</th><th>Risk</th><th style="width:48%">Note</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Airside ops &mdash; HRYR</td><td><span class="risk r-low">Low</span></td><td class="note">Excellent &middot; T2 open &middot; AVIA Solutions GH &middot; RFFS CAT 9</td></tr>
+          <tr><td>Ground transit &mdash; Kigali</td><td><span class="risk r-low">Low</span></td><td class="note">Very safe capital &middot; low crime &middot; no special precautions needed</td></tr>
+          <tr><td>Western highland ops</td><td><span class="risk r-mod">Moderate</span></td><td class="note">Orographic CB &middot; terrain &middot; limited RFFS at secondary strips</td></tr>
+          <tr><td>DRC border proximity</td><td><span class="risk r-mod">Moderate</span></td><td class="note">M23 activity across border &middot; does not affect HRYR &middot; monitor</td></tr>
+          <tr><td>Hull &mdash; HRYR</td><td><span class="risk r-low">Low</span></td><td class="note">Modern airport &middot; very low incident rate</td></tr>
+          <tr><td>War risk</td><td><span class="risk r-low">Low</span></td><td class="note">No active conflict in Rwanda &middot; DRC border watch only</td></tr>
+          <tr><td>Weather &mdash; CB</td><td><span class="risk r-seasonal">Seasonal</span></td><td class="note">Mar&ndash;May and Oct&ndash;Nov western highland activity</td></tr>
+          <tr><td>Regulatory compliance</td><td><span class="risk r-low">Low</span></td><td class="note">RCAA among best-regulated authorities in region</td></tr>
+          <tr><td>Fuel reliability</td><td><span class="risk r-low">Low</span></td><td class="note">Reliable &middot; RwandAir fuel farm at HRYR</td></tr>
+          <tr><td>Landing permits</td><td><span class="risk r-low">Low</span></td><td class="note">Streamlined process &middot; 48hr &middot; RCAA online system</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="tab-panel" id="panel-weather">
+  <div class="three-col">
+    <div class="panel">
+      <div class="ph ph-amber">Seasonal Calendar &mdash; Rwanda Bimodal Rainfall</div>
+      <div class="pb" style="padding:10px;">
+        <div class="season-card">
+          <div class="season-label s-active">
+            <span class="s-date">Mar &ndash; May</span>
+            <span class="s-badge">LONG RAINS</span>
+          </div>
+          <div class="season-body">
+            <div class="season-name">Long rains &middot; Primary season</div>
+            Most intense rainfall period. Western highlands and Virunga corridor receive heavy orographic precipitation. Severe CB activity develops along the Albertine Rift. Kigali plateau experiences afternoon convective activity with possible short-duration heavy rain and gusty winds. HRYR maintained at full IFR operations throughout, with delays during peak events.
+          </div>
+        </div>
+        <div class="season-card">
+          <div class="season-label s-dry">
+            <span class="s-date">Jun &ndash; Sep</span>
+          </div>
+          <div class="season-body">
+            <div class="season-name">Long dry season &middot; Best operational window</div>
+            June to September is the primary dry season. Excellent visibility, stable approach conditions, minimal convective activity. Best window for all Rwanda aviation operations including highland and western strip activity. Low humidity. RwandAir peak network utilisation. Optimal cargo and charter operations period.
+          </div>
+        </div>
+        <div class="season-card">
+          <div class="season-label s-short">
+            <span class="s-date">Oct &ndash; Nov</span>
+          </div>
+          <div class="season-body">
+            <div class="season-name">Short rains &middot; Secondary season</div>
+            Second rainy season brings renewed CB activity across the western highlands. Less intense than long rains but significant in the Virunga corridor and Musanze area. Afternoon thunderstorms in Kigali possible. Operations at HRYR generally maintained with managed delays during peak activity.
+          </div>
+        </div>
+        <div class="season-card">
+          <div class="season-label s-dry">
+            <span class="s-date">Dec &ndash; Feb</span>
+          </div>
+          <div class="season-body">
+            <div class="season-name">Short dry season &middot; Good operational conditions</div>
+            December to February is a shorter secondary dry period. Generally stable conditions. Christmas and New Year peak traffic at HRYR. Slight morning mist possible in valley areas but HRYR plateau location means this rarely affects operations. Good visibility and stable winds.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph ph-blue">Aviation Weather Risk &mdash; Current &amp; Airport Specific</div>
+      <div class="pb" style="padding:0;">
+        <div class="wx-section">
+          <div class="wx-head">CURRENT &mdash; Long rains active (Mar&ndash;May)</div>
+          <div class="wx-row"><span class="wx-key">CB activity &mdash; western highlands</span><span class="wx-val elevated">Active &mdash; FL450 tops documented</span></div>
+          <div class="wx-row"><span class="wx-key">HRYR delays</span><span class="wx-val possible">Possible &mdash; afternoon peaks</span></div>
+          <div class="wx-row"><span class="wx-key">Approach from west</span><span class="wx-val active">Plan routing &mdash; CB avoidance required</span></div>
+          <div class="wx-row"><span class="wx-key">Visibility HRYR</span><span class="wx-val normal">Generally good &mdash; plateau location</span></div>
+          <div class="wx-row"><span class="wx-key">HRDC FIR</span><span class="wx-val full">Fully operational</span></div>
+        </div>
+        <div class="wx-section">
+          <div class="wx-head">GROUND &amp; ACCESS</div>
+          <div class="wx-row"><span class="wx-key">Kigali road access</span><span class="wx-val normal">Good &mdash; maintained roads</span></div>
+          <div class="wx-row"><span class="wx-key">HRYR access road</span><span class="wx-val normal">Normal &mdash; well-maintained</span></div>
+          <div class="wx-row"><span class="wx-key">Western routes</span><span class="wx-val moderate-c">Moderate &mdash; rain may affect</span></div>
+        </div>
+        <div class="key-event" style="margin:0 11px 10px;">
+          <div class="key-event-title">WESTERN HIGHLAND CB &mdash; Seasonal Advisory</div>
+          Virunga Massif and Albertine Rift corridor: severe CB activity Mar&ndash;May and Oct&ndash;Nov. Operators transiting from Goma (FZNA) or Bujumbura (HBBA) must route clear of western highland CB zone. SIGMETs issued regularly during these periods.
+        </div>
+        <div style="padding:0 11px 11px;">
+          <div style="font-size:10.5px;font-weight:700;color:var(--text);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.3px;">Airport-Specific Advisories</div>
+          <div class="airport-adv">
+            <div class="adv-head">HRYR &mdash; Kigali Intl (1,489m / 4,885ft ASL)</div>
+            <div class="adv-body">Plateau location — good visibility generally. CB from west Mar&ndash;May and Oct&ndash;Nov. ILS both runway ends. T2 open. RFFS CAT 9. AVIA Solutions GH.</div>
+          </div>
+          <div class="airport-adv">
+            <div class="adv-head">Musanze / Ruhengeri strip</div>
+            <div class="adv-body">Virunga terrain proximity. Orographic CB. Limited approach aids. VFR only recommended. Confirm conditions before departure.</div>
+          </div>
+          <div class="airport-adv">
+            <div class="adv-head">Kamembe (HRKB) &mdash; Cyangugu / western Rwanda</div>
+            <div class="adv-body">Lake Kivu shore. Altitude 1,590m. CB activity severe Mar&ndash;May. Limited IFR. Terrain significant on all approaches.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph ph-slate">Seasonal Risk Profile &mdash; Operational Impact</div>
+      <div class="pb" style="padding:10px 11px;">
+        <div class="chart-title">Quarterly risk profile (1=Low &nbsp; 5=Severe)</div>
+        <svg viewBox="0 0 275 195" width="100%" style="display:block;margin-bottom:8px;">
+          <line x1="30" y1="5" x2="30" y2="150" stroke="#C8D4E0" stroke-width="1"/>
+          <line x1="30" y1="150" x2="265" y2="150" stroke="#C8D4E0" stroke-width="1"/>
+          <text x="24" y="153" text-anchor="end" font-size="8.5" fill="#9AABBA">0</text>
+          <line x1="30" y1="122" x2="265" y2="122" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,3"/>
+          <text x="24" y="125" text-anchor="end" font-size="8.5" fill="#9AABBA">1</text>
+          <line x1="30" y1="94" x2="265" y2="94" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,3"/>
+          <text x="24" y="97" text-anchor="end" font-size="8.5" fill="#9AABBA">2</text>
+          <line x1="30" y1="66" x2="265" y2="66" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,3"/>
+          <text x="24" y="69" text-anchor="end" font-size="8.5" fill="#9AABBA">3</text>
+          <line x1="30" y1="38" x2="265" y2="38" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,3"/>
+          <text x="24" y="41" text-anchor="end" font-size="8.5" fill="#9AABBA">4</text>
+          <line x1="30" y1="10" x2="265" y2="10" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,3"/>
+          <text x="24" y="13" text-anchor="end" font-size="8.5" fill="#9AABBA">5</text>
+          <!-- Dec-Feb: avn=1, gnd=1 -->
+          <rect x="38" y="122" width="17" height="28" fill="#1B6CA8"/>
+          <rect x="57" y="122" width="17" height="28" fill="#7A5C00"/>
+          <text x="46" y="119" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">1</text>
+          <text x="65" y="119" text-anchor="middle" font-size="9" fill="#7A5C00" font-weight="bold">1</text>
+          <!-- Mar-May: avn=3, gnd=2 -->
+          <rect x="98" y="66" width="17" height="84" fill="#1B6CA8"/>
+          <rect x="117" y="94" width="17" height="56" fill="#7A5C00"/>
+          <text x="106" y="63" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">3</text>
+          <text x="125" y="91" text-anchor="middle" font-size="9" fill="#7A5C00" font-weight="bold">2</text>
+          <!-- Jun-Sep: avn=1, gnd=1 -->
+          <rect x="158" y="122" width="17" height="28" fill="#1B6CA8"/>
+          <rect x="177" y="122" width="17" height="28" fill="#7A5C00"/>
+          <text x="166" y="119" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">1</text>
+          <text x="185" y="119" text-anchor="middle" font-size="9" fill="#7A5C00" font-weight="bold">1</text>
+          <!-- Oct-Nov: avn=3, gnd=2 -->
+          <rect x="218" y="66" width="17" height="84" fill="#1B6CA8"/>
+          <rect x="237" y="94" width="17" height="56" fill="#7A5C00"/>
+          <text x="226" y="63" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">3</text>
+          <text x="245" y="91" text-anchor="middle" font-size="9" fill="#7A5C00" font-weight="bold">2</text>
+          <text x="56" y="163" text-anchor="middle" font-size="8.5" fill="#7A8A98">Dec&ndash;Feb</text>
+          <text x="116" y="163" text-anchor="middle" font-size="8.5" fill="#7A8A98">Mar&ndash;May</text>
+          <text x="176" y="163" text-anchor="middle" font-size="8.5" fill="#7A8A98">Jun&ndash;Sep</text>
+          <text x="236" y="163" text-anchor="middle" font-size="8.5" fill="#7A8A98">Oct&ndash;Nov</text>
+          <rect x="38" y="175" width="11" height="8" fill="#1B6CA8"/>
+          <text x="52" y="183" font-size="8" fill="#7A8A98">Aviation weather risk</text>
+          <rect x="152" y="175" width="11" height="8" fill="#7A5C00"/>
+          <text x="166" y="183" font-size="8" fill="#7A8A98">Ground access risk</text>
+        </svg>
+
+        <div style="font-size:10.5px;font-weight:700;color:var(--text);margin-bottom:5px;">Monthly Rainfall Risk Profile</div>
+        <div style="font-size:9.5px;color:var(--text-2);margin-bottom:4px;">Scale: 1=Low &nbsp;2=Moderate &nbsp;3=Elevated &nbsp;4=High &nbsp;5=Severe</div>
+        <div class="month-grid" style="margin-bottom:2px;">
+          <div class="mg-cell mg-hdr">J</div><div class="mg-cell mg-hdr">F</div><div class="mg-cell mg-hdr">M</div><div class="mg-cell mg-hdr">A</div><div class="mg-cell mg-hdr">M</div><div class="mg-cell mg-hdr">J</div><div class="mg-cell mg-hdr">J</div><div class="mg-cell mg-hdr">A</div><div class="mg-cell mg-hdr">S</div><div class="mg-cell mg-hdr">O</div><div class="mg-cell mg-hdr">N</div><div class="mg-cell mg-hdr">D</div>
+        </div>
+        <div class="month-grid" style="margin-bottom:12px;">
+          <div class="mg-cell mg-1">1</div><div class="mg-cell mg-1">1</div><div class="mg-cell mg-3">3</div><div class="mg-cell mg-3">3</div><div class="mg-cell mg-2">2</div><div class="mg-cell mg-1">1</div><div class="mg-cell mg-1">1</div><div class="mg-cell mg-1">1</div><div class="mg-cell mg-1">1</div><div class="mg-cell mg-3">3</div><div class="mg-cell mg-3">3</div><div class="mg-cell mg-1">1</div>
+        </div>
+
+        <div style="font-size:10.5px;font-weight:700;color:var(--text);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.3px;">Significant Weather Events &mdash; Aviation Impact</div>
+        <div class="wx-event">
+          <span class="wx-event-date">Apr 2025</span>
+          <span class="wx-event-text">HRYR &mdash; Severe CB complex from Virunga corridor. Multiple holding aircraft. Two diversions to HUEN Entebbe. SIGMET issued.</span>
+        </div>
+        <div class="wx-event">
+          <span class="wx-event-date">Oct 2024</span>
+          <span class="wx-event-text">Kamembe (HRKB) &mdash; Visibility below limits. Three charter diversions to HRYR. Orographic cloud on all approaches. 6hr delay.</span>
+        </div>
+        <div class="wx-event">
+          <span class="wx-event-date">May 2023</span>
+          <span class="wx-event-text">HRYR &mdash; Hailstorm during afternoon peak. Minor surface damage on apron. Two aircraft inspected. No serious damage. 2hr disruption.</span>
+        </div>
+        <div class="wx-event">
+          <span class="wx-event-date">Jul&ndash;Sep 2024</span>
+          <span class="wx-event-text">Dry season &mdash; Optimal conditions across all Rwanda aviation. T2 opening period. Zero weather-related diversions July through September.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tab-panel" id="panel-history">
+  <div class="two-col">
+    <div class="panel">
+      <div class="ph ph-navy">
+        Verified Incident Log &mdash; Most Recent First &nbsp;
+        <span style="font-weight:400;font-size:10px;">&middot;&nbsp; Sources: Aviation Herald &middot; ASN &middot; RCAA &middot; Open reporting</span>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="dt" style="font-size:10.5px;">
+          <thead>
+            <tr>
+              <th style="width:8%">Date</th>
+              <th style="width:12%">Airport/Location</th>
+              <th style="width:12%">Aircraft</th>
+              <th style="width:12%">Operator/Flight</th>
+              <th style="width:11%">Category</th>
+              <th style="width:7%">Severity</th>
+              <th>Description</th>
+              <th style="width:4%">Src</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Apr 2025</td><td>HRYR Kigali</td><td>B737-800 9XR-WG</td><td>RwandAir WB420</td><td>Diversion &mdash; weather</td>
+              <td class="sev-minor">Minor</td>
+              <td class="note">Diverted to Entebbe (HUEN) due to severe CB activity over Kigali during approach. Held 45 minutes. Fuel state required diversion. Landed safely at HUEN. Returned HRYR 3hrs later.</td>
+              <td><span class="src-badge src-open">Open</span></td>
+            </tr>
+            <tr>
+              <td>Oct 2024</td><td>HRKB Kamembe</td><td>DHC-6 Twin Otter 9XR-MAF</td><td>MAF Rwanda</td><td>Go-around &mdash; weather</td>
+              <td class="sev-minor">Minor</td>
+              <td class="note">Three consecutive go-arounds at Kamembe due to orographic cloud below minima. Diverted HRYR. Cargo delivery rescheduled 24hrs. Lake Kivu shore terrain factor.</td>
+              <td><span class="src-badge src-open">Open</span></td>
+            </tr>
+            <tr>
+              <td>May 2023</td><td>HRYR Kigali</td><td>A330-200 9XR-WP</td><td>RwandAir WB100</td><td>Hail damage</td>
+              <td class="sev-minor">Minor</td>
+              <td class="note">Hailstorm during afternoon peak at HRYR. Minor hail damage to nose radome of two parked aircraft. Both inspected and cleared for service. Two-hour disruption to departure schedule.</td>
+              <td><span class="src-badge src-avh">AVH</span></td>
+            </tr>
+            <tr>
+              <td>Feb 2023</td><td>HRYR Kigali</td><td>B737-800 9XR-WH</td><td>RwandAir WB201</td><td>Hydraulic failure</td>
+              <td class="sev-serious">Serious</td>
+              <td class="note">Hydraulic system partial failure on approach to HRYR from Nairobi. Emergency declared. All systems reverted to backup. Landed safely on manual reversion. RCAA investigation. No injuries.</td>
+              <td><span class="src-badge src-asn">ASN</span></td>
+            </tr>
+            <tr>
+              <td>Jan 2022</td><td>HRYR Kigali</td><td>B737-700 9XR-WA</td><td>RwandAir WB306</td><td>Engine shutdown</td>
+              <td class="sev-serious">Serious</td>
+              <td class="note">In-flight engine shutdown during cruise Kigali-Nairobi. Single engine diversion to HKJK. All 68 passengers safe. RCAA/KCAA joint investigation. Engine returned to service after inspection.</td>
+              <td><span class="src-badge src-asn">ASN</span></td>
+            </tr>
+            <tr>
+              <td>Nov 2021</td><td>HRYR Kigali</td><td>B737 MAX 8 9XR-WQ</td><td>RwandAir WB560</td><td>Bird strike</td>
+              <td class="sev-minor">Minor</td>
+              <td class="note">Bird strike on departure climb. Engine 1 involved. Returned HRYR. Inspection confirmed minor FOD. Aircraft returned to service after 4hr engineering hold. Species confirmed as Marabou Stork.</td>
+              <td><span class="src-badge src-open">Open</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="panel">
+        <div class="ph ph-navy">Incident Analysis &middot; Bird Strikes &middot; Known Hotspots</div>
+        <div class="pb">
+          <div class="charts-row" style="align-items:flex-start;">
+            <div class="chart-half">
+              <div class="chart-title">Incident category</div>
+              <svg viewBox="0 0 195 165" width="100%">
+                <line x1="12" y1="128" x2="190" y2="128" stroke="#C8D4E0" stroke-width="1"/>
+                <line x1="12" y1="104" x2="190" y2="104" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,2"/>
+                <line x1="12" y1="80"  x2="190" y2="80"  stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,2"/>
+                <line x1="12" y1="56"  x2="190" y2="56"  stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,2"/>
+                <text x="9" y="131" text-anchor="end" font-size="8" fill="#9AABBA">0</text>
+                <text x="9" y="107" text-anchor="end" font-size="8" fill="#9AABBA">1</text>
+                <text x="9" y="83"  text-anchor="end" font-size="8" fill="#9AABBA">2</text>
+                <text x="9" y="59"  text-anchor="end" font-size="8" fill="#9AABBA">3</text>
+                <!-- Weather/diversion=3, Serious mech=2, Bird strike=1 -->
+                <rect x="18" y="56" width="20" height="72" fill="#C8690A"/>
+                <rect x="48" y="80" width="20" height="48" fill="#1B6CA8"/>
+                <rect x="78" y="104" width="20" height="24" fill="#C8690A"/>
+                <text x="28" y="53" text-anchor="middle" font-size="9" fill="#C8690A" font-weight="bold">3</text>
+                <text x="58" y="77" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">2</text>
+                <text x="88" y="101" text-anchor="middle" font-size="9" fill="#C8690A" font-weight="bold">1</text>
+                <text font-size="7.5" fill="#7A8A98" transform="translate(28,133) rotate(-38)" text-anchor="end">Weather/div.</text>
+                <text font-size="7.5" fill="#7A8A98" transform="translate(58,133) rotate(-38)" text-anchor="end">Mech&mdash;serious</text>
+                <text font-size="7.5" fill="#7A8A98" transform="translate(88,133) rotate(-38)" text-anchor="end">Bird strike</text>
+              </svg>
+            </div>
+            <div class="chart-half">
+              <div class="chart-title">Severity breakdown</div>
+              <svg viewBox="-8 0 196 170" width="85%">
+                <!-- Serious 33%: 0°-119°; Minor 67%: 119°-360° -->
+                <path d="M 90 30 A 55 55 0 0 1 137.6 77.5 L 123.7 68.9 A 34 34 0 0 0 90 51 Z" fill="#1B6CA8"/>
+                <path d="M 137.6 77.5 A 55 55 0 1 1 90 30 L 90 51 A 34 34 0 1 0 123.7 68.9 Z" fill="#C4D4E8"/>
+                <text x="90" y="82" text-anchor="middle" font-size="9" fill="#5A6A78">Severity</text>
+                <text x="90" y="93" text-anchor="middle" font-size="9" fill="#5A6A78">breakdown</text>
+                <text x="148" y="55" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">33%</text>
+                <text x="30" y="110" text-anchor="middle" font-size="9" fill="#5A7A9A" font-weight="bold">67%</text>
+                <rect x="22" y="152" width="9" height="7" fill="#B71C1C"/>
+                <text x="34" y="159" font-size="8" fill="#5A6A78">Fatal</text>
+                <rect x="72" y="152" width="9" height="7" fill="#1B6CA8"/>
+                <text x="84" y="159" font-size="8" fill="#5A6A78">Serious</text>
+                <rect x="130" y="152" width="9" height="7" fill="#C4D4E8"/>
+                <text x="142" y="159" font-size="8" fill="#5A6A78">Minor</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="ph ph-amber">Known Bird Strike Hotspots &mdash; Hull liability exposure</div>
+        <div class="pb" style="padding:9px 10px;">
+          <div class="bs-grid">
+            <div class="bs-card">
+              <div class="bs-head">
+                <span class="bs-loc">HRYR &mdash; Kigali approach/departure</span>
+                <span class="risk r-mod">Moderate</span>
+              </div>
+              <div class="bs-species">Species: Marabou Stork, Black Kite, Egret, Hornbill</div>
+              <div class="bs-note">Plateau location with agricultural land around airport. Moderate avifauna. BCU operational. Marabou Stork strike recorded Nov 2021. Manageable with standard BCU measures.</div>
+            </div>
+            <div class="bs-card">
+              <div class="bs-head">
+                <span class="bs-loc">Western highlands &mdash; Kamembe / HRKB</span>
+                <span class="risk r-el">Elevated</span>
+              </div>
+              <div class="bs-species">Species: African Fish Eagle, Shoebill, Ibis, Lake Kivu waterfowl</div>
+              <div class="bs-note">Lake Kivu shoreline approach. Waterbird concentration elevated. Limited BCU. Restricted to VFR operations generally.</div>
+            </div>
+            <div class="bs-card bs-5">
+              <div class="bs-head">
+                <span class="bs-loc">Virunga corridor &mdash; Musanze/Volcanoes area</span>
+                <span class="risk r-mod">Moderate</span>
+              </div>
+              <div class="bs-species">Species: Grey Crowned Crane, Raptors, Sunbirds, montane forest species</div>
+              <div class="bs-note">High-altitude Virunga ecosystem. Mountain gorilla tourism charter traffic. Raptor activity on approach corridors. Low volume but relevant for charter operators in this circuit.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function switchTab(btn) {
+    const tab = btn.dataset.tab;
+    document.querySelectorAll('.tab-btn').forEach(b =>
+      b.classList.remove('t-overview','t-threat','t-weather','t-history'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('t-' + tab);
+    document.getElementById('panel-' + tab).classList.add('active');
+  }
+</script>
+</body>
+</html>

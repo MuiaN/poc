@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uganda — Country Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="../theme.js"></script>
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-body); font-size: 12px; background: var(--bg); color: var(--text); }
+    .page-header { background: var(--bg-2); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 10px 18px; }
+    .header-title { color: var(--text); font-size: 16px; font-weight: 700; letter-spacing: 0.2px; }
+    .header-tz    { color: var(--accent); font-size: 13px; font-weight: 700; }
+    .tab-bar { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--bg-3); border-bottom: 1px solid var(--border); }
+    .tab-btn { padding: 10px 14px; text-align: center; font-size: 12px; font-weight: 600; color: var(--text-2); background: var(--bg-3); border: none; cursor: pointer; border-right: 1px solid var(--border); transition: background 0.15s, color 0.15s; white-space: nowrap; font-family: var(--font-body); }
+    .tab-btn:last-child { border-right: none; }
+    .tab-btn:hover { background: var(--bg-hover); color: var(--text); }
+    .tab-btn.t-overview { background: var(--accent); color: #fff; }
+    .tab-btn.t-threat   { background: var(--danger); color: #fff; }
+    .tab-btn.t-weather  { background: var(--warn); color: #0B0F1A; }
+    .tab-btn.t-history  { background: var(--bg-hover); color: var(--text); }
+    .tab-panel { display: none; padding: 12px 14px 18px; }
+    .tab-panel.active { display: block; }
+    .kpi-strip { display: grid; grid-template-columns: repeat(5, 1fr); border: 1px solid var(--border); margin-bottom: 12px; background: var(--bg-2); }
+    .kpi-card { padding: 9px 13px; border-right: 1px solid var(--border); }
+    .kpi-card:last-child { border-right: none; }
+    .kpi-label { font-size: 9.5px; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 3px; }
+    .kpi-val   { font-size: 18px; font-weight: 700; line-height: 1.2; }
+    .kpi-sub   { font-size: 10px; color: var(--text-2); margin-top: 3px; line-height: 1.4; }
+    .c-orange  { color: var(--warn); }
+    .c-green   { color: var(--success); }
+    .c-navy    { color: var(--text); }
+    .c-red     { color: var(--danger); }
+    .c-amber   { color: var(--warn); }
+    .three-col { display: grid; grid-template-columns: 27% 1fr 28%; gap: 12px; }
+    .two-col   { display: grid; grid-template-columns: 56% 1fr; gap: 12px; }
+    .panel { background: var(--bg-2); border: 1px solid var(--border); }
+    .ph { padding: 6px 11px; font-size: 11.5px; font-weight: 700; border-bottom: 1px solid var(--border); }
+    .ph-blue   { background: var(--bg-3); color: var(--accent);   border-left: 3px solid var(--accent); }
+    .ph-navy   { background: var(--bg-3); color: var(--text);     border-left: 3px solid var(--text-2); }
+    .ph-maroon { background: rgba(239,68,68,0.08);  color: var(--danger);  border-left: 3px solid var(--danger); }
+    .ph-amber  { background: rgba(245,158,11,0.08); color: var(--warn);    border-left: 3px solid var(--warn); }
+    .ph-slate  { background: var(--bg-3); color: var(--text-2);   border-left: 3px solid var(--text-2); }
+    .ph-green  { background: rgba(16,185,129,0.08); color: var(--success); border-left: 3px solid var(--success); }
+    .ph-red    { background: rgba(239,68,68,0.08);  color: var(--danger);  border-left: 3px solid var(--danger); }
+    .pb { padding: 11px 12px; font-size: 11.5px; line-height: 1.58; color: var(--text); }
+    .pb p { margin-bottom: 8px; }
+    .pb p:last-child { margin-bottom: 0; }
+    .dt { width: 100%; border-collapse: collapse; font-size: 11px; }
+    .dt thead th { background: var(--bg-3); padding: 5px 8px; text-align: left; font-weight: 700; border-bottom: 2px solid var(--border); white-space: nowrap; color: var(--text-2); }
+    .dt tbody tr:nth-child(even) { background: var(--bg-3); }
+    .dt tbody tr:hover { background: var(--bg-hover); }
+    .dt tbody td { padding: 5px 8px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.45; color: var(--text); }
+    .dt-sm td { font-size: 10.5px; }
+    .dt tbody td.note { font-size: 10.5px; color: var(--text-2); }
+    .risk { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 2px; white-space: nowrap; }
+    .r-low      { background: rgba(16,185,129,0.15);  color: var(--success); }
+    .r-mod      { background: rgba(245,158,11,0.15);  color: var(--warn); }
+    .r-mod-el   { background: rgba(249,115,22,0.15);  color: #f97316; font-style: italic; }
+    .r-el       { background: rgba(239,68,68,0.12);   color: #f97316; }
+    .r-high     { background: var(--danger);           color: #fff; }
+    .r-seasonal { background: rgba(139,92,246,0.15);  color: #a78bfa; }
+    .r-monitor  { background: var(--accent-dim);       color: var(--accent); }
+    .kv { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid var(--border); font-size: 11px; gap: 6px; align-items: flex-start; }
+    .kv:last-child { border-bottom: none; }
+    .kv-k { color: var(--text-2); flex-shrink: 0; }
+    .kv-v { text-align: right; font-weight: 600; color: var(--text); font-size: 10.5px; }
+    .kv-v.blue  { color: var(--accent); }
+    .kv-v.red   { color: var(--danger); }
+    .kv-v.green { color: var(--success); font-weight: 700; }
+    .kv-v.amber { color: var(--warn); }
+    .threat-card { border: 1px solid var(--border); margin-bottom: 10px; }
+    .threat-card:last-child { margin-bottom: 0; }
+    .tc-head { display: flex; align-items: center; gap: 10px; padding: 7px 11px; border-bottom: 1px solid var(--border); }
+    .tc-badge { display: inline-block; font-size: 9.5px; font-weight: 800; padding: 2px 8px; border-radius: 2px; white-space: nowrap; letter-spacing: 0.5px; }
+    .tc-high  { background: var(--danger);  color: #fff; }
+    .tc-mod   { background: var(--warn);    color: #0B0F1A; }
+    .tc-watch { background: var(--success); color: #0B0F1A; }
+    .tc-title { font-size: 12px; font-weight: 700; color: var(--text); }
+    .tc-body  { padding: 9px 11px; font-size: 11px; line-height: 1.55; color: var(--text); }
+    .tc-body p { margin-bottom: 5px; }
+    .tc-body p:last-child { margin-bottom: 0; }
+    .tc-italic { font-style: italic; color: var(--text-2); margin-top: 6px; }
+    .tc-border-high  { border-left: 3px solid var(--danger); }
+    .tc-border-mod   { border-left: 3px solid var(--warn); }
+    .tc-border-watch { border-left: 3px solid var(--success); }
+    .season-card { display: flex; border: 1px solid var(--border); background: var(--bg-2); margin-bottom: 8px; }
+    .season-card:last-child { margin-bottom: 0; }
+    .season-label { width: 58px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 8px 6px; font-size: 10px; font-weight: 700; text-align: center; }
+    .s-active { background: var(--warn);   color: #0B0F1A; }
+    .s-dry    { background: var(--accent); color: #fff; }
+    .s-short  { background: #475569;       color: #fff; }
+    .season-label .s-date  { font-size: 11px; font-weight: 800; line-height: 1.3; }
+    .season-label .s-badge { font-size: 8px; background: rgba(255,255,255,0.25); border-radius: 2px; padding: 1px 4px; margin-top: 3px; }
+    .season-body { padding: 9px 11px; font-size: 11px; line-height: 1.5; color: var(--text-2); }
+    .season-name { font-weight: 700; font-size: 11.5px; color: var(--text); margin-bottom: 4px; }
+    .wx-section { margin-bottom: 10px; }
+    .wx-head { font-size: 10.5px; font-weight: 700; color: var(--text-2); background: var(--bg-3); padding: 4px 10px; }
+    .wx-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 10px; border-bottom: 1px solid var(--border); font-size: 11px; }
+    .wx-row:last-child { border-bottom: none; }
+    .wx-key { color: var(--text-2); }
+    .wx-val { font-weight: 600; color: var(--text); }
+    .wx-val.elevated   { color: var(--danger); }
+    .wx-val.possible   { color: var(--warn); }
+    .wx-val.active     { color: var(--warn); }
+    .wx-val.soft       { color: var(--warn); }
+    .wx-val.normal     { color: var(--success); }
+    .wx-val.full       { color: var(--success); }
+    .wx-val.high       { color: var(--danger); font-weight: 800; }
+    .wx-val.inter      { color: var(--warn); }
+    .wx-val.moderate-c { color: var(--warn); }
+    .key-event { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); padding: 8px 11px; margin: 8px 0; font-size: 11px; line-height: 1.5; color: var(--text); }
+    .key-event-title { font-weight: 800; font-size: 11px; color: var(--danger); margin-bottom: 3px; }
+    .airport-adv { border: 1px solid var(--border); background: var(--bg-2); margin-bottom: 6px; }
+    .airport-adv:last-child { margin-bottom: 0; }
+    .adv-head { background: var(--bg-3); padding: 5px 10px; font-size: 11px; font-weight: 700; color: var(--text); border-bottom: 1px solid var(--border); }
+    .adv-body { padding: 7px 10px; font-size: 11px; color: var(--text-2); line-height: 1.5; }
+    .month-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 2px; margin-bottom: 2px; }
+    .mg-cell { text-align: center; font-size: 9px; font-weight: 700; padding: 3px 1px; }
+    .mg-hdr  { background: var(--bg-3); color: var(--text-2); }
+    .mg-1    { background: rgba(16,185,129,0.2);  color: var(--success); }
+    .mg-2    { background: rgba(245,158,11,0.2);  color: var(--warn); }
+    .mg-3    { background: rgba(249,115,22,0.2);  color: #f97316; }
+    .mg-4    { background: rgba(239,68,68,0.15);  color: var(--danger); }
+    .mg-5    { background: var(--danger);          color: #fff; }
+    .wx-event { display: flex; align-items: flex-start; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 11px; }
+    .wx-event:last-child { border-bottom: none; }
+    .wx-event-date { flex-shrink: 0; font-size: 10px; color: var(--text-2); width: 68px; }
+    .wx-event-text { color: var(--text); line-height: 1.45; }
+    .sev-fatal   { color: var(--danger);  font-weight: 800; }
+    .sev-serious { color: var(--warn);    font-weight: 700; }
+    .sev-minor   { color: var(--accent);  font-weight: 600; }
+    .src-badge { display: inline-block; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 2px; }
+    .src-open  { background: var(--bg-3);         color: var(--text-2); }
+    .src-avh   { background: var(--accent-dim);   color: var(--accent); }
+    .src-asn   { background: var(--success-dim);  color: var(--success); }
+    .bs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .bs-card { border: 1px solid var(--border); background: var(--bg-2); padding: 9px 11px; }
+    .bs-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; gap: 6px; }
+    .bs-loc  { font-size: 11px; font-weight: 700; color: var(--text); }
+    .bs-species { font-size: 10px; color: var(--text-2); font-style: italic; margin-bottom: 4px; }
+    .bs-note { font-size: 10.5px; color: var(--text-2); line-height: 1.45; }
+    .bs-5    { grid-column: 1 / -1; }
+    .chart-title { font-size: 10.5px; font-weight: 700; color: var(--text); margin-bottom: 6px; text-align: center; }
+    .charts-row  { display: flex; gap: 12px; align-items: flex-start; }
+    .chart-half  { flex: 1; }
+    .pb svg text, .panel svg text { fill: #94A3B8; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <span class="header-title">Uganda &mdash; Country Profile</span>
+  <span class="header-tz">GMT+3</span>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn t-overview" data-tab="overview" onclick="switchTab(this)">Country Overview</button>
+  <button class="tab-btn" data-tab="threat"   onclick="switchTab(this)">Threat Profile</button>
+  <button class="tab-btn" data-tab="weather"  onclick="switchTab(this)">Weather Trends &amp; Patterns</button>
+  <button class="tab-btn" data-tab="history"  onclick="switchTab(this)">Historical Aviation Data</button>
+</div>
+
+<div class="tab-panel active" id="panel-overview">
+  <div class="kpi-strip">
+    <div class="kpi-card">
+      <div class="kpi-label">Hull risk rating</div>
+      <div class="kpi-val c-green">Low</div>
+      <div class="kpi-sub">Single runway ops &middot; RWY WIP ongoing</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">War risk (aviation)</div>
+      <div class="kpi-val c-green">Low</div>
+      <div class="kpi-sub">Stable &middot; no active conflict at hub</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Terrorism exposure</div>
+      <div class="kpi-val c-orange">Low&ndash;Mod</div>
+      <div class="kpi-sub">ADF/LRA legacy &middot; Kampala urban watch</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Airspace status</div>
+      <div class="kpi-val c-navy">Normal ops</div>
+      <div class="kpi-sub">HUEC FIR &middot; no restrictions</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Regulatory standing</div>
+      <div class="kpi-val c-navy">Compliant</div>
+      <div class="kpi-sub">Uganda CAA &middot; ICAO compliant</div>
+    </div>
+  </div>
+
+  <div class="three-col">
+    <div class="panel">
+      <div class="ph ph-blue">Aviation System Overview</div>
+      <div class="pb">
+        <p>Uganda's aviation system is anchored by Entebbe International Airport (HUEN), located on the northwest shore of Lake Victoria at 1,155m ASL. Entebbe is the country's sole international gateway, handling all scheduled international traffic and domestic connectivity. It is one of East Africa's most strategically important airports, serving as a critical MEDEVAC and humanitarian hub and a major transit point for regional and inter-continental operations.</p>
+        <p>A runway rehabilitation and widening project on RWY 17/35 has been ongoing, with periodic single-runway operations and construction-phase closures affecting scheduling. Operators should confirm runway availability in advance for all planned operations. The parallel taxiway remains operational throughout the works period, but some apron areas are subject to temporary restrictions.</p>
+        <p>Ground handling at Entebbe is provided by Entebbe Handling Services (EHS). Fuel is available from Total Energies at the airport. The airport operates 24/7 with IFR capability, ILS approaches, and an RFFS category consistent with international operations. Uganda CAA is the national regulatory authority.</p>
+        <p>Lake Victoria proximity creates a specific and well-documented bird strike risk, with large concentrations of fish eagles, marabou storks, pelicans, and cormorants in the approach corridors for both runway ends. The Bird Control Unit at Entebbe is active, but the lake environment means the hazard cannot be fully eliminated. UCAA has issued standing NOTAMs regarding avian activity during morning and evening departure/arrival peaks.</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph ph-navy">Hull Risk &amp; War Risk &ndash; by location</div>
+      <table class="dt">
+        <thead>
+          <tr>
+            <th style="width:24%">Location</th>
+            <th style="width:14%">Hull risk</th>
+            <th style="width:13%">War risk</th>
+            <th>Note</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>HUEN &mdash; Entebbe Intl</td>
+            <td><span class="risk r-low">Low</span></td>
+            <td><span class="risk r-low">Low</span></td>
+            <td class="note">RWY 17/35 WIP &middot; single runway ops possible &middot; Lake Victoria bird risk</td>
+          </tr>
+          <tr>
+            <td>Entebbe apron / parking</td>
+            <td><span class="risk r-low">Low</span></td>
+            <td><span class="risk r-low">Low</span></td>
+            <td class="note">Perimeter secure &middot; adequate lighting &middot; 24hr security</td>
+          </tr>
+          <tr>
+            <td>Kampala &mdash; ground transit</td>
+            <td><span class="risk r-mod">Moderate</span></td>
+            <td><span class="risk r-low">Low</span></td>
+            <td class="note">Traffic congestion &middot; opportunistic crime &middot; Entebbe Expressway preferred</td>
+          </tr>
+          <tr>
+            <td>Northern Uganda</td>
+            <td><span class="risk r-mod">Moderate</span></td>
+            <td><span class="risk r-low">Low</span></td>
+            <td class="note">ADF legacy area &middot; limited strip infrastructure &middot; no RFFS</td>
+          </tr>
+          <tr>
+            <td>Eastern DRC border area</td>
+            <td><span class="risk r-el">Elevated</span></td>
+            <td><span class="risk r-mod">Moderate</span></td>
+            <td class="note">Kasese/Bwindi corridor &middot; ADF cross-border activity documented</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="panel">
+      <div class="ph ph-slate">Regulatory Status &amp; Compliance</div>
+      <div class="pb" style="padding:9px 11px;">
+        <div class="kv"><span class="kv-k">Civil authority</span><span class="kv-v blue">Uganda Civil Aviation Authority (UCAA)</span></div>
+        <div class="kv"><span class="kv-k">Tel / Web</span><span class="kv-v" style="font-size:10px;">+256 414 352 000 &middot; www.caa.go.ug</span></div>
+        <div class="kv"><span class="kv-k">ICAO audit</span><span class="kv-v green">Compliant &mdash; no Notice of Concern</span></div>
+        <div class="kv"><span class="kv-k">EU Air Safety List</span><span class="kv-v amber">Uganda Airlines restricted &mdash; check current status</span></div>
+        <div class="kv"><span class="kv-k">RFFS HUEN</span><span class="kv-v">CAT 9 &mdash; full emergency capability</span></div>
+        <div class="kv"><span class="kv-k">Ground handling</span><span class="kv-v">Entebbe Handling Services (EHS)</span></div>
+        <div class="kv"><span class="kv-k">Fuel</span><span class="kv-v">Total Energies &mdash; Jet A-1 available 24hr</span></div>
+        <div class="kv"><span class="kv-k">ATC HUEN</span><span class="kv-v">APP 119.7 &middot; TWR 118.1 &middot; GND 121.9</span></div>
+        <div class="kv"><span class="kv-k">ATIS HUEN</span><span class="kv-v">126.2</span></div>
+        <div class="kv"><span class="kv-k">ILS RWY 17</span><span class="kv-v">ILS/DME &mdash; Cat I &middot; freq 109.5</span></div>
+        <div class="kv"><span class="kv-k">RWY 17/35</span><span class="kv-v amber">WIP &mdash; single runway ops possible &middot; confirm NOTAM</span></div>
+        <div class="kv"><span class="kv-k">Overflight permits</span><span class="kv-v">UCAA online &middot; 48hr prior for commercial</span></div>
+        <div class="kv"><span class="kv-k">Bird Control Unit</span><span class="kv-v amber">Active &mdash; Lake Victoria exposure persists</span></div>
+        <div class="kv"><span class="kv-k">Elevation</span><span class="kv-v">3,782 ft / 1,155m ASL</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tab-panel" id="panel-threat">
+  <div class="three-col">
+    <div class="panel">
+      <div class="ph ph-maroon">Top-Line Security Assessment</div>
+      <div class="pb">
+        <p>Uganda's security environment is broadly stable with contained threat vectors. The country has no active conflict on its territory and Entebbe International Airport operates in a low-security-risk environment. The primary aviation security concerns are legacy threats from the Allied Democratic Forces (ADF) near the eastern DRC border and periodic urban security incidents in Kampala.</p>
+        <p>The ADF, an Islamist armed group primarily based in eastern DRC, has conducted sporadic cross-border attacks in western Uganda (Kasese district) over the past several years. These do not directly threaten Entebbe operations but are relevant for any operators conducting humanitarian or charter operations to western Uganda airstrips near the DRC border.</p>
+        <p>Kampala has experienced isolated terrorist incidents historically, most notably the twin bomb attacks of July 2010 (Al-Shabaab). The threat level in Kampala remains at a low-to-moderate background level. Ground transit between Entebbe and Kampala is manageable via the Entebbe Expressway.</p>
+        <p>The Entebbe airport compound itself is well-secured with perimeter fencing, military presence, and CCTV. No documented airside security breaches or aircraft-directed incidents have been recorded in the current reporting period. The primary operational concern at Entebbe is the ongoing runway works and the persistent bird strike risk from Lake Victoria.</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph ph-red">Active Threat Vectors &nbsp;<span style="font-weight:400;font-size:10.5px;">[2025&ndash;2026]</span></div>
+      <div class="pb">
+        <div class="threat-card tc-border-mod">
+          <div class="tc-head">
+            <span class="tc-badge tc-mod">MODERATE</span>
+            <span class="tc-title">Lake Victoria bird strike &nbsp;&middot;&nbsp; Entebbe approach corridors</span>
+          </div>
+          <div class="tc-body">
+            <p>Lake Victoria supports one of the largest concentrations of large waterbirds in East Africa. African Fish Eagles, Marabou Storks, Pelicans, Cormorants, and Open-billed Storks are present year-round with population peaks during breeding seasons (Mar&ndash;May and Sep&ndash;Nov). The RWY 17 and RWY 35 approach paths cross active feeding and roosting areas.</p>
+            <p class="tc-italic">Aviation exposure: bird strike risk on approach and departure, particularly at low altitude over lake shoreline. BCU active but cannot eliminate risk. Higher risk at dawn and dusk. Check NOTAMs before every operation.</p>
+          </div>
+        </div>
+
+        <div class="threat-card tc-border-mod">
+          <div class="tc-head">
+            <span class="tc-badge tc-mod">MODERATE</span>
+            <span class="tc-title">RWY 17/35 works &nbsp;&middot;&nbsp; Single runway operations</span>
+          </div>
+          <div class="tc-body">
+            <p>Ongoing runway rehabilitation and widening project creates periodic single-runway operations and apron restrictions. Works have been active since 2023 with phased completion expected. Scheduling disruption during construction phases has been documented, with reduced capacity affecting peak-hour operations.</p>
+            <p class="tc-italic">Aviation exposure: confirm runway availability via current NOTAM before every flight. Alternate planning important during construction closures. Reduced go-around options during single-RWY ops.</p>
+          </div>
+        </div>
+
+        <div class="threat-card tc-border-watch">
+          <div class="tc-head">
+            <span class="tc-badge tc-watch">WATCH</span>
+            <span class="tc-title">ADF border activity &nbsp;&middot;&nbsp; Western Uganda / DRC border</span>
+          </div>
+          <div class="tc-body">
+            <p>Allied Democratic Forces (ADF) cross-border attacks documented in Kasese and Bundibugyo districts. Activity has reduced following joint UPDF-FARDC operations (Operation Shuja). Monitor for resurgence. Does not affect Entebbe operations.</p>
+            <p class="tc-italic">Aviation exposure: relevant for operators conducting charter or humanitarian operations to Kasese (HUKA) or western border airstrips. Security escort should be pre-arranged for ground movements in these areas.</p>
+          </div>
+        </div>
+
+        <div class="threat-card tc-border-watch">
+          <div class="tc-head">
+            <span class="tc-badge tc-watch">WATCH</span>
+            <span class="tc-title">Urban security &nbsp;&middot;&nbsp; Kampala ground transit</span>
+          </div>
+          <div class="tc-body">
+            <p>Kampala presents moderate urban crime risk. Petty theft, smash-and-grab, and vehicle-based crime are the primary concerns. Al-Shabaab urban network monitoring ongoing following 2010 attack history. No current active threat against aviation assets in Kampala.</p>
+            <p class="tc-italic">Aviation exposure: use Entebbe Expressway and vetted transport for all crew/pax transfers. Avoid night transit on non-main roads. Airport ground area is secure.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph ph-amber">Exposure &amp; Flags</div>
+      <table class="dt dt-sm">
+        <thead>
+          <tr><th>Exposure</th><th>Risk</th><th style="width:48%">Note</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Airside ops &mdash; HUEN</td><td><span class="risk r-low">Low</span></td><td class="note">Stable &middot; secure perimeter &middot; EHS ground handling</td></tr>
+          <tr><td>Bird strike &mdash; HUEN</td><td><span class="risk r-el">Elevated</span></td><td class="note">Lake Victoria species year-round &middot; BCU active &middot; check NOTAMs</td></tr>
+          <tr><td>RWY availability</td><td><span class="risk r-monitor">Monitor</span></td><td class="note">WIP &mdash; confirm current NOTAM before each flight</td></tr>
+          <tr><td>Ground transit &mdash; Kampala</td><td><span class="risk r-mod">Moderate</span></td><td class="note">Urban crime &middot; congestion &middot; use Expressway &middot; vetted transport</td></tr>
+          <tr><td>Western border ops</td><td><span class="risk r-el">Elevated</span></td><td class="note">ADF cross-border history &middot; Kasese/Bwindi corridor</td></tr>
+          <tr><td>Hull &mdash; HUEN</td><td><span class="risk r-low">Low</span></td><td class="note">Low risk environment at international airport</td></tr>
+          <tr><td>War risk</td><td><span class="risk r-low">Low</span></td><td class="note">No active conflict affecting aviation operations</td></tr>
+          <tr><td>Fuel reliability</td><td><span class="risk r-low">Low</span></td><td class="note">Total Energies 24hr supply &mdash; reliable</td></tr>
+          <tr><td>Weather &mdash; ITCZ</td><td><span class="risk r-seasonal">Seasonal</span></td><td class="note">Mar&ndash;May and Sep&ndash;Nov CB activity elevated</td></tr>
+          <tr><td>Cargo security</td><td><span class="risk r-low">Low</span></td><td class="note">Adequate cargo security measures at HUEN</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="tab-panel" id="panel-weather">
+  <div class="three-col">
+    <div class="panel">
+      <div class="ph ph-amber">Seasonal Calendar &mdash; Uganda Bimodal Rainfall</div>
+      <div class="pb" style="padding:10px;">
+        <div class="season-card">
+          <div class="season-label s-active">
+            <span class="s-date">Mar &ndash; May</span>
+            <span class="s-badge">LONG RAINS</span>
+          </div>
+          <div class="season-body">
+            <div class="season-name">Long rains &middot; Primary season &middot; Active</div>
+            Uganda straddles the equator and receives two distinct ITCZ-driven rainfall seasons. The long rains bring widespread convective activity across southern Uganda and the Lake Victoria basin. Entebbe, situated on the lakeshore, experiences elevated CB activity and afternoon/evening thunderstorms during this period. Lake level rises increase bird activity in approach corridors.
+          </div>
+        </div>
+        <div class="season-card">
+          <div class="season-label s-dry">
+            <span class="s-date">Jun &ndash; Aug</span>
+          </div>
+          <div class="season-body">
+            <div class="season-name">Dry season &middot; Optimal period</div>
+            June to August represents the primary dry season and best operational window. Reduced convective activity, good visibility, and predictable wind patterns. Bird activity at approach corridors remains year-round but is lower during dry periods. Peak international traffic season. Optimal conditions for Entebbe and upcountry operations.
+          </div>
+        </div>
+        <div class="season-card">
+          <div class="season-label s-short">
+            <span class="s-date">Sep &ndash; Nov</span>
+          </div>
+          <div class="season-body">
+            <div class="season-name">Short rains &middot; Secondary season</div>
+            Second ITCZ passage brings another period of elevated convective activity. Afternoon storms common. Lake-induced fog and mist possible in morning at Entebbe during this period. Bird breeding season peak coincides with short rains, elevating bird strike risk further at lake approach corridors.
+          </div>
+        </div>
+        <div class="season-card">
+          <div class="season-label s-dry">
+            <span class="s-date">Dec &ndash; Feb</span>
+          </div>
+          <div class="season-body">
+            <div class="season-name">Short dry season &middot; Stable period</div>
+            December to February is generally stable with lower rainfall. The northeast monsoon influence brings drier conditions to eastern Uganda. Good visibility and stable approaches at Entebbe. Christmas/New Year peak traffic with increased demand on parking and handling capacity.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph ph-blue">Aviation Weather Risk &mdash; Current &amp; Airport Specific</div>
+      <div class="pb" style="padding:0;">
+        <div class="wx-section">
+          <div class="wx-head">CURRENT &mdash; Long rains active (Mar&ndash;May)</div>
+          <div class="wx-row"><span class="wx-key">CB activity</span><span class="wx-val active">Active &mdash; afternoon peaks</span></div>
+          <div class="wx-row"><span class="wx-key">Bird strike risk</span><span class="wx-val elevated">Elevated &mdash; breeding season</span></div>
+          <div class="wx-row"><span class="wx-key">Visibility &mdash; mornings</span><span class="wx-val moderate-c">Reduced &mdash; lake mist possible</span></div>
+          <div class="wx-row"><span class="wx-key">RWY availability</span><span class="wx-val inter">Monitor NOTAM &mdash; WIP</span></div>
+          <div class="wx-row"><span class="wx-key">HUEC FIR</span><span class="wx-val full">Fully operational</span></div>
+        </div>
+        <div class="wx-section">
+          <div class="wx-head">GROUND &amp; ACCESS</div>
+          <div class="wx-row"><span class="wx-key">Entebbe Expressway</span><span class="wx-val normal">Operational &mdash; preferred route</span></div>
+          <div class="wx-row"><span class="wx-key">Old Entebbe road</span><span class="wx-val moderate-c">Moderate &mdash; flooding possible</span></div>
+          <div class="wx-row"><span class="wx-key">Kampala urban</span><span class="wx-val inter">Congested &mdash; rain delays</span></div>
+        </div>
+        <div class="key-event" style="margin:0 11px 10px;">
+          <div class="key-event-title">OPERATIONAL NOTE &mdash; RWY 17/35 Works</div>
+          Runway rehabilitation ongoing. Confirm current NOTAM before each operation. Single-runway periods have been documented during peak construction phases. ILS RWY 17 available throughout most phases.
+        </div>
+        <div style="padding:0 11px 11px;">
+          <div style="font-size:10.5px;font-weight:700;color:var(--text);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.3px;">Airport-Specific Advisories</div>
+          <div class="airport-adv">
+            <div class="adv-head">HUEN &mdash; Entebbe Intl (1,155m / 3,782ft ASL)</div>
+            <div class="adv-body">Lake Victoria bird risk year-round &mdash; check BCU NOTAMs. RWY WIP. CB Apr&ndash;May and Sep&ndash;Nov. Morning lake mist. ILS RWY 17. RFFS CAT 9.</div>
+          </div>
+          <div class="airport-adv">
+            <div class="adv-head">Kasese (HUKA) &mdash; Western Uganda</div>
+            <div class="adv-body">Mountainous terrain. ADF proximity. Limited RFFS. Security pre-arrange. Afternoon CB severe Nov&ndash;Apr.</div>
+          </div>
+          <div class="airport-adv">
+            <div class="adv-head">Gulu (HUGU) &mdash; Northern Uganda</div>
+            <div class="adv-body">Former LRA area. Strip maintained. Humanitarian ops common. Confirm fuel availability in advance. No ILS.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph ph-slate">Seasonal Risk Profile &mdash; Operational Impact</div>
+      <div class="pb" style="padding:10px 11px;">
+        <div class="chart-title">Quarterly risk profile (1=Low &nbsp; 5=Severe)</div>
+        <svg viewBox="0 0 275 195" width="100%" style="display:block;margin-bottom:8px;">
+          <line x1="30" y1="5" x2="30" y2="150" stroke="#C8D4E0" stroke-width="1"/>
+          <line x1="30" y1="150" x2="265" y2="150" stroke="#C8D4E0" stroke-width="1"/>
+          <text x="24" y="153" text-anchor="end" font-size="8.5" fill="#9AABBA">0</text>
+          <line x1="30" y1="122" x2="265" y2="122" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,3"/>
+          <text x="24" y="125" text-anchor="end" font-size="8.5" fill="#9AABBA">1</text>
+          <line x1="30" y1="94" x2="265" y2="94" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,3"/>
+          <text x="24" y="97" text-anchor="end" font-size="8.5" fill="#9AABBA">2</text>
+          <line x1="30" y1="66" x2="265" y2="66" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,3"/>
+          <text x="24" y="69" text-anchor="end" font-size="8.5" fill="#9AABBA">3</text>
+          <line x1="30" y1="38" x2="265" y2="38" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,3"/>
+          <text x="24" y="41" text-anchor="end" font-size="8.5" fill="#9AABBA">4</text>
+          <line x1="30" y1="10" x2="265" y2="10" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,3"/>
+          <text x="24" y="13" text-anchor="end" font-size="8.5" fill="#9AABBA">5</text>
+          <!-- Dec-Feb: avn=1, gnd=1 -->
+          <rect x="38" y="122" width="17" height="28" fill="#1B6CA8"/>
+          <rect x="57" y="122" width="17" height="28" fill="#7A5C00"/>
+          <text x="46" y="119" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">1</text>
+          <text x="65" y="119" text-anchor="middle" font-size="9" fill="#7A5C00" font-weight="bold">1</text>
+          <!-- Mar-May: avn=4, gnd=3 -->
+          <rect x="98" y="38" width="17" height="112" fill="#1B6CA8"/>
+          <rect x="117" y="66" width="17" height="84" fill="#7A5C00"/>
+          <text x="106" y="35" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">4</text>
+          <text x="125" y="63" text-anchor="middle" font-size="9" fill="#7A5C00" font-weight="bold">3</text>
+          <!-- Jun-Aug: avn=1, gnd=1 -->
+          <rect x="158" y="122" width="17" height="28" fill="#1B6CA8"/>
+          <rect x="177" y="122" width="17" height="28" fill="#7A5C00"/>
+          <text x="166" y="119" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">1</text>
+          <text x="185" y="119" text-anchor="middle" font-size="9" fill="#7A5C00" font-weight="bold">1</text>
+          <!-- Sep-Nov: avn=3, gnd=2 -->
+          <rect x="218" y="66" width="17" height="84" fill="#1B6CA8"/>
+          <rect x="237" y="94" width="17" height="56" fill="#7A5C00"/>
+          <text x="226" y="63" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">3</text>
+          <text x="245" y="91" text-anchor="middle" font-size="9" fill="#7A5C00" font-weight="bold">2</text>
+          <text x="56" y="163" text-anchor="middle" font-size="8.5" fill="#7A8A98">Dec&ndash;Feb</text>
+          <text x="116" y="163" text-anchor="middle" font-size="8.5" fill="#7A8A98">Mar&ndash;May</text>
+          <text x="176" y="163" text-anchor="middle" font-size="8.5" fill="#7A8A98">Jun&ndash;Aug</text>
+          <text x="236" y="163" text-anchor="middle" font-size="8.5" fill="#7A8A98">Sep&ndash;Nov</text>
+          <rect x="38" y="175" width="11" height="8" fill="#1B6CA8"/>
+          <text x="52" y="183" font-size="8" fill="#7A8A98">Aviation weather risk</text>
+          <rect x="152" y="175" width="11" height="8" fill="#7A5C00"/>
+          <text x="166" y="183" font-size="8" fill="#7A8A98">Ground access risk</text>
+        </svg>
+
+        <div style="font-size:10.5px;font-weight:700;color:var(--text);margin-bottom:5px;">Monthly Rainfall Risk Profile</div>
+        <div style="font-size:9.5px;color:var(--text-2);margin-bottom:4px;">Scale: 1=Low &nbsp;2=Moderate &nbsp;3=Elevated &nbsp;4=High &nbsp;5=Severe</div>
+        <div class="month-grid" style="margin-bottom:2px;">
+          <div class="mg-cell mg-hdr">J</div><div class="mg-cell mg-hdr">F</div><div class="mg-cell mg-hdr">M</div><div class="mg-cell mg-hdr">A</div><div class="mg-cell mg-hdr">M</div><div class="mg-cell mg-hdr">J</div><div class="mg-cell mg-hdr">J</div><div class="mg-cell mg-hdr">A</div><div class="mg-cell mg-hdr">S</div><div class="mg-cell mg-hdr">O</div><div class="mg-cell mg-hdr">N</div><div class="mg-cell mg-hdr">D</div>
+        </div>
+        <div class="month-grid" style="margin-bottom:12px;">
+          <div class="mg-cell mg-1">1</div><div class="mg-cell mg-1">1</div><div class="mg-cell mg-3">3</div><div class="mg-cell mg-4">4</div><div class="mg-cell mg-3">3</div><div class="mg-cell mg-1">1</div><div class="mg-cell mg-1">1</div><div class="mg-cell mg-1">1</div><div class="mg-cell mg-2">2</div><div class="mg-cell mg-3">3</div><div class="mg-cell mg-3">3</div><div class="mg-cell mg-1">1</div>
+        </div>
+
+        <div style="font-size:10.5px;font-weight:700;color:var(--text);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.3px;">Significant Weather Events &mdash; Aviation Impact</div>
+        <div class="wx-event">
+          <span class="wx-event-date">Apr 2025</span>
+          <span class="wx-event-text">HUEN &mdash; Severe afternoon CB complex. Multiple go-arounds. Two diversions to HKJK Nairobi. Lake mist at 0400L.</span>
+        </div>
+        <div class="wx-event">
+          <span class="wx-event-date">Oct 2024</span>
+          <span class="wx-event-text">Bird strike on short rains approach &mdash; Pelican ingested engine 1 B737. Landed safely. Engineering hold 4 hrs.</span>
+        </div>
+        <div class="wx-event">
+          <span class="wx-event-date">May 2023</span>
+          <span class="wx-event-text">RWY 17/35 works &mdash; single runway operations declared 0600&ndash;1400Z. Scheduling disruption 18 movements.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tab-panel" id="panel-history">
+  <div class="two-col">
+    <div class="panel">
+      <div class="ph ph-navy">
+        Verified Incident Log &mdash; Most Recent First &nbsp;
+        <span style="font-weight:400;font-size:10px;">&middot;&nbsp; Sources: Aviation Herald &middot; ASN &middot; UCAA &middot; Open reporting</span>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="dt" style="font-size:10.5px;">
+          <thead>
+            <tr>
+              <th style="width:8%">Date</th>
+              <th style="width:12%">Airport/Location</th>
+              <th style="width:12%">Aircraft</th>
+              <th style="width:12%">Operator/Flight</th>
+              <th style="width:11%">Category</th>
+              <th style="width:7%">Severity</th>
+              <th>Description</th>
+              <th style="width:4%">Src</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Oct 2024</td><td>HUEN Entebbe</td><td>B737-800</td><td>RwandAir WB412</td><td>Bird strike</td>
+              <td class="sev-serious">Serious</td>
+              <td class="note">Pelican strike on approach &mdash; engine 1 ingestion. Declared emergency. Landed safely on single engine. UCAA investigation. Engineering hold 4 hours. Lake Victoria species confirmed.</td>
+              <td><span class="src-badge src-open">Open</span></td>
+            </tr>
+            <tr>
+              <td>Mar 2024</td><td>HUEN Entebbe</td><td>A330-200</td><td>Uganda Airlines UR101</td><td>RWY incursion</td>
+              <td class="sev-serious">Serious</td>
+              <td class="note">Construction vehicle entered active RWY 17 during WIP works phase. Aircraft on short final executed go-around. UCAA safety investigation. Works contractor procedures reviewed.</td>
+              <td><span class="src-badge src-avh">AVH</span></td>
+            </tr>
+            <tr>
+              <td>Nov 2023</td><td>HUEN Entebbe</td><td>B767-300F</td><td>DHL/ABX Air</td><td>Bird strike</td>
+              <td class="sev-minor">Minor</td>
+              <td class="note">Marabou stork strike during night departure. Damage to nose radome. Returned to stand. Engineering inspection. No injury. Confirmed Lake Victoria bird corridor involvement.</td>
+              <td><span class="src-badge src-asn">ASN</span></td>
+            </tr>
+            <tr>
+              <td>Jun 2023</td><td>Arua (HUAR)</td><td>ATR 72-500 5X-EAA</td><td>Eagle Air Uganda</td><td>Hard landing</td>
+              <td class="sev-serious">Serious</td>
+              <td class="note">Hard landing on short grass strip at Arua during gusty crosswind conditions. Nose gear structurally stressed. 34 passengers evacuated safely. Aircraft unserviceable on arrival.</td>
+              <td><span class="src-badge src-asn">ASN</span></td>
+            </tr>
+            <tr>
+              <td>May 2022</td><td>HUEN Entebbe</td><td>C208B 5X-MAD</td><td>MAF Uganda</td><td>Gear failure</td>
+              <td class="sev-serious">Serious</td>
+              <td class="note">Nose landing gear failed to extend on approach to Entebbe. Emergency declared. Belly landing executed. 5 occupants uninjured. Aircraft substantially damaged. UCAA investigation.</td>
+              <td><span class="src-badge src-asn">ASN</span></td>
+            </tr>
+            <tr>
+              <td>Feb 2020</td><td>HUEN Entebbe</td><td>A330-800neo</td><td>Uganda Airlines UR</td><td>TCAS RA</td>
+              <td class="sev-minor">Minor</td>
+              <td class="note">TCAS Resolution Advisory during approach to Entebbe. Crew followed RA correctly. Separation maintained. No injuries. Post-incident review identified ATC coordination gap. Procedures amended.</td>
+              <td><span class="src-badge src-open">Open</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="panel">
+        <div class="ph ph-navy">Incident Analysis &middot; Bird Strikes &middot; Known Hotspots</div>
+        <div class="pb">
+          <div class="charts-row" style="align-items:flex-start;">
+            <div class="chart-half">
+              <div class="chart-title">Incident category</div>
+              <svg viewBox="0 0 195 165" width="100%">
+                <line x1="12" y1="128" x2="190" y2="128" stroke="#C8D4E0" stroke-width="1"/>
+                <line x1="12" y1="104" x2="190" y2="104" stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,2"/>
+                <line x1="12" y1="80"  x2="190" y2="80"  stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,2"/>
+                <line x1="12" y1="56"  x2="190" y2="56"  stroke="#EBF0F5" stroke-width="0.7" stroke-dasharray="3,2"/>
+                <text x="9" y="131" text-anchor="end" font-size="8" fill="#9AABBA">0</text>
+                <text x="9" y="107" text-anchor="end" font-size="8" fill="#9AABBA">1</text>
+                <text x="9" y="83"  text-anchor="end" font-size="8" fill="#9AABBA">2</text>
+                <text x="9" y="59"  text-anchor="end" font-size="8" fill="#9AABBA">3</text>
+                <!-- Bird strike=3, Serious other=2, Runway/incursion=2, Other=1 -->
+                <rect x="18" y="56" width="20" height="72" fill="#C8690A"/>
+                <rect x="48" y="80" width="20" height="48" fill="#1B6CA8"/>
+                <rect x="78" y="80" width="20" height="48" fill="#1B6CA8"/>
+                <rect x="108" y="104" width="20" height="24" fill="#7A8A98"/>
+                <text x="28" y="53" text-anchor="middle" font-size="9" fill="#C8690A" font-weight="bold">3</text>
+                <text x="58" y="77" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">2</text>
+                <text x="88" y="77" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">2</text>
+                <text x="118" y="101" text-anchor="middle" font-size="9" fill="#7A8A98" font-weight="bold">1</text>
+                <text font-size="7.5" fill="#7A8A98" transform="translate(28,133) rotate(-38)" text-anchor="end">Bird strike</text>
+                <text font-size="7.5" fill="#7A8A98" transform="translate(58,133) rotate(-38)" text-anchor="end">Serious&mdash;other</text>
+                <text font-size="7.5" fill="#7A8A98" transform="translate(88,133) rotate(-38)" text-anchor="end">RWY/incursion</text>
+                <text font-size="7.5" fill="#7A8A98" transform="translate(118,133) rotate(-38)" text-anchor="end">Other</text>
+              </svg>
+            </div>
+            <div class="chart-half">
+              <div class="chart-title">Severity breakdown</div>
+              <svg viewBox="-8 0 196 170" width="85%">
+                <!-- Serious 67%: 0°-241.2°; Minor 33%: 241.2°-360° -->
+                <path d="M 90 30 A 55 55 0 1 1 41.7 115.9 L 55.8 99.5 A 34 34 0 1 0 90 51 Z" fill="#1B6CA8"/>
+                <path d="M 41.7 115.9 A 55 55 0 0 1 90 30 L 90 51 A 34 34 0 0 0 55.8 99.5 Z" fill="#C4D4E8"/>
+                <text x="90" y="82" text-anchor="middle" font-size="9" fill="#5A6A78">Severity</text>
+                <text x="90" y="93" text-anchor="middle" font-size="9" fill="#5A6A78">breakdown</text>
+                <text x="155" y="75" text-anchor="middle" font-size="9" fill="#1B6CA8" font-weight="bold">67%</text>
+                <text x="30" y="125" text-anchor="middle" font-size="9" fill="#5A7A9A" font-weight="bold">33%</text>
+                <rect x="22" y="152" width="9" height="7" fill="#B71C1C"/>
+                <text x="34" y="159" font-size="8" fill="#5A6A78">Fatal</text>
+                <rect x="72" y="152" width="9" height="7" fill="#1B6CA8"/>
+                <text x="84" y="159" font-size="8" fill="#5A6A78">Serious</text>
+                <rect x="130" y="152" width="9" height="7" fill="#C4D4E8"/>
+                <text x="142" y="159" font-size="8" fill="#5A6A78">Minor</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="ph ph-amber">Known Bird Strike Hotspots &mdash; Hull liability exposure</div>
+        <div class="pb" style="padding:9px 10px;">
+          <div class="bs-grid">
+            <div class="bs-card">
+              <div class="bs-head">
+                <span class="bs-loc">HUEN RWY 17 approach</span>
+                <span class="risk r-high">High</span>
+              </div>
+              <div class="bs-species">Species: African Fish Eagle, Marabou Stork, Pelican</div>
+              <div class="bs-note">Lake Victoria shoreline directly under approach path. Feeding flocks at dawn/dusk. BCU active but risk persists. Pelican strike Oct 2024.</div>
+            </div>
+            <div class="bs-card">
+              <div class="bs-head">
+                <span class="bs-loc">HUEN RWY 35 approach</span>
+                <span class="risk r-el">Elevated</span>
+              </div>
+              <div class="bs-species">Species: Open-billed Stork, Cormorant, Egret</div>
+              <div class="bs-note">Wetland areas north of airport. Breeding colony activity Mar&ndash;May peak. Night departure risk elevated during migration.</div>
+            </div>
+            <div class="bs-card bs-5">
+              <div class="bs-head">
+                <span class="bs-loc">Entebbe peninsula &mdash; general circuit</span>
+                <span class="risk r-el">Elevated</span>
+              </div>
+              <div class="bs-species">Species: Grey Crowned Crane (national bird), Hammerkop, Yellow-billed Kite, Secretary Bird</div>
+              <div class="bs-note">Year-round elevated avifauna due to lake ecosystem. Multiple species documented in MSA. Night operations particularly vulnerable. Review BCU NOTAMs before every departure and arrival.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function switchTab(btn) {
+    const tab = btn.dataset.tab;
+    document.querySelectorAll('.tab-btn').forEach(b =>
+      b.classList.remove('t-overview','t-threat','t-weather','t-history'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('t-' + tab);
+    document.getElementById('panel-' + tab).classList.add('active');
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Insurance Portfolio</title>
+<script src="theme.js"></script>
+<link rel="stylesheet" href="styles.css">
+<style>
+html,body{height:100%;overflow:hidden}
+
+.content{height:100%;overflow-y:auto;padding:18px 22px;display:flex;flex-direction:column;gap:14px}
+
+.top-strip{display:grid;grid-template-columns:1fr 200px 200px 200px;gap:12px;align-items:stretch}
+.welcome-card{background:var(--bg-2);border:1px solid var(--border);border-radius:12px;padding:16px 20px;display:flex;flex-direction:column;justify-content:center;box-shadow:var(--shadow)}
+.welcome-card h2{font-family:'Inter',sans-serif;font-size:19px;font-weight:700;margin-bottom:3px;color:var(--text)}
+.welcome-card p{font-size:12px;color:var(--text-2)}
+
+.panel{background:var(--bg-2);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:var(--shadow)}
+.phdr{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.phdr-title{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-2)}
+.phdr-link{font-size:11px;font-weight:600;color:var(--accent);cursor:pointer;background:none;border:none;font-family:'Inter',sans-serif}
+
+.cnf-btn{font-size:11px;font-weight:600;padding:4px 11px;border-radius:4px;border:1px solid var(--border-2);background:var(--bg-3);color:var(--text-2);cursor:pointer;transition:background .15s,color .15s,border-color .15s;font-family:'Inter',sans-serif}
+.cnf-btn:hover{border-color:var(--accent);color:var(--accent)}
+.cnf-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+
+.pol-search{display:flex;align-items:center;gap:7px;background:var(--bg-3);border:1px solid var(--border-2);border-radius:8px;padding:6px 12px;width:220px}
+.pol-search svg{width:13px;height:13px;stroke:var(--text-2);fill:none;flex-shrink:0}
+.pol-search input{border:none;background:transparent;outline:none;font-size:12px;color:var(--text);font-family:'Inter',sans-serif;width:100%}
+.pol-search input::placeholder{color:var(--text-3)}
+
+.pol-table{width:100%;border-collapse:collapse;font-size:12px}
+.pol-table th{color:var(--text-2);font-weight:600;font-size:10px;letter-spacing:.05em;text-transform:uppercase;padding:8px 14px;border-bottom:1px solid var(--border);text-align:left;white-space:nowrap;background:var(--bg-3)}
+.pol-table td{padding:11px 14px;border-bottom:1px solid var(--border);color:var(--text)}
+.pol-table tr:last-child td{border-bottom:none}
+.pol-table tr:hover td{background:var(--bg-hover);cursor:pointer}
+.pol-id{font-weight:700;color:var(--accent);white-space:nowrap}
+.pol-period{color:var(--text-3);font-size:12px;white-space:nowrap}
+.pol-expiry{font-weight:700;white-space:nowrap;color:var(--text)}
+.pol-expiry.red{color:var(--danger)}
+.pol-expiry.amber{color:var(--warn)}
+
+.ins-badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:600;white-space:nowrap}
+.ins-badge.active {background:var(--success-dim);color:var(--success)}
+.ins-badge.renew  {background:var(--warn-dim);   color:var(--warn)}
+.ins-badge.expired{background:var(--danger-dim); color:var(--danger)}
+.ins-badge.pending{background:var(--accent-dim); color:var(--accent)}
+
+.empty{padding:48px 20px;text-align:center;color:var(--text-2);font-size:13px}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.panel,.top-strip>*{animation:fadeUp .3s ease both}
+.top-strip>*:nth-child(2){animation-delay:.05s}
+.top-strip>*:nth-child(3){animation-delay:.10s}
+.top-strip>*:nth-child(4){animation-delay:.15s}
+</style>
+</head>
+<body>
+<div class="content">
+
+  <!-- KPI strip -->
+  <div class="top-strip">
+    <div class="welcome-card">
+      <h2>Insurance Portfolio</h2>
+      <p>50 policies across East Africa, Horn of Africa and beyond</p>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon green">
+        <svg viewBox="0 0 24 24" fill="#00B894"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+      </div>
+      <div>
+        <div class="kpi-label">Active</div>
+        <div class="kpi-value" style="color:var(--accent2)">43</div>
+        <div class="kpi-sub">of 50 policies</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon amber">
+        <svg viewBox="0 0 24 24" fill="#F39C12"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+      </div>
+      <div>
+        <div class="kpi-label">Renewing Soon</div>
+        <div class="kpi-value" style="color:var(--warn)">7</div>
+        <div class="kpi-sub">Within 60 days</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon red">
+        <svg viewBox="0 0 24 24" fill="#E74C3C"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>
+      </div>
+      <div>
+        <div class="kpi-label">Expired</div>
+        <div class="kpi-value" style="color:var(--danger)">2</div>
+        <div class="kpi-sub">Pending renewal</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Policies panel -->
+  <div class="panel">
+    <div class="phdr">
+      <span class="phdr-title">All Policies</span>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <!-- Filter tabs -->
+        <div style="display:flex;gap:4px;">
+          <button class="cnf-btn active" onclick="setTab('all',this)">All (50)</button>
+          <button class="cnf-btn" onclick="setTab('Active',this)">Active</button>
+          <button class="cnf-btn" onclick="setTab('Renew Soon',this)">Renew Soon</button>
+          <button class="cnf-btn" onclick="setTab('Expired',this)">Expired</button>
+          <button class="cnf-btn" onclick="setTab('Pending',this)">Pending</button>
+        </div>
+        <!-- Search -->
+        <div class="pol-search">
+          <svg viewBox="0 0 24 24" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input id="polSearch" type="text" placeholder="Search client, aircraft, ID…" oninput="filterPolicies()">
+        </div>
+      </div>
+    </div>
+    <table class="pol-table">
+      <thead>
+        <tr>
+          <th>Policy ID</th>
+          <th>Client</th>
+          <th>Aircraft</th>
+          <th>Coverage</th>
+          <th>Insurance Period</th>
+          <th>Expiry</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="polBody"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+const policies = [
+  // ── East Africa — Kenya ──
+  {id:'INS-2024-0786',client:'Kenya Airways',           ac:'Boeing 737-800 (5Y-KQA)',           cov:'$18M Hull & Liability',  period:'18/11/2025 – 17/11/2026', expiry:'193 days', exp:'',      status:'Active'},
+  {id:'INS-2025-0101',client:'Fly540',                  ac:'ATR 72-500 (5Y-FIV)',               cov:'$7M Hull & Liability',   period:'01/01/2026 – 31/12/2026', expiry:'237 days', exp:'',      status:'Active'},
+  {id:'INS-2024-0811',client:'Jambojet',                ac:'Boeing 737-300 (5Y-JMB)',           cov:'$9M Hull & Liability',   period:'15/04/2026 – 14/04/2027', expiry:'340 days', exp:'',      status:'Active'},
+  {id:'INS-2025-0105',client:'Skyward Express',         ac:'Cessna 208B (5Y-SKY)',              cov:'$1.2M Hull & Liability', period:'01/03/2026 – 28/02/2027', expiry:'296 days', exp:'',      status:'Active'},
+  {id:'INS-2025-0106',client:'Safari Link Aviation',    ac:'Cessna 208B (5Y-SLV)',              cov:'$1.2M Hull & Liability', period:'01/03/2026 – 28/02/2027', expiry:'296 days', exp:'',      status:'Active'},
+  {id:'INS-2025-0107',client:'East African Safari Air', ac:'Piper PA-34 (5Y-EAS)',              cov:'$0.8M Hull & Liability', period:'01/06/2025 – 31/05/2026', expiry:'23 days',  exp:'amber', status:'Renew Soon'},
+  {id:'INS-2025-0901',client:'AMREF Flying Doctors',    ac:'Cessna 402 (5Y-AMD)',               cov:'$1.8M Hull & Liability', period:'01/01/2026 – 31/12/2026', expiry:'237 days', exp:'',      status:'Active'},
+  {id:'INS-2025-0108',client:'Astral Aviation',         ac:'Boeing 727-200F (5Y-AXM)',          cov:'$8M Cargo & Liability',  period:'01/04/2026 – 31/03/2027', expiry:'327 days', exp:'',      status:'Active'},
+  {id:'INS-2025-0109',client:'Africa Cargo Express',    ac:'Boeing 737-300F (5Y-ACE)',          cov:'$9M Cargo & Liability',  period:'15/01/2026 – 14/01/2027', expiry:'251 days', exp:'',      status:'Active'},
+  {id:'INS-2025-0110',client:'Tropic Air Kenya',        ac:'Cessna 206 (5Y-TRP)',               cov:'$0.5M Hull & Liability', period:'01/05/2026 – 30/04/2027', expiry:'357 days', exp:'',      status:'Active'},
+  // ── East Africa — Tanzania ──
+  {id:'INS-2024-0955',client:'Precision Air',           ac:'ATR 72-600 (5H-TGF)',               cov:'$8M Hull & Liability',   period:'07/01/2026 – 06/01/2027', expiry:'243 days', exp:'',      status:'Active'},
+  {id:'INS-2025-0210',client:'Air Tanzania',            ac:'Boeing 787-8 (5H-TCH)',             cov:'$42M All Risk',          period:'01/02/2026 – 31/01/2027', expiry:'268 days', exp:'',      status:'Active'},
+  {id:'INS-2025-0211',client:'Coastal Aviation',        ac:'Cessna 208B Grand Caravan (5H-CVA)',cov:'$1.4M Hull & Liability', period:'01/06/2026 – 31/05/2027', expiry:'388 days', exp:'',      status:'Active'},
+  {id:'INS-2024-1101',client:'MSF Air',                 ac:'Cessna 208B (TZ-MSF)',              cov:'$1.2M Hull & Liability', period:'01/04/2025 – 31/03/2026', expiry:'Expired',  exp:'red',   status:'Expired'},
+  {id:'INS-2025-0212',client:'ZanAir',                  ac:'Cessna 402C (5H-ZAN)',              cov:'$0.9M Hull & Liability', period:'01/07/2026 – 30/06/2027', expiry:'419 days', exp:'',      status:'Active'},
+  // ── East Africa — Uganda ──
+  {id:'INS-2024-0870',client:'Uganda Airlines',         ac:'Airbus A320neo (5X-UAA)',           cov:'$22M Hull & Liability',  period:'01/11/2025 – 31/10/2026', expiry:'176 days', exp:'',      status:'Active'},
+  {id:'INS-2024-0872',client:'Eagle Air Uganda',        ac:'Beechcraft 1900D (5X-EAG)',         cov:'$2.5M Hull & Liability', period:'15/06/2025 – 14/06/2026', expiry:'37 days',  exp:'amber', status:'Renew Soon'},
+  {id:'INS-2025-0301',client:'Gahinga Air',             ac:'Cessna 172 (5X-GAH)',               cov:'$0.3M Hull & Liability', period:'01/04/2026 – 31/03/2027', expiry:'327 days', exp:'',      status:'Active'},
+  // ── East Africa — Rwanda ──
+  {id:'INS-2024-0890',client:'RwandAir',                ac:'Airbus A330-200 (9XR-WA)',          cov:'$58M All Risk',          period:'01/04/2026 – 31/03/2027', expiry:'327 days', exp:'',      status:'Active'},
+  {id:'INS-2025-0302',client:'Aerolink Rwanda',         ac:'Cessna 208B (9XR-ALR)',             cov:'$1.2M Hull & Liability', period:'01/05/2026 – 30/04/2027', expiry:'357 days', exp:'',      status:'Active'},
+  // ── East Africa — Burundi ──
+  {id:'INS-2025-0310',client:'Burundian Airlines',      ac:'Embraer E145 (9U-BAA)',             cov:'$5M Hull & Liability',   period:'01/03/2026 – 28/02/2027', expiry:'296 days', exp:'',      status:'Active'},
+  {id:'INS-2025-0311',client:'Air Burundi',             ac:'ATR 42-600 (9U-AIR)',               cov:'$4.5M Hull & Liability', period:'01/08/2025 – 31/07/2026', expiry:'84 days',  exp:'amber', status:'Renew Soon'},
+  // ── Horn — Ethiopia ──
+  {id:'INS-2024-0812',client:'Ethiopian Airlines',      ac:'Boeing 787-9 (ET-AYA)',             cov:'$42M All Risk',          period:'02/03/2025 – 01/03/2026', expiry:'Expired',  exp:'red',   status:'Expired'},
+  {id:'INS-2024-0820',client:'Ethio Express',           ac:'Boeing 737-700 (ET-AXF)',           cov:'$16M Hull & Liability',  period:'01/09/2025 – 31/08/2026', expiry:'115 days', exp:'',      status:'Active'},
+  {id:'INS-2025-0401',client:'Trans Nation Airways',    ac:'De Havilland Q400 (ET-TNA)',        cov:'$6M Hull & Liability',   period:'01/02/2026 – 31/01/2027', expiry:'268 days', exp:'',      status:'Active'},
+  {id:'INS-2025-0402',client:'Abyssinia Flight Services',ac:'Cessna 208B (ET-ABS)',             cov:'$1.2M Hull & Liability', period:'01/03/2026 – 28/02/2027', expiry:'296 days', exp:'',      status:'Active'},
+  // ── Horn — Somalia ──
+  {id:'INS-2024-0910',client:'Jubba Airways',           ac:'Boeing 737-400 (6O-BEK)',           cov:'$11M Hull & Liability',  period:'01/07/2025 – 30/06/2026', expiry:'53 days',  exp:'amber', status:'Renew Soon'},
+  {id:'INS-2025-0501',client:'African Express Airways', ac:'Boeing 737-300 (6O-AEX)',           cov:'$9M Hull & Liability',   period:'01/02/2026 – 31/01/2027', expiry:'268 days', exp:'',      status:'Active'},
+  {id:'INS-2025-0502',client:'Daallo Airlines',         ac:'Airbus A321 (6O-DAL)',              cov:'$24M Hull & Liability',  period:'01/04/2026 – 31/03/2027', expiry:'327 days', exp:'',      status:'Active'},
+  // ── Horn — Djibouti ──
+  {id:'INS-2024-0930',client:'Air Djibouti',            ac:'Boeing 737-400 (J2-KBD)',           cov:'$11M Hull & Liability',  period:'01/06/2025 – 31/05/2026', expiry:'23 days',  exp:'amber', status:'Renew Soon'},
+  {id:'INS-2025-0601',client:'Djibouti Airlines',       ac:'De Havilland Q300 (J2-DJA)',        cov:'$4M Hull & Liability',   period:'01/04/2026 – 31/03/2027', expiry:'327 days', exp:'',      status:'Active'},
+  // ── Horn — Eritrea ──
+  {id:'INS-2024-0960',client:'Eritrean Airlines',       ac:'Boeing 767-300 (E3-AAO)',           cov:'$32M Hull & Liability',  period:'01/10/2025 – 30/09/2026', expiry:'145 days', exp:'',      status:'Active'},
+  // ── Horn — Sudan ──
+  {id:'INS-2024-0940',client:'Badr Airlines',           ac:'Airbus A320 (ST-BDA)',              cov:'$20M Hull & Liability',  period:'01/08/2025 – 31/07/2026', expiry:'84 days',  exp:'amber', status:'Renew Soon'},
+  {id:'INS-2025-0701',client:'Sudan Airways',           ac:'Airbus A310-300 (ST-SAA)',          cov:'$28M Hull & Liability',  period:'01/05/2026 – 30/04/2027', expiry:'357 days', exp:'',      status:'Active'},
+  // ── Horn — South Sudan ──
+  {id:'INS-2025-0702',client:'South Sudan Airways',     ac:'ATR 72-500 (SS-SSA)',               cov:'$6M Hull & Liability',   period:'01/03/2026 – 28/02/2027', expiry:'296 days', exp:'',      status:'Active'},
+  {id:'INS-2025-0703',client:'Feeder Airlines',         ac:'Cessna 208B Caravan (SS-FDR)',      cov:'$1.1M Hull & Liability', period:'TBD',                     expiry:'—',        exp:'',      status:'Pending'},
+  // ── Central Africa — DRC ──
+  {id:'INS-2024-0970',client:'Congo Airways',           ac:'Airbus A320 (9Q-COP)',              cov:'$20M Hull & Liability',  period:'15/03/2026 – 14/03/2027', expiry:'310 days', exp:'',      status:'Active'},
+  {id:'INS-2024-0972',client:'CAA Congo',               ac:'Boeing 737-300 (9Q-CAA)',           cov:'$9M Hull & Liability',   period:'01/10/2025 – 30/09/2026', expiry:'145 days', exp:'',      status:'Active'},
+  {id:'INS-2025-0801',client:'Malu Aviation',           ac:'ATR 42-300 (9Q-MAL)',               cov:'$4M Hull & Liability',   period:'01/02/2026 – 31/01/2027', expiry:'268 days', exp:'',      status:'Active'},
+  {id:'INS-2025-0802',client:'Korongo Airlines',        ac:'Bombardier CRJ100 (9Q-KOR)',        cov:'$8M Hull & Liability',   period:'01/06/2026 – 31/05/2027', expiry:'388 days', exp:'',      status:'Active'},
+  // ── Gulf / International ──
+  {id:'INS-2024-0901',client:'Saudia',                  ac:'Boeing 777-300 (SA-AAX)',           cov:'$65M Hull & Liability',  period:'15/06/2025 – 14/06/2026', expiry:'37 days',  exp:'amber', status:'Renew Soon'},
+  {id:'INS-2024-0934',client:'EgyptAir',                ac:'Airbus A320 (MS-ACK)',              cov:'$22M Hull & Liability',  period:'21/09/2025 – 20/09/2026', expiry:'135 days', exp:'',      status:'Active'},
+  {id:'INS-2025-0901',client:'flydubai',                ac:'Boeing 737 MAX 8 (A6-FMD)',         cov:'$22M Hull & Liability',  period:'01/03/2026 – 28/02/2027', expiry:'296 days', exp:'',      status:'Active'},
+  {id:'INS-2025-0902',client:'Air Arabia',              ac:'Airbus A320 (A6-ARA)',              cov:'$20M Hull & Liability',  period:'01/04/2026 – 31/03/2027', expiry:'327 days', exp:'',      status:'Active'},
+  {id:'INS-2025-0903',client:'Nile Air',                ac:'Airbus A320neo (SU-NIL)',           cov:'$22M Hull & Liability',  period:'01/05/2026 – 30/04/2027', expiry:'357 days', exp:'',      status:'Active'},
+  // ── Regional / NGO ──
+  {id:'INS-2025-1001',client:'World Food Programme Air',ac:'Cessna 208B Caravan (UN-WFP)',      cov:'$1.2M Hull & Liability', period:'01/01/2026 – 31/12/2026', expiry:'237 days', exp:'',      status:'Active'},
+  {id:'INS-2025-1002',client:'Médecins Sans Frontières',ac:'Cessna 208B (F-MSF)',               cov:'$1.2M Hull & Liability', period:'01/04/2026 – 31/03/2027', expiry:'327 days', exp:'',      status:'Active'},
+  {id:'INS-2025-1003',client:'International SOS',      ac:'Learjet 45 (ZS-SOS)',               cov:'$6M Hull & Liability',   period:'01/02/2026 – 31/01/2027', expiry:'268 days', exp:'',      status:'Active'},
+  {id:'INS-2025-1004',client:'African Medical Charter', ac:'Pilatus PC-12 (5Y-AMC)',            cov:'$2.2M Hull & Liability', period:'TBD',                     expiry:'—',        exp:'',      status:'Pending'},
+  {id:'INS-2025-1005',client:'Wings of Hope Africa',   ac:'Cessna 182 (5H-WOH)',               cov:'$0.4M Hull & Liability', period:'01/06/2026 – 31/05/2027', expiry:'388 days', exp:'',      status:'Active'},
+];
+
+let activeTab = 'all';
+
+function renderTable(data) {
+  const tbody = document.getElementById('polBody');
+  if (!data.length) {
+    tbody.innerHTML = `<tr><td colspan="7" class="empty">No policies match your search.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = data.map(p => `
+    <tr>
+      <td class="pol-id">${p.id}</td>
+      <td>${p.client}</td>
+      <td style="color:var(--muted);font-size:12px">${p.ac}</td>
+      <td>${p.cov}</td>
+      <td class="pol-period">${p.period}</td>
+      <td class="pol-expiry ${p.exp}">${p.expiry}</td>
+      <td><span class="ins-badge ${
+        p.status === 'Active'     ? 'active'  :
+        p.status === 'Expired'    ? 'expired' :
+        p.status === 'Renew Soon' ? 'renew'   : 'pending'
+      }">${p.status}</span></td>
+    </tr>`).join('');
+}
+
+function filterPolicies() {
+  const q = document.getElementById('polSearch').value.trim().toLowerCase();
+  let data = activeTab === 'all' ? policies : policies.filter(p => p.status === activeTab);
+  if (q) data = data.filter(p =>
+    p.id.toLowerCase().includes(q) ||
+    p.client.toLowerCase().includes(q) ||
+    p.ac.toLowerCase().includes(q) ||
+    p.cov.toLowerCase().includes(q)
+  );
+  renderTable(data);
+}
+
+function setTab(tab, el) {
+  activeTab = tab;
+  document.querySelectorAll('.cnf-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('polSearch').value = '';
+  filterPolicies();
+}
+
+renderTable(policies);
+</script>
+</body>
+</html>
