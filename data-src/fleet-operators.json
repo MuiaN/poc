@@ -1,0 +1,47 @@
+{
+  "KQ": {
+    "name": "Kenya Airways",
+    "color": "#1A6FE8",
+    "bg": "rgba(26,111,232,.12)"
+  },
+  "ET": {
+    "name": "Ethiopian Airlines",
+    "color": "#10B981",
+    "bg": "rgba(16,185,129,.12)"
+  },
+  "WB": {
+    "name": "RwandAir",
+    "color": "#f97316",
+    "bg": "rgba(249,115,22,.12)"
+  },
+  "UR": {
+    "name": "Uganda Airlines",
+    "color": "#F59E0B",
+    "bg": "rgba(245,158,11,.12)"
+  },
+  "TC": {
+    "name": "Air Tanzania",
+    "color": "#1BB4E8",
+    "bg": "rgba(27,180,232,.12)"
+  },
+  "PW": {
+    "name": "Precision Air",
+    "color": "#8B5CF6",
+    "bg": "rgba(139,92,246,.12)"
+  },
+  "JM": {
+    "name": "Jambojet",
+    "color": "#06B6D4",
+    "bg": "rgba(6,182,212,.12)"
+  },
+  "FL": {
+    "name": "Flightlink",
+    "color": "#38BDF8",
+    "bg": "rgba(56,189,248,.12)"
+  },
+  "AX": {
+    "name": "African Express",
+    "color": "#EF4444",
+    "bg": "rgba(239,68,68,.12)"
+  }
+}

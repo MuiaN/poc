@@ -1,0 +1,630 @@
+[
+  {
+    "reg": "5Z-KQA",
+    "type": "Boeing 787-8 Dreamliner",
+    "short": "B787-8",
+    "op": "KQ",
+    "country": "Kenya",
+    "yr": 2014,
+    "msn": "35069",
+    "engines": "GEnx-1B",
+    "seats": 234,
+    "status": "active",
+    "lastInsp": "02 Apr 2026",
+    "nextMaint": "15 Jul 2026",
+    "maintDays": 57,
+    "polId": "KQ-HULL-2024-001",
+    "polExp": "30 Nov 2026",
+    "polDays": 195,
+    "hullVal": "$122M",
+    "liabVal": "$500M",
+    "hours": 28450,
+    "cycles": 4820,
+    "risk": 6,
+    "riskNote": "Routine hull policy in force. No open claims. Last C-check completed on schedule.",
+    "history": [
+      {
+        "date": "02 Apr 2026",
+        "type": "success",
+        "title": "C-Check Complete",
+        "desc": "Full C-check passed at Nairobi MRO. All items cleared."
+      },
+      {
+        "date": "14 Jan 2026",
+        "type": "info",
+        "title": "A-Check",
+        "desc": "Routine A-check completed. No discrepancies."
+      },
+      {
+        "date": "Nov 2025",
+        "type": "success",
+        "title": "Policy Renewed",
+        "desc": "Hull & liability policy renewed for 2025–2026 cycle."
+      }
+    ]
+  },
+  {
+    "reg": "5Z-KQC",
+    "type": "Boeing 787-8 Dreamliner",
+    "short": "B787-8",
+    "op": "KQ",
+    "country": "Kenya",
+    "yr": 2016,
+    "msn": "37924",
+    "engines": "GEnx-1B",
+    "seats": 234,
+    "status": "active",
+    "lastInsp": "18 Mar 2026",
+    "nextMaint": "22 Aug 2026",
+    "maintDays": 95,
+    "polId": "KQ-HULL-2024-002",
+    "polExp": "30 Nov 2026",
+    "polDays": 195,
+    "hullVal": "$118M",
+    "liabVal": "$500M",
+    "hours": 24100,
+    "cycles": 4120,
+    "risk": 5,
+    "riskNote": "No incidents on record. Policy current. Modern airframe with strong maintenance record.",
+    "history": [
+      {
+        "date": "18 Mar 2026",
+        "type": "success",
+        "title": "B-Check",
+        "desc": "Scheduled B-check completed ahead of time."
+      },
+      {
+        "date": "Oct 2025",
+        "type": "info",
+        "title": "Engine Borescope",
+        "desc": "Routine borescope inspection — no findings."
+      }
+    ]
+  },
+  {
+    "reg": "5Z-KQD",
+    "type": "Boeing 737-800",
+    "short": "B737-800",
+    "op": "KQ",
+    "country": "Kenya",
+    "yr": 2011,
+    "msn": "40918",
+    "engines": "CFM56-7B",
+    "seats": 158,
+    "status": "active",
+    "lastInsp": "10 Apr 2026",
+    "nextMaint": "28 Jun 2026",
+    "maintDays": 40,
+    "polId": "KQ-HULL-2024-003",
+    "polExp": "30 Nov 2026",
+    "polDays": 195,
+    "hullVal": "$42M",
+    "liabVal": "$300M",
+    "hours": 38200,
+    "cycles": 7940,
+    "risk": 8,
+    "riskNote": "High cycle count. Additional AD compliance check recommended before next heavy maintenance.",
+    "history": [
+      {
+        "date": "10 Apr 2026",
+        "type": "warn",
+        "title": "AD Compliance Review",
+        "desc": "AD 2026-07-10 reviewed. Compliance due at next maint slot."
+      },
+      {
+        "date": "Feb 2026",
+        "type": "success",
+        "title": "A-Check",
+        "desc": "Routine A-check — no issues."
+      }
+    ]
+  },
+  {
+    "reg": "5Z-KQE",
+    "type": "Boeing 737-800",
+    "short": "B737-800",
+    "op": "KQ",
+    "country": "Kenya",
+    "yr": 2012,
+    "msn": "40919",
+    "engines": "CFM56-7B",
+    "seats": 158,
+    "status": "maintenance",
+    "lastInsp": "12 May 2026",
+    "nextMaint": "04 Jun 2026",
+    "maintDays": 16,
+    "polId": "KQ-HULL-2024-004",
+    "polExp": "30 Nov 2026",
+    "polDays": 195,
+    "hullVal": "$40M",
+    "liabVal": "$300M",
+    "hours": 36700,
+    "cycles": 7680,
+    "risk": 9,
+    "riskNote": "Currently in B-check at Nairobi MRO. Return to service expected 04 June 2026.",
+    "history": [
+      {
+        "date": "12 May 2026",
+        "type": "warn",
+        "title": "B-Check Started",
+        "desc": "Aircraft inducted into MRO for scheduled B-check. ETA 04 Jun."
+      },
+      {
+        "date": "Jan 2026",
+        "type": "success",
+        "title": "Hydraulic Repair",
+        "desc": "Minor hydraulic actuator replaced — returned to service."
+      }
+    ]
+  },
+  {
+    "reg": "5Z-KQF",
+    "type": "Boeing 737-800",
+    "short": "B737-800",
+    "op": "KQ",
+    "country": "Kenya",
+    "yr": 2013,
+    "msn": "41200",
+    "engines": "CFM56-7B",
+    "seats": 158,
+    "status": "active",
+    "lastInsp": "22 Feb 2026",
+    "nextMaint": "14 Sep 2026",
+    "maintDays": 118,
+    "polId": "KQ-HULL-2024-005",
+    "polExp": "30 Nov 2026",
+    "polDays": 195,
+    "hullVal": "$44M",
+    "liabVal": "$300M",
+    "hours": 34900,
+    "cycles": 7210,
+    "risk": 7,
+    "riskNote": "No open items. Policy in force. Maintenance tracking on schedule.",
+    "history": [
+      {
+        "date": "22 Feb 2026",
+        "type": "success",
+        "title": "A-Check",
+        "desc": "Routine A-check passed. No discrepancies logged."
+      }
+    ]
+  },
+  {
+    "reg": "5Z-KQH",
+    "type": "Embraer E190",
+    "short": "E190",
+    "op": "KQ",
+    "country": "Kenya",
+    "yr": 2017,
+    "msn": "19000660",
+    "engines": "CF34-10E",
+    "seats": 96,
+    "status": "active",
+    "lastInsp": "28 Apr 2026",
+    "nextMaint": "01 Oct 2026",
+    "maintDays": 135,
+    "polId": "KQ-HULL-2024-006",
+    "polExp": "30 Nov 2026",
+    "polDays": 195,
+    "hullVal": "$28M",
+    "liabVal": "$200M",
+    "hours": 18300,
+    "cycles": 5120,
+    "risk": 5,
+    "riskNote": "E190 regional operations. No significant incidents. Policy current.",
+    "history": [
+      {
+        "date": "28 Apr 2026",
+        "type": "success",
+        "title": "C-Check",
+        "desc": "Scheduled C-check completed on time at NBO."
+      }
+    ]
+  },
+  {
+    "reg": "ET-ASJ",
+    "type": "Boeing 787-9 Dreamliner",
+    "short": "B787-9",
+    "op": "ET",
+    "country": "Ethiopia",
+    "yr": 2015,
+    "msn": "38751",
+    "engines": "GEnx-1B",
+    "seats": 271,
+    "status": "active",
+    "lastInsp": "15 Apr 2026",
+    "nextMaint": "10 Aug 2026",
+    "maintDays": 83,
+    "polId": "ET-HULL-2024-101",
+    "polExp": "31 Dec 2026",
+    "polDays": 226,
+    "hullVal": "$155M",
+    "liabVal": "$750M",
+    "hours": 32100,
+    "cycles": 4950,
+    "risk": 7,
+    "riskNote": "Policy active. Addis Ababa base maintained by Ethiopian Aviation Academy MRO.",
+    "history": [
+      {
+        "date": "15 Apr 2026",
+        "type": "success",
+        "title": "B-Check",
+        "desc": "Scheduled B-check cleared at ADD MRO."
+      },
+      {
+        "date": "Dec 2025",
+        "type": "success",
+        "title": "Policy Renewed",
+        "desc": "Annual policy renewal completed without changes."
+      }
+    ]
+  },
+  {
+    "reg": "ET-ATJ",
+    "type": "Boeing 787-9 Dreamliner",
+    "short": "B787-9",
+    "op": "ET",
+    "country": "Ethiopia",
+    "yr": 2017,
+    "msn": "61729",
+    "engines": "GEnx-1B",
+    "seats": 271,
+    "status": "active",
+    "lastInsp": "30 Mar 2026",
+    "nextMaint": "22 Sep 2026",
+    "maintDays": 126,
+    "polId": "ET-HULL-2024-102",
+    "polExp": "31 Dec 2026",
+    "polDays": 226,
+    "hullVal": "$152M",
+    "liabVal": "$750M",
+    "hours": 26800,
+    "cycles": 3880,
+    "risk": 6,
+    "riskNote": "No open incidents or claims. Aircraft on long-haul intercontinental routes.",
+    "history": [
+      {
+        "date": "30 Mar 2026",
+        "type": "success",
+        "title": "A-Check",
+        "desc": "Routine A-check — no findings."
+      }
+    ]
+  },
+  {
+    "reg": "ET-AWM",
+    "type": "Boeing 737 MAX 8",
+    "short": "B737MAX8",
+    "op": "ET",
+    "country": "Ethiopia",
+    "yr": 2022,
+    "msn": "65774",
+    "engines": "LEAP-1B",
+    "seats": 162,
+    "status": "active",
+    "lastInsp": "20 Apr 2026",
+    "nextMaint": "15 Oct 2026",
+    "maintDays": 149,
+    "polId": "ET-HULL-2024-103",
+    "polExp": "31 Dec 2026",
+    "polDays": 226,
+    "hullVal": "$58M",
+    "liabVal": "$350M",
+    "hours": 8200,
+    "cycles": 2610,
+    "risk": 7,
+    "riskNote": "MAX fleet returned to service post-2022 grounding. MCAS updates verified. Enhanced underwriter monitoring protocol active.",
+    "history": [
+      {
+        "date": "20 Apr 2026",
+        "type": "info",
+        "title": "MCAS Verification",
+        "desc": "Annual MCAS software verification confirmed compliant."
+      },
+      {
+        "date": "2022",
+        "type": "warn",
+        "title": "Delivery Post-Grounding",
+        "desc": "Aircraft delivered after MAX grounding lifted. All directives complied with."
+      }
+    ]
+  },
+  {
+    "reg": "ET-AVO",
+    "type": "Boeing 737-800",
+    "short": "B737-800",
+    "op": "ET",
+    "country": "Ethiopia",
+    "yr": 2010,
+    "msn": "37100",
+    "engines": "CFM56-7B",
+    "seats": 158,
+    "status": "maintenance",
+    "lastInsp": "08 May 2026",
+    "nextMaint": "31 May 2026",
+    "maintDays": 12,
+    "polId": "ET-HULL-2024-104",
+    "polExp": "31 Dec 2026",
+    "polDays": 226,
+    "hullVal": "$38M",
+    "liabVal": "$300M",
+    "hours": 44100,
+    "cycles": 8920,
+    "risk": 11,
+    "riskNote": "High-cycle aircraft. Undergoing mandatory structural inspection. Fatigue crack detection AD in compliance.",
+    "history": [
+      {
+        "date": "08 May 2026",
+        "type": "warn",
+        "title": "Structural Inspection",
+        "desc": "Induced into MRO for mandatory fatigue inspection. ETA 31 May."
+      },
+      {
+        "date": "Mar 2026",
+        "type": "warn",
+        "title": "AD Notice",
+        "desc": "AD 2026-05-R issued for structural frame. Compliance in progress."
+      }
+    ]
+  },
+  {
+    "reg": "ET-AMZ",
+    "type": "Boeing 777-200LR",
+    "short": "B777-200LR",
+    "op": "ET",
+    "country": "Ethiopia",
+    "yr": 2013,
+    "msn": "40769",
+    "engines": "GE90-110B1",
+    "seats": 294,
+    "status": "active",
+    "lastInsp": "12 Mar 2026",
+    "nextMaint": "30 Jul 2026",
+    "maintDays": 72,
+    "polId": "ET-HULL-2024-105",
+    "polExp": "31 Dec 2026",
+    "polDays": 226,
+    "hullVal": "$168M",
+    "liabVal": "$1B",
+    "hours": 36400,
+    "cycles": 3710,
+    "risk": 8,
+    "riskNote": "Wide-body long-haul. Policy in force. No open claims. Operates Addis–Dubai–London routes.",
+    "history": [
+      {
+        "date": "12 Mar 2026",
+        "type": "success",
+        "title": "C-Check",
+        "desc": "C-check completed at ADD. All items cleared."
+      },
+      {
+        "date": "Nov 2025",
+        "type": "success",
+        "title": "Policy Renewed",
+        "desc": "Hull and liability renewed. No changes to premium basis."
+      }
+    ]
+  },
+  {
+    "reg": "5X-NIL",
+    "type": "Airbus A330-800neo",
+    "short": "A330-800",
+    "op": "UR",
+    "country": "Uganda",
+    "yr": 2021,
+    "msn": "1988",
+    "engines": "RR Trent 7000",
+    "seats": 272,
+    "status": "active",
+    "lastInsp": "22 Apr 2026",
+    "nextMaint": "30 Oct 2026",
+    "maintDays": 164,
+    "polId": "UG-HULL-2024-303",
+    "polExp": "31 Aug 2026",
+    "polDays": 104,
+    "hullVal": "$138M",
+    "liabVal": "$600M",
+    "hours": 8900,
+    "cycles": 1450,
+    "risk": 6,
+    "riskNote": "Long-haul widebody. Policy renewal required before 31 Aug. Hull value exposure significant — prioritise renewal.",
+    "history": [
+      {
+        "date": "22 Apr 2026",
+        "type": "success",
+        "title": "B-Check",
+        "desc": "Scheduled B-check completed at EBB. All items cleared."
+      },
+      {
+        "date": "Mar 2026",
+        "type": "info",
+        "title": "Renewal Warning",
+        "desc": "Policy renewal notice issued. Renewal due 31 Aug 2026."
+      }
+    ]
+  },
+  {
+    "reg": "5H-PWA",
+    "type": "ATR 72-500",
+    "short": "ATR72-500",
+    "op": "PW",
+    "country": "Tanzania",
+    "yr": 2015,
+    "msn": "1128",
+    "engines": "PW127F",
+    "seats": 70,
+    "status": "active",
+    "lastInsp": "20 Mar 2026",
+    "nextMaint": "12 Jul 2026",
+    "maintDays": 27,
+    "polId": "PW-HULL-2024-401",
+    "polExp": "30 Sep 2026",
+    "polDays": 107,
+    "hullVal": "$14M",
+    "liabVal": "$150M",
+    "hours": 19400,
+    "cycles": 6820,
+    "risk": 8,
+    "riskNote": "Coastal Tanzania operations including Zanzibar and Kilimanjaro routes. Propeller AD compliance current.",
+    "history": [
+      {
+        "date": "20 Mar 2026",
+        "type": "success",
+        "title": "Propeller AD Compliance",
+        "desc": "AD 2026-02-14 complied with. Propeller inspection passed."
+      },
+      {
+        "date": "Jan 2026",
+        "type": "success",
+        "title": "C-Check",
+        "desc": "C-check completed at DAR."
+      }
+    ]
+  },
+  {
+    "reg": "5H-PWB",
+    "type": "ATR 72-500",
+    "short": "ATR72-500",
+    "op": "PW",
+    "country": "Tanzania",
+    "yr": 2016,
+    "msn": "1182",
+    "engines": "PW127F",
+    "seats": 70,
+    "status": "active",
+    "lastInsp": "01 Apr 2026",
+    "nextMaint": "20 Aug 2026",
+    "maintDays": 66,
+    "polId": "PW-HULL-2024-402",
+    "polExp": "30 Sep 2026",
+    "polDays": 107,
+    "hullVal": "$15M",
+    "liabVal": "$150M",
+    "hours": 17600,
+    "cycles": 6200,
+    "risk": 7,
+    "riskNote": "Active. Routine inspection schedule maintained. No open claims.",
+    "history": [
+      {
+        "date": "01 Apr 2026",
+        "type": "success",
+        "title": "B-Check",
+        "desc": "Scheduled B-check passed."
+      }
+    ]
+  },
+  {
+    "reg": "5H-PWC",
+    "type": "ATR 72-500",
+    "short": "ATR72-500",
+    "op": "PW",
+    "country": "Tanzania",
+    "yr": 2013,
+    "msn": "978",
+    "engines": "PW127F",
+    "seats": 70,
+    "status": "maintenance",
+    "lastInsp": "14 Feb 2026",
+    "nextMaint": "20 Jun 2026",
+    "maintDays": 5,
+    "polId": "PW-HULL-2024-403",
+    "polExp": "30 Sep 2026",
+    "polDays": 107,
+    "hullVal": "$12M",
+    "liabVal": "$150M",
+    "hours": 24200,
+    "cycles": 8840,
+    "risk": 10,
+    "riskNote": "In scheduled C-check at DAR. Hull coverage active. Expected return to service mid-June.",
+    "history": [
+      {
+        "date": "14 Feb 2026",
+        "type": "danger",
+        "title": "GROUNDED",
+        "desc": "CAA Tanzania issued groundstop pending gearbox inspection and TCAS upgrade."
+      },
+      {
+        "date": "Nov 2025",
+        "type": "warn",
+        "title": "TCAS Overdue",
+        "desc": "TCAS upgrade deferred — compliance deadline breached."
+      }
+    ]
+  },
+  {
+    "reg": "5H-FHL",
+    "type": "De Havilland Dash 8-400",
+    "short": "DHC-8-400",
+    "op": "FL",
+    "country": "Tanzania",
+    "yr": 2009,
+    "msn": "4254",
+    "engines": "PW150A",
+    "seats": 74,
+    "status": "active",
+    "lastInsp": "18 Apr 2026",
+    "nextMaint": "10 Sep 2026",
+    "maintDays": 114,
+    "polId": "FL-HULL-2024-601",
+    "polExp": "31 Oct 2026",
+    "polDays": 165,
+    "hullVal": "$12M",
+    "liabVal": "$120M",
+    "hours": 22800,
+    "cycles": 7480,
+    "risk": 9,
+    "riskNote": "Bush and regional operations across Tanzania. Policy in force. No open claims.",
+    "history": [
+      {
+        "date": "18 Apr 2026",
+        "type": "success",
+        "title": "B-Check",
+        "desc": "B-check completed at Dar es Salaam."
+      }
+    ]
+  },
+  {
+    "reg": "5Y-AXX",
+    "type": "Boeing 737-300",
+    "short": "B737-300",
+    "op": "AX",
+    "country": "Kenya",
+    "yr": 2003,
+    "msn": "32356",
+    "engines": "CFM56-3C1",
+    "seats": 149,
+    "status": "grounded",
+    "lastInsp": "22 Jan 2026",
+    "nextMaint": "01 Apr 2026",
+    "maintDays": -49,
+    "polId": "AX-HULL-2024-701",
+    "polExp": "14 Jun 2026",
+    "polDays": 26,
+    "hullVal": "$5M",
+    "liabVal": "$100M",
+    "hours": 48200,
+    "cycles": 11800,
+    "risk": 22,
+    "riskNote": "GROUNDED — airworthiness certificate lapsed. Policy expires in 26 days with OPEN CLAIM (runway excursion, Feb 2026). Immediate regulatory and legal engagement required.",
+    "history": [
+      {
+        "date": "Feb 2026",
+        "type": "danger",
+        "title": "OPEN CLAIM — Runway Excursion",
+        "desc": "Aircraft departed runway at Wilson Airport. Damage assessment in progress. Claim filed."
+      },
+      {
+        "date": "22 Jan 2026",
+        "type": "danger",
+        "title": "C of A Lapsed",
+        "desc": "Certificate of Airworthiness not renewed. Aircraft grounded by KCAA."
+      },
+      {
+        "date": "Dec 2025",
+        "type": "warn",
+        "title": "Renewal Overdue",
+        "desc": "Policy renewal not completed. Risk exposure active."
+      }
+    ]
+  }
+]

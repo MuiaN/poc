@@ -1,0 +1,92 @@
+{
+  "flights": [
+    {
+      "ident": "SL201",
+      "ident_iata": "SL201",
+      "ident_icao": "SLE201",
+      "operator": "SLE",
+      "operator_iata": "SL",
+      "aircraft_type": "DH8D",
+      "origin": {
+        "code": "HTDA",
+        "code_icao": "HTDA",
+        "code_iata": "DAR",
+        "name": "Julius Nyerere International Airport",
+        "city": "Dar es Salaam",
+        "timezone": "Africa/Dar_es_Salaam"
+      },
+      "destination": {
+        "code": "HTZA",
+        "code_icao": "HTZA",
+        "code_iata": "ZNZ",
+        "name": "Abeid Amani Karume International Airport",
+        "city": "Zanzibar",
+        "timezone": "Africa/Dar_es_Salaam"
+      },
+      "scheduled_off": "2026-05-21T05:45:00Z",
+      "scheduled_on":  "2026-05-21T06:10:00Z",
+      "filed_ete": 1500,
+      "status": "En Route / On Time",
+      "progress_percent": 80
+    },
+    {
+      "ident": "SL305",
+      "ident_iata": "SL305",
+      "ident_icao": "SLE305",
+      "operator": "SLE",
+      "operator_iata": "SL",
+      "aircraft_type": "DH8D",
+      "origin": {
+        "code": "HTDA",
+        "code_icao": "HTDA",
+        "code_iata": "DAR",
+        "name": "Julius Nyerere International Airport",
+        "city": "Dar es Salaam",
+        "timezone": "Africa/Dar_es_Salaam"
+      },
+      "destination": {
+        "code": "HTKJ",
+        "code_icao": "HTKJ",
+        "code_iata": "JRO",
+        "name": "Kilimanjaro International Airport",
+        "city": "Kilimanjaro",
+        "timezone": "Africa/Dar_es_Salaam"
+      },
+      "scheduled_off": "2026-05-21T08:20:00Z",
+      "scheduled_on":  "2026-05-21T09:10:00Z",
+      "filed_ete": 3000,
+      "status": "En Route / On Time",
+      "progress_percent": 55
+    },
+    {
+      "ident": "SL412",
+      "ident_iata": "SL412",
+      "ident_icao": "SLE412",
+      "operator": "SLE",
+      "operator_iata": "SL",
+      "aircraft_type": "DH8D",
+      "origin": {
+        "code": "HTZA",
+        "code_icao": "HTZA",
+        "code_iata": "ZNZ",
+        "name": "Abeid Amani Karume International Airport",
+        "city": "Zanzibar",
+        "timezone": "Africa/Dar_es_Salaam"
+      },
+      "destination": {
+        "code": "HTDA",
+        "code_icao": "HTDA",
+        "code_iata": "DAR",
+        "name": "Julius Nyerere International Airport",
+        "city": "Dar es Salaam",
+        "timezone": "Africa/Dar_es_Salaam"
+      },
+      "scheduled_off": "2026-05-21T10:00:00Z",
+      "scheduled_on":  "2026-05-21T10:25:00Z",
+      "filed_ete": 1500,
+      "status": "Scheduled",
+      "progress_percent": 0
+    }
+  ],
+  "scheduled": []
+}

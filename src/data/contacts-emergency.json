@@ -1,0 +1,146 @@
+[
+  {
+    "org": "Emergency Services",
+    "country": "Kenya",
+    "group": "east",
+    "details": [],
+    "emergRows": [
+      "P999",
+      "F112",
+      "M911",
+      "+Kenya Red Cross: 1199 · St John Ambulance: +254 722 125285 | +254 733 930000"
+    ]
+  },
+  {
+    "org": "Emergency Services",
+    "country": "Tanzania",
+    "group": "east",
+    "details": [],
+    "emergRows": [
+      "P112 | 111",
+      "F—",
+      "M114",
+      "+Tanzania Red Cross Society: +255 080 075 0153"
+    ]
+  },
+  {
+    "org": "Emergency Services",
+    "country": "Uganda",
+    "group": "east",
+    "details": [],
+    "emergRows": [
+      "P999 | 112",
+      "F—",
+      "M912",
+      "+Uganda Red Cross Society: +256 800 100066 · St John Ambulance Uganda: +256 414 258001"
+    ]
+  },
+  {
+    "org": "Emergency Services",
+    "country": "Rwanda",
+    "group": "east",
+    "details": [],
+    "emergRows": [
+      "P112",
+      "F111",
+      "M912",
+      "+Rwanda Red Cross Society: +250 788 123600 | +250 255 105260 · Hotline: 2100"
+    ]
+  },
+  {
+    "org": "Emergency Services",
+    "country": "Burundi",
+    "group": "east",
+    "details": [],
+    "emergRows": [
+      "P112",
+      "F118",
+      "M—",
+      "+Burundi Red Cross: +257 222 218870 | +257 222 18871 · Hotline: 109"
+    ]
+  },
+  {
+    "org": "Emergency Services",
+    "country": "DR Congo",
+    "group": "horn",
+    "details": [],
+    "emergRows": [
+      "P112 | 117",
+      "F118",
+      "M—",
+      "+Kinshasa – DRC Red Cross: +243 822 388209 | +243 998 225234"
+    ]
+  },
+  {
+    "org": "Emergency Services",
+    "country": "Somalia",
+    "group": "horn",
+    "details": [],
+    "emergRows": [
+      "P888",
+      "F—",
+      "M999",
+      "+Somali Red Crescent Society: 446 | +252 615 866606"
+    ]
+  },
+  {
+    "org": "Emergency Services",
+    "country": "Ethiopia",
+    "group": "horn",
+    "details": [],
+    "emergRows": [
+      "P991 | 911",
+      "F931",
+      "M907",
+      "+—"
+    ]
+  },
+  {
+    "org": "Emergency Services",
+    "country": "South Sudan",
+    "group": "horn",
+    "details": [],
+    "emergRows": [
+      "P999",
+      "F—",
+      "M—",
+      "+South Sudan Red Cross: +211 926 255358 | +211 927 580870"
+    ]
+  },
+  {
+    "org": "Emergency Services",
+    "country": "Sudan",
+    "group": "horn",
+    "details": [],
+    "emergRows": [
+      "P999",
+      "F—",
+      "M—",
+      "+Sudanese Red Crescent Society: +249 183 772011"
+    ]
+  },
+  {
+    "org": "Emergency Services",
+    "country": "Djibouti",
+    "group": "horn",
+    "details": [],
+    "emergRows": [
+      "P999",
+      "F18",
+      "M119",
+      "+Gendarmerie: +253 21352222 · Red Crescent Society: +253 21351252 | +253 21362528"
+    ]
+  },
+  {
+    "org": "Emergency Services",
+    "country": "Eritrea",
+    "group": "horn",
+    "details": [],
+    "emergRows": [
+      "P127",
+      "F116",
+      "M134",
+      "+—"
+    ]
+  }
+]

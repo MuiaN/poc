@@ -1,0 +1,104 @@
+[
+  {
+    "country": "KENYA",
+    "cat": "WEATHER",
+    "catColor": "#f39c12",
+    "headline": "Nairobi (HKJK): MVFR Conditions; BKN Ceiling 1600ft",
+    "body": "Visibility reduced to 6 miles in light rain; winds from 120° at 5 kts. Transitioning to VFR after 0600Z.",
+    "source": "METAR HKJK | Translation: Original English",
+    "time": "30m ago"
+  },
+  {
+    "country": "SUDAN",
+    "cat": "SECURITY",
+    "catColor": "#dc2626",
+    "headline": "Port Sudan Airspace Restricted Above FL200",
+    "body": "NOTAM issued for high-altitude transits due to localized kinetic activity. Civil operators advised to coordinate with regional ATC.",
+    "source": "Sudan CAA / Reuters | Translation: Original English / Translated from Arabic",
+    "time": "2h ago"
+  },
+  {
+    "country": "UGANDA",
+    "cat": "REGULATION",
+    "catColor": "#7c3aed",
+    "headline": "Entebbe Runway 17/35 Maintenance Notice Issued",
+    "body": "Visibility 10km+. Monitoring evening convective activity over the western highlands. No operational delays.",
+    "source": "METAR HRYR | Translation: Original English",
+    "time": "5h ago"
+  },
+  {
+    "country": "ETHIOPIA",
+    "cat": "WEATHER",
+    "catColor": "#f39c12",
+    "headline": "Kigali (HRYR): VFR; SCT025 BKN100; Winds 210° at 6 kts",
+    "body": "Surface winds north/northwest at 10 kts. Visibility steady at 8000m+ but monitoring CB development nearby.",
+    "source": "TAF HAAB | Translation: Original English",
+    "time": "6h ago"
+  },
+  {
+    "country": "SOMALIA",
+    "cat": "SECURITY",
+    "catColor": "#dc2626",
+    "headline": "Mogadishu Airspace Security Protocols Tightened",
+    "body": "SCAA reports increased electronic interference signals in the Aden Adde approach path. Pilots advised to maintain visual baseline.",
+    "source": "OpsGroup / SCAA | Translation: Original English",
+    "time": "8h ago"
+  },
+  {
+    "country": "ETHIOPIA",
+    "cat": "COMMERICAL",
+    "catColor": "#1a6fe8",
+    "headline": "New Domestic Hubs Opening in Ethiopia",
+    "body": "SOBUGEA announces 5% hike in turnaround fees for wide-body aircraft to fund cargo apron expansion.",
+    "source": "Ethiopian Airlines Corporate | Translation: Original English / Translated from Amharic",
+    "time": "12h ago"
+  },
+  {
+    "country": "BURUNDI",
+    "cat": "REGULATION",
+    "catColor": "#7c3aed",
+    "headline": "Bujumbura (HBBA) Ground Handling Fee Restructuring",
+    "body": "Implementation of regional unified ATC standards delayed to Q4 2026. Current state-led fragmented monitoring remains active.",
+    "source": "Burundi Ministry of Transport | Translation: Translated from French",
+    "time": "18h ago"
+  },
+  {
+    "country": "TANZANIA",
+    "cat": "INFRASTRUCTURE",
+    "catColor": "#b45309",
+    "headline": "Julius Nyerere Intl (HTDA) Terminal 2 Lighting Upgrade",
+    "body": "Night-ops capacity reduced by 15% during 48-hour electrical overhaul. Standby generators operational but secondary taxiways unlit.",
+    "source": "TAA Official | Translation: Original English / Translated from Swahili",
+    "time": "22h ago"
+  },
+  {
+    "country": "KENYA",
+    "cat": "SECURITY",
+    "catColor": "#dc2626",
+    "headline": "HKJK: Heightened Security Checks — Kenya Airways Operations Affected",
+    "body": "Enhanced passenger screening at JKIA following threat advisory. Kenya Airways (5Y-KQA) reporting 20–35 min ground delays on all departures. Coordinating with KCAA.",
+    "source": "KCAA Security Bulletin | Translation: Original English",
+    "time": "1h ago",
+    "portfolioTag": "INS-2024-0786 · Kenya Airways"
+  },
+  {
+    "country": "ETHIOPIA",
+    "cat": "WEATHER",
+    "catColor": "#f39c12",
+    "headline": "HAAB: CB Activity on HKJK–HAAB Corridor; Ethiopian Airlines Advisory",
+    "body": "Significant convective cells developing along the Nairobi–Addis corridor between FL240–FL360. Ethiopian Airlines (ET-AYA) flight ops centre monitoring; possible re-routing via HRYR.",
+    "source": "TAF HAAB / Ethiopian Airlines Ops | Translation: Original English",
+    "time": "3h ago",
+    "portfolioTag": "INS-2024-0812 · Ethiopian Airlines"
+  },
+  {
+    "country": "TANZANIA",
+    "cat": "WEATHER",
+    "catColor": "#f39c12",
+    "headline": "HTDA: Afternoon Thunderstorm Risk — Precision Air ATR Operations",
+    "body": "Convective outlook for Julius Nyerere Intl indicates a 70% probability of TS activity 1400–1900 LT. Precision Air ATR 72-600 (5H-TGF) short-haul sectors to Zanzibar and Kilimanjaro flagged for potential holding.",
+    "source": "TMA Tanzania Met | Translation: Original English / Translated from Swahili",
+    "time": "9h ago",
+    "portfolioTag": "INS-2024-0955 · Precision Air"
+  }
+]

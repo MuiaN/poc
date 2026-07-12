@@ -1,0 +1,265 @@
+{
+  "ident": "EK770",
+  "ident_iata": "EK770",
+  "fa_flight_id": "UAE770-1779253947-schedule-778p",
+  "aircraft_type": "B77W",
+  "origin": {
+    "code_icao": "OMDB",
+    "code_iata": "DXB",
+    "city": "Dubai",
+    "name": "Dubai Int'l"
+  },
+  "destination": {
+    "code_icao": "FACT",
+    "code_iata": "CPT",
+    "city": "Cape Town",
+    "name": "Cape Town Int'l"
+  },
+  "actual_off": "2026-05-22T05:35:00Z",
+  "actual_on": null,
+  "status": "En Route / On Time",
+  "source": "FlightAware AeroAPI /flights/{id}/track — live ADS-B data",
+  "cost": "$0.012 per call",
+  "waypoints": [
+    {
+      "t": "2026-05-22T08:17:52Z",
+      "lat": 7.71161,
+      "lon": 45.79272,
+      "alt_ft": 34000,
+      "kts": 509,
+      "hdg": 224,
+      "phase": "climb",
+      "change": "C"
+    },
+    {
+      "t": "2026-05-22T08:18:44Z",
+      "lat": 7.62447,
+      "lon": 45.70475,
+      "alt_ft": 34000,
+      "kts": 509,
+      "hdg": 227,
+      "phase": "cruise",
+      "change": "-"
+    },
+    {
+      "t": "2026-05-22T08:19:28Z",
+      "lat": 7.55324,
+      "lon": 45.62807,
+      "alt_ft": 34000,
+      "kts": 508,
+      "hdg": 227,
+      "phase": "cruise",
+      "change": "-"
+    },
+    {
+      "t": "2026-05-22T08:19:58Z",
+      "lat": 7.50511,
+      "lon": 45.57664,
+      "alt_ft": 34000,
+      "kts": 508,
+      "hdg": 227,
+      "phase": "cruise",
+      "change": "-"
+    },
+    {
+      "t": "2026-05-22T08:20:28Z",
+      "lat": 7.45514,
+      "lon": 45.52367,
+      "alt_ft": 34000,
+      "kts": 508,
+      "hdg": 227,
+      "phase": "cruise",
+      "change": "-"
+    },
+    {
+      "t": "2026-05-22T08:20:58Z",
+      "lat": 7.40749,
+      "lon": 45.47331,
+      "alt_ft": 34000,
+      "kts": 508,
+      "hdg": 226,
+      "phase": "cruise",
+      "change": "-"
+    },
+    {
+      "t": "2026-05-22T08:21:29Z",
+      "lat": 7.35823,
+      "lon": 45.42144,
+      "alt_ft": 34000,
+      "kts": 508,
+      "hdg": 226,
+      "phase": "cruise",
+      "change": "-"
+    },
+    {
+      "t": "2026-05-22T08:22:29Z",
+      "lat": 7.25963,
+      "lon": 45.31753,
+      "alt_ft": 34000,
+      "kts": 508,
+      "hdg": 226,
+      "phase": "cruise",
+      "change": "-"
+    },
+    {
+      "t": "2026-05-22T08:22:59Z",
+      "lat": 7.21113,
+      "lon": 45.26642,
+      "alt_ft": 34000,
+      "kts": 506,
+      "hdg": 226,
+      "phase": "cruise",
+      "change": "-"
+    },
+    {
+      "t": "2026-05-22T08:23:29Z",
+      "lat": 7.16217,
+      "lon": 45.21479,
+      "alt_ft": 34000,
+      "kts": 506,
+      "hdg": 226,
+      "phase": "cruise",
+      "change": "-"
+    },
+    {
+      "t": "2026-05-22T08:23:59Z",
+      "lat": 7.11383,
+      "lon": 45.16382,
+      "alt_ft": 34000,
+      "kts": 506,
+      "hdg": 226,
+      "phase": "cruise",
+      "change": "-"
+    },
+    {
+      "t": "2026-05-22T08:24:29Z",
+      "lat": 7.06523,
+      "lon": 45.11266,
+      "alt_ft": 34000,
+      "kts": 508,
+      "hdg": 226,
+      "phase": "cruise",
+      "change": "-"
+    },
+    {
+      "t": "2026-05-22T08:24:59Z",
+      "lat": 7.01669,
+      "lon": 45.06154,
+      "alt_ft": 34000,
+      "kts": 508,
+      "hdg": 226,
+      "phase": "cruise",
+      "change": "-"
+    },
+    {
+      "t": "2026-05-22T08:25:29Z",
+      "lat": 6.96724,
+      "lon": 45.00952,
+      "alt_ft": 34000,
+      "kts": 508,
+      "hdg": 226,
+      "phase": "cruise",
+      "change": "-"
+    },
+    {
+      "t": "2026-05-22T08:26:29Z",
+      "lat": 6.87074,
+      "lon": 44.90775,
+      "alt_ft": 34000,
+      "kts": 506,
+      "hdg": 226,
+      "phase": "cruise",
+      "change": "-"
+    },
+    {
+      "t": "2026-05-22T08:27:13Z",
+      "lat": 6.80068,
+      "lon": 44.83397,
+      "alt_ft": 34000,
+      "kts": 506,
+      "hdg": 226,
+      "phase": "cruise",
+      "change": "-"
+    },
+    {
+      "t": "2026-05-22T08:27:50Z",
+      "lat": 6.73904,
+      "lon": 44.7691,
+      "alt_ft": 34000,
+      "kts": 508,
+      "hdg": 226,
+      "phase": "cruise",
+      "change": "-"
+    },
+    {
+      "t": "2026-05-22T08:28:58Z",
+      "lat": 6.62806,
+      "lon": 44.65279,
+      "alt_ft": 34000,
+      "kts": 509,
+      "hdg": 226,
+      "phase": "cruise",
+      "change": "-"
+    },
+    {
+      "t": "2026-05-22T09:22:46Z",
+      "lat": 0.98225,
+      "lon": 39.4601,
+      "alt_ft": 34000,
+      "kts": 512,
+      "hdg": 219,
+      "phase": "cruise",
+      "change": "-"
+    },
+    {
+      "t": "2026-05-22T09:23:44Z",
+      "lat": 0.87579,
+      "lon": 39.37386,
+      "alt_ft": 34000,
+      "kts": 511,
+      "hdg": 219,
+      "phase": "cruise",
+      "change": "-"
+    },
+    {
+      "t": "2026-05-22T09:24:45Z",
+      "lat": 0.76222,
+      "lon": 39.2818,
+      "alt_ft": 34000,
+      "kts": 510,
+      "hdg": 219,
+      "phase": "cruise",
+      "change": "-"
+    },
+    {
+      "t": "2026-05-22T09:25:15Z",
+      "lat": 0.7066,
+      "lon": 39.23669,
+      "alt_ft": 34000,
+      "kts": 510,
+      "hdg": 219,
+      "phase": "cruise",
+      "change": "-"
+    },
+    {
+      "t": "2026-05-22T09:25:46Z",
+      "lat": 0.64996,
+      "lon": 39.19084,
+      "alt_ft": 34000,
+      "kts": 509,
+      "hdg": 219,
+      "phase": "cruise",
+      "change": "-"
+    },
+    {
+      "t": "2026-05-22T09:26:46Z",
+      "lat": 0.53959,
+      "lon": 39.10138,
+      "alt_ft": 34000,
+      "kts": 510,
+      "hdg": 219,
+      "phase": "cruise",
+      "change": "-"
+    }
+  ]
+}

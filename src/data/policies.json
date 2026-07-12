@@ -1,0 +1,502 @@
+[
+  {
+    "id": "INS-2024-0786",
+    "client": "Kenya Airways",
+    "ac": "Boeing 737-800 (5Y-KQA)",
+    "cov": "$18M Hull & Liability",
+    "period": "18/11/2025 – 17/11/2026",
+    "expiry": "193 days",
+    "exp": "",
+    "status": "Active"
+  },
+  {
+    "id": "INS-2025-0101",
+    "client": "Fly540",
+    "ac": "ATR 72-500 (5Y-FIV)",
+    "cov": "$7M Hull & Liability",
+    "period": "01/01/2026 – 31/12/2026",
+    "expiry": "237 days",
+    "exp": "",
+    "status": "Active"
+  },
+  {
+    "id": "INS-2024-0811",
+    "client": "Jambojet",
+    "ac": "Boeing 737-300 (5Y-JMB)",
+    "cov": "$9M Hull & Liability",
+    "period": "15/04/2026 – 14/04/2027",
+    "expiry": "340 days",
+    "exp": "",
+    "status": "Active"
+  },
+  {
+    "id": "INS-2025-0105",
+    "client": "Skyward Express",
+    "ac": "Cessna 208B (5Y-SKY)",
+    "cov": "$1.2M Hull & Liability",
+    "period": "01/03/2026 – 28/02/2027",
+    "expiry": "296 days",
+    "exp": "",
+    "status": "Active"
+  },
+  {
+    "id": "INS-2025-0106",
+    "client": "Safari Link Aviation",
+    "ac": "Cessna 208B (5Y-SLV)",
+    "cov": "$1.2M Hull & Liability",
+    "period": "01/03/2026 – 28/02/2027",
+    "expiry": "296 days",
+    "exp": "",
+    "status": "Active"
+  },
+  {
+    "id": "INS-2025-0107",
+    "client": "East African Safari Air",
+    "ac": "Piper PA-34 (5Y-EAS)",
+    "cov": "$0.8M Hull & Liability",
+    "period": "01/06/2025 – 31/05/2026",
+    "expiry": "23 days",
+    "exp": "amber",
+    "status": "Renew Soon"
+  },
+  {
+    "id": "INS-2025-0901",
+    "client": "AMREF Flying Doctors",
+    "ac": "Cessna 402 (5Y-AMD)",
+    "cov": "$1.8M Hull & Liability",
+    "period": "01/01/2026 – 31/12/2026",
+    "expiry": "237 days",
+    "exp": "",
+    "status": "Active"
+  },
+  {
+    "id": "INS-2025-0108",
+    "client": "Astral Aviation",
+    "ac": "Boeing 727-200F (5Y-AXM)",
+    "cov": "$8M Cargo & Liability",
+    "period": "01/04/2026 – 31/03/2027",
+    "expiry": "327 days",
+    "exp": "",
+    "status": "Active"
+  },
+  {
+    "id": "INS-2025-0109",
+    "client": "Africa Cargo Express",
+    "ac": "Boeing 737-300F (5Y-ACE)",
+    "cov": "$9M Cargo & Liability",
+    "period": "15/01/2026 – 14/01/2027",
+    "expiry": "251 days",
+    "exp": "",
+    "status": "Active"
+  },
+  {
+    "id": "INS-2025-0110",
+    "client": "Tropic Air Kenya",
+    "ac": "Cessna 206 (5Y-TRP)",
+    "cov": "$0.5M Hull & Liability",
+    "period": "01/05/2026 – 30/04/2027",
+    "expiry": "357 days",
+    "exp": "",
+    "status": "Active"
+  },
+  {
+    "id": "INS-2024-0955",
+    "client": "Precision Air",
+    "ac": "ATR 72-600 (5H-TGF)",
+    "cov": "$8M Hull & Liability",
+    "period": "07/01/2026 – 06/01/2027",
+    "expiry": "243 days",
+    "exp": "",
+    "status": "Active"
+  },
+  {
+    "id": "INS-2025-0210",
+    "client": "Air Tanzania",
+    "ac": "Boeing 787-8 (5H-TCH)",
+    "cov": "$42M All Risk",
+    "period": "01/02/2026 – 31/01/2027",
+    "expiry": "268 days",
+    "exp": "",
+    "status": "Active"
+  },
+  {
+    "id": "INS-2025-0211",
+    "client": "Coastal Aviation",
+    "ac": "Cessna 208B Grand Caravan (5H-CVA)",
+    "cov": "$1.4M Hull & Liability",
+    "period": "01/06/2026 – 31/05/2027",
+    "expiry": "388 days",
+    "exp": "",
+    "status": "Active"
+  },
+  {
+    "id": "INS-2024-1101",
+    "client": "MSF Air",
+    "ac": "Cessna 208B (TZ-MSF)",
+    "cov": "$1.2M Hull & Liability",
+    "period": "01/04/2025 – 31/03/2026",
+    "expiry": "Expired",
+    "exp": "red",
+    "status": "Expired"
+  },
+  {
+    "id": "INS-2025-0212",
+    "client": "ZanAir",
+    "ac": "Cessna 402C (5H-ZAN)",
+    "cov": "$0.9M Hull & Liability",
+    "period": "01/07/2026 – 30/06/2027",
+    "expiry": "419 days",
+    "exp": "",
+    "status": "Active"
+  },
+  {
+    "id": "INS-2024-0870",
+    "client": "Uganda Airlines",
+    "ac": "Airbus A320neo (5X-UAA)",
+    "cov": "$22M Hull & Liability",
+    "period": "01/11/2025 – 31/10/2026",
+    "expiry": "176 days",
+    "exp": "",
+    "status": "Active"
+  },
+  {
+    "id": "INS-2024-0872",
+    "client": "Eagle Air Uganda",
+    "ac": "Beechcraft 1900D (5X-EAG)",
+    "cov": "$2.5M Hull & Liability",
+    "period": "15/06/2025 – 14/06/2026",
+    "expiry": "37 days",
+    "exp": "amber",
+    "status": "Renew Soon"
+  },
+  {
+    "id": "INS-2025-0301",
+    "client": "Gahinga Air",
+    "ac": "Cessna 172 (5X-GAH)",
+    "cov": "$0.3M Hull & Liability",
+    "period": "01/04/2026 – 31/03/2027",
+    "expiry": "327 days",
+    "exp": "",
+    "status": "Active"
+  },
+  {
+    "id": "INS-2024-0890",
+    "client": "RwandAir",
+    "ac": "Airbus A330-200 (9XR-WA)",
+    "cov": "$58M All Risk",
+    "period": "01/04/2026 – 31/03/2027",
+    "expiry": "327 days",
+    "exp": "",
+    "status": "Active"
+  },
+  {
+    "id": "INS-2025-0302",
+    "client": "Aerolink Rwanda",
+    "ac": "Cessna 208B (9XR-ALR)",
+    "cov": "$1.2M Hull & Liability",
+    "period": "01/05/2026 – 30/04/2027",
+    "expiry": "357 days",
+    "exp": "",
+    "status": "Active"
+  },
+  {
+    "id": "INS-2025-0310",
+    "client": "Burundian Airlines",
+    "ac": "Embraer E145 (9U-BAA)",
+    "cov": "$5M Hull & Liability",
+    "period": "01/03/2026 – 28/02/2027",
+    "expiry": "296 days",
+    "exp": "",
+    "status": "Active"
+  },
+  {
+    "id": "INS-2025-0311",
+    "client": "Air Burundi",
+    "ac": "ATR 42-600 (9U-AIR)",
+    "cov": "$4.5M Hull & Liability",
+    "period": "01/08/2025 – 31/07/2026",
+    "expiry": "84 days",
+    "exp": "amber",
+    "status": "Renew Soon"
+  },
+  {
+    "id": "INS-2024-0812",
+    "client": "Ethiopian Airlines",
+    "ac": "Boeing 787-9 (ET-AYA)",
+    "cov": "$42M All Risk",
+    "period": "02/03/2025 – 01/03/2026",
+    "expiry": "Expired",
+    "exp": "red",
+    "status": "Expired"
+  },
+  {
+    "id": "INS-2024-0820",
+    "client": "Ethio Express",
+    "ac": "Boeing 737-700 (ET-AXF)",
+    "cov": "$16M Hull & Liability",
+    "period": "01/09/2025 – 31/08/2026",
+    "expiry": "115 days",
+    "exp": "",
+    "status": "Active"
+  },
+  {
+    "id": "INS-2025-0401",
+    "client": "Trans Nation Airways",
+    "ac": "De Havilland Q400 (ET-TNA)",
+    "cov": "$6M Hull & Liability",
+    "period": "01/02/2026 – 31/01/2027",
+    "expiry": "268 days",
+    "exp": "",
+    "status": "Active"
+  },
+  {
+    "id": "INS-2025-0402",
+    "client": "Abyssinia Flight Services",
+    "ac": "Cessna 208B (ET-ABS)",
+    "cov": "$1.2M Hull & Liability",
+    "period": "01/03/2026 – 28/02/2027",
+    "expiry": "296 days",
+    "exp": "",
+    "status": "Active"
+  },
+  {
+    "id": "INS-2024-0910",
+    "client": "Jubba Airways",
+    "ac": "Boeing 737-400 (6O-BEK)",
+    "cov": "$11M Hull & Liability",
+    "period": "01/07/2025 – 30/06/2026",
+    "expiry": "53 days",
+    "exp": "amber",
+    "status": "Renew Soon"
+  },
+  {
+    "id": "INS-2025-0501",
+    "client": "African Express Airways",
+    "ac": "Boeing 737-300 (6O-AEX)",
+    "cov": "$9M Hull & Liability",
+    "period": "01/02/2026 – 31/01/2027",
+    "expiry": "268 days",
+    "exp": "",
+    "status": "Active"
+  },
+  {
+    "id": "INS-2025-0502",
+    "client": "Daallo Airlines",
+    "ac": "Airbus A321 (6O-DAL)",
+    "cov": "$24M Hull & Liability",
+    "period": "01/04/2026 – 31/03/2027",
+    "expiry": "327 days",
+    "exp": "",
+    "status": "Active"
+  },
+  {
+    "id": "INS-2024-0930",
+    "client": "Air Djibouti",
+    "ac": "Boeing 737-400 (J2-KBD)",
+    "cov": "$11M Hull & Liability",
+    "period": "01/06/2025 – 31/05/2026",
+    "expiry": "23 days",
+    "exp": "amber",
+    "status": "Renew Soon"
+  },
+  {
+    "id": "INS-2025-0601",
+    "client": "Djibouti Airlines",
+    "ac": "De Havilland Q300 (J2-DJA)",
+    "cov": "$4M Hull & Liability",
+    "period": "01/04/2026 – 31/03/2027",
+    "expiry": "327 days",
+    "exp": "",
+    "status": "Active"
+  },
+  {
+    "id": "INS-2024-0960",
+    "client": "Eritrean Airlines",
+    "ac": "Boeing 767-300 (E3-AAO)",
+    "cov": "$32M Hull & Liability",
+    "period": "01/10/2025 – 30/09/2026",
+    "expiry": "145 days",
+    "exp": "",
+    "status": "Active"
+  },
+  {
+    "id": "INS-2024-0940",
+    "client": "Badr Airlines",
+    "ac": "Airbus A320 (ST-BDA)",
+    "cov": "$20M Hull & Liability",
+    "period": "01/08/2025 – 31/07/2026",
+    "expiry": "84 days",
+    "exp": "amber",
+    "status": "Renew Soon"
+  },
+  {
+    "id": "INS-2025-0701",
+    "client": "Sudan Airways",
+    "ac": "Airbus A310-300 (ST-SAA)",
+    "cov": "$28M Hull & Liability",
+    "period": "01/05/2026 – 30/04/2027",
+    "expiry": "357 days",
+    "exp": "",
+    "status": "Active"
+  },
+  {
+    "id": "INS-2025-0702",
+    "client": "South Sudan Airways",
+    "ac": "ATR 72-500 (SS-SSA)",
+    "cov": "$6M Hull & Liability",
+    "period": "01/03/2026 – 28/02/2027",
+    "expiry": "296 days",
+    "exp": "",
+    "status": "Active"
+  },
+  {
+    "id": "INS-2025-0703",
+    "client": "Feeder Airlines",
+    "ac": "Cessna 208B Caravan (SS-FDR)",
+    "cov": "$1.1M Hull & Liability",
+    "period": "TBD",
+    "expiry": "—",
+    "exp": "",
+    "status": "Pending"
+  },
+  {
+    "id": "INS-2024-0970",
+    "client": "Congo Airways",
+    "ac": "Airbus A320 (9Q-COP)",
+    "cov": "$20M Hull & Liability",
+    "period": "15/03/2026 – 14/03/2027",
+    "expiry": "310 days",
+    "exp": "",
+    "status": "Active"
+  },
+  {
+    "id": "INS-2024-0972",
+    "client": "CAA Congo",
+    "ac": "Boeing 737-300 (9Q-CAA)",
+    "cov": "$9M Hull & Liability",
+    "period": "01/10/2025 – 30/09/2026",
+    "expiry": "145 days",
+    "exp": "",
+    "status": "Active"
+  },
+  {
+    "id": "INS-2025-0801",
+    "client": "Malu Aviation",
+    "ac": "ATR 42-300 (9Q-MAL)",
+    "cov": "$4M Hull & Liability",
+    "period": "01/02/2026 – 31/01/2027",
+    "expiry": "268 days",
+    "exp": "",
+    "status": "Active"
+  },
+  {
+    "id": "INS-2025-0802",
+    "client": "Korongo Airlines",
+    "ac": "Bombardier CRJ100 (9Q-KOR)",
+    "cov": "$8M Hull & Liability",
+    "period": "01/06/2026 – 31/05/2027",
+    "expiry": "388 days",
+    "exp": "",
+    "status": "Active"
+  },
+  {
+    "id": "INS-2024-0901",
+    "client": "Saudia",
+    "ac": "Boeing 777-300 (SA-AAX)",
+    "cov": "$65M Hull & Liability",
+    "period": "15/06/2025 – 14/06/2026",
+    "expiry": "37 days",
+    "exp": "amber",
+    "status": "Renew Soon"
+  },
+  {
+    "id": "INS-2024-0934",
+    "client": "EgyptAir",
+    "ac": "Airbus A320 (MS-ACK)",
+    "cov": "$22M Hull & Liability",
+    "period": "21/09/2025 – 20/09/2026",
+    "expiry": "135 days",
+    "exp": "",
+    "status": "Active"
+  },
+  {
+    "id": "INS-2025-0901",
+    "client": "flydubai",
+    "ac": "Boeing 737 MAX 8 (A6-FMD)",
+    "cov": "$22M Hull & Liability",
+    "period": "01/03/2026 – 28/02/2027",
+    "expiry": "296 days",
+    "exp": "",
+    "status": "Active"
+  },
+  {
+    "id": "INS-2025-0902",
+    "client": "Air Arabia",
+    "ac": "Airbus A320 (A6-ARA)",
+    "cov": "$20M Hull & Liability",
+    "period": "01/04/2026 – 31/03/2027",
+    "expiry": "327 days",
+    "exp": "",
+    "status": "Active"
+  },
+  {
+    "id": "INS-2025-0903",
+    "client": "Nile Air",
+    "ac": "Airbus A320neo (SU-NIL)",
+    "cov": "$22M Hull & Liability",
+    "period": "01/05/2026 – 30/04/2027",
+    "expiry": "357 days",
+    "exp": "",
+    "status": "Active"
+  },
+  {
+    "id": "INS-2025-1001",
+    "client": "World Food Programme Air",
+    "ac": "Cessna 208B Caravan (UN-WFP)",
+    "cov": "$1.2M Hull & Liability",
+    "period": "01/01/2026 – 31/12/2026",
+    "expiry": "237 days",
+    "exp": "",
+    "status": "Active"
+  },
+  {
+    "id": "INS-2025-1002",
+    "client": "Médecins Sans Frontières",
+    "ac": "Cessna 208B (F-MSF)",
+    "cov": "$1.2M Hull & Liability",
+    "period": "01/04/2026 – 31/03/2027",
+    "expiry": "327 days",
+    "exp": "",
+    "status": "Active"
+  },
+  {
+    "id": "INS-2025-1003",
+    "client": "International SOS",
+    "ac": "Learjet 45 (ZS-SOS)",
+    "cov": "$6M Hull & Liability",
+    "period": "01/02/2026 – 31/01/2027",
+    "expiry": "268 days",
+    "exp": "",
+    "status": "Active"
+  },
+  {
+    "id": "INS-2025-1004",
+    "client": "African Medical Charter",
+    "ac": "Pilatus PC-12 (5Y-AMC)",
+    "cov": "$2.2M Hull & Liability",
+    "period": "TBD",
+    "expiry": "—",
+    "exp": "",
+    "status": "Pending"
+  },
+  {
+    "id": "INS-2025-1005",
+    "client": "Wings of Hope Africa",
+    "ac": "Cessna 182 (5H-WOH)",
+    "cov": "$0.4M Hull & Liability",
+    "period": "01/06/2026 – 31/05/2027",
+    "expiry": "388 days",
+    "exp": "",
+    "status": "Active"
+  }
+]

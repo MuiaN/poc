@@ -1,0 +1,134 @@
+[
+  {
+    "org": "Kenya Civil Aviation Authority (KCAA)",
+    "country": "Kenya",
+    "group": "east",
+    "details": [
+      "+254 020 827 4075",
+      "info@kcaa.or.ke",
+      "Aviation House, Jomo Kenyatta International Airport (JKIA), Nairobi"
+    ],
+    "emergRows": []
+  },
+  {
+    "org": "Tanzania Civil Aviation Authority (TCAA)",
+    "country": "Tanzania",
+    "group": "east",
+    "details": [
+      "+255 222 198 100",
+      "bansa@tcaa.go.tz",
+      "Aviation House, Nyerere Road, Banana Ubungo Area, Dar es Salaam"
+    ],
+    "emergRows": []
+  },
+  {
+    "org": "Uganda Civil Aviation Authority (UCAA)",
+    "country": "Uganda",
+    "group": "east",
+    "details": [
+      "+256 414 352000 | +256 312 352000",
+      "aviation@caa.co.ug",
+      "UCAA Head Office, Entebbe International Airport, Entebbe"
+    ],
+    "emergRows": []
+  },
+  {
+    "org": "Rwanda Civil Aviation Authority (RCAA)",
+    "country": "Rwanda",
+    "group": "east",
+    "details": [
+      "+250 726 936 583",
+      "info@caa.gov.rw",
+      "SCNN 5 Rd, Kigali International Airport, Kigali"
+    ],
+    "emergRows": []
+  },
+  {
+    "org": "Burundi Civil Aviation Authority (BCAA)",
+    "country": "Burundi",
+    "group": "east",
+    "details": [
+      "+257 222 03100 | +257 222 03101",
+      "aacburundi@gmail.com",
+      "SCTP Building, Avenue de la Justice, Commune de la Gombe, Bujumbura"
+    ],
+    "emergRows": []
+  },
+  {
+    "org": "Civil Aviation Authority at DRC (CAA-DRC)",
+    "country": "DR Congo",
+    "group": "horn",
+    "details": [
+      "+243 812 237602",
+      "info@aacdrc.org",
+      "SCTP Building, Avenue de la Justice, Commune de la Gombe, Kinshasa"
+    ],
+    "emergRows": []
+  },
+  {
+    "org": "Somali Civil Aviation Authority (SCAA)",
+    "country": "Somalia",
+    "group": "horn",
+    "details": [
+      "+252 1853675",
+      "info@scaa.gov.so",
+      "Aden Adde International Airport, Mogadishu"
+    ],
+    "emergRows": []
+  },
+  {
+    "org": "Ethiopian Civil Aviation Authority (ECAA)",
+    "country": "Ethiopia",
+    "group": "horn",
+    "details": [
+      "+251 116 650 200",
+      "contact@ecaa.gov.et",
+      "Bole International Airport Area, P.O. Box 1755, Addis Ababa"
+    ],
+    "emergRows": []
+  },
+  {
+    "org": "South Sudan Civil Aviation Authority (SSCAA)",
+    "country": "South Sudan",
+    "group": "horn",
+    "details": [
+      "+211 912 150 047",
+      "info@sscaa.gov.ss",
+      "Juba International Airport Area, Juba, South Sudan"
+    ],
+    "emergRows": []
+  },
+  {
+    "org": "Sudan Civil Aviation Authority (SCAA)",
+    "country": "Sudan",
+    "group": "horn",
+    "details": [
+      "+249 183 795 000",
+      "info@scaa.gov.sd",
+      "Khartoum International Airport Area, Khartoum"
+    ],
+    "emergRows": []
+  },
+  {
+    "org": "Autorité de l'Aviation Civile de Djibouti (AACD)",
+    "country": "Djibouti",
+    "group": "horn",
+    "details": [
+      "+253 21 33 51 00",
+      "contact@aacd.dj",
+      "Aéroport International de Djibouti-Ambouli, BP 1877, Djibouti City"
+    ],
+    "emergRows": []
+  },
+  {
+    "org": "Eritrean Civil Aviation Authority (ECAA)",
+    "country": "Eritrea",
+    "group": "horn",
+    "details": [
+      "+291 1 189121 | +291 1 181424",
+      "—",
+      "Asmara International Airport Area, Asmara"
+    ],
+    "emergRows": []
+  }
+]

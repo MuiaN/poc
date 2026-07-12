@@ -1,0 +1,134 @@
+[
+  {
+    "id": "CLM-2026-0041",
+    "policy": "INS-2024-0786",
+    "operator": "Kenya Airways",
+    "aircraft": "Boeing 737-800",
+    "type": "Hull Damage",
+    "amount": "$142,000",
+    "status": "open",
+    "filed": "2026-04-12",
+    "handler": "A. Mwangi"
+  },
+  {
+    "id": "CLM-2026-0040",
+    "policy": "INS-2024-0812",
+    "operator": "Ethiopian Airlines",
+    "aircraft": "Boeing 787-9",
+    "type": "Third-Party Liability",
+    "amount": "$87,500",
+    "status": "review",
+    "filed": "2026-04-08",
+    "handler": "D. Tesfaye"
+  },
+  {
+    "id": "CLM-2026-0039",
+    "policy": "INS-2024-0901",
+    "operator": "Saudia",
+    "aircraft": "Boeing 777-300ER",
+    "type": "Cargo Loss",
+    "amount": "$23,200",
+    "status": "open",
+    "filed": "2026-04-01",
+    "handler": "P. Al-Rashid"
+  },
+  {
+    "id": "CLM-2026-0038",
+    "policy": "INS-2024-0955",
+    "operator": "Precision Air",
+    "aircraft": "ATR 72-600",
+    "type": "AOG — Mechanical",
+    "amount": "$56,800",
+    "status": "review",
+    "filed": "2026-03-28",
+    "handler": "S. Kimaro"
+  },
+  {
+    "id": "CLM-2026-0037",
+    "policy": "INS-2024-0934",
+    "operator": "EgyptAir",
+    "aircraft": "Airbus A320",
+    "type": "Delay — Weather",
+    "amount": "$14,300",
+    "status": "settled",
+    "filed": "2026-03-15",
+    "handler": "N. Hassan"
+  },
+  {
+    "id": "CLM-2026-0036",
+    "policy": "INS-2024-0786",
+    "operator": "Kenya Airways",
+    "aircraft": "Airbus A320",
+    "type": "Passenger Injury",
+    "amount": "$95,000",
+    "status": "open",
+    "filed": "2026-03-10",
+    "handler": "A. Mwangi"
+  },
+  {
+    "id": "CLM-2026-0035",
+    "policy": "INS-2024-0812",
+    "operator": "Ethiopian Airlines",
+    "aircraft": "Boeing 787-9",
+    "type": "Hull Damage",
+    "amount": "$210,000",
+    "status": "settled",
+    "filed": "2026-02-22",
+    "handler": "D. Tesfaye"
+  },
+  {
+    "id": "CLM-2026-0034",
+    "policy": "INS-2024-0955",
+    "operator": "Precision Air",
+    "aircraft": "ATR 72-600",
+    "type": "Navigation Error",
+    "amount": "$8,500",
+    "status": "settled",
+    "filed": "2026-02-14",
+    "handler": "S. Kimaro"
+  },
+  {
+    "id": "CLM-2026-0033",
+    "policy": "INS-2024-0901",
+    "operator": "Saudia",
+    "aircraft": "Airbus A350-900",
+    "type": "Hull Damage",
+    "amount": "$335,000",
+    "status": "open",
+    "filed": "2026-02-05",
+    "handler": "P. Al-Rashid"
+  },
+  {
+    "id": "CLM-2026-0032",
+    "policy": "INS-2024-0786",
+    "operator": "Kenya Airways",
+    "aircraft": "Boeing 737-800",
+    "type": "Cargo Loss",
+    "amount": "$18,700",
+    "status": "settled",
+    "filed": "2026-01-29",
+    "handler": "A. Mwangi"
+  },
+  {
+    "id": "CLM-2026-0031",
+    "policy": "INS-2024-0934",
+    "operator": "EgyptAir",
+    "aircraft": "Boeing 737-800",
+    "type": "AOG — Mechanical",
+    "amount": "$44,100",
+    "status": "open",
+    "filed": "2026-01-20",
+    "handler": "N. Hassan"
+  },
+  {
+    "id": "CLM-2026-0030",
+    "policy": "INS-2024-0812",
+    "operator": "Ethiopian Airlines",
+    "aircraft": "Airbus A350-900",
+    "type": "Third-Party Liability",
+    "amount": "$62,400",
+    "status": "review",
+    "filed": "2026-01-11",
+    "handler": "D. Tesfaye"
+  }
+]

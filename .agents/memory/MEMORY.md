@@ -1,0 +1,4 @@
+- [Node 18 + cheerio](node18-cheerio-file-polyfill.md) — cheerio/undici throws `File is not defined` on Node 18; polyfill `global.File` before requiring it.
+- [create-next-app in non-empty dir](create-next-app-non-empty-dir.md) — scaffold in a temp dir and merge, since create-next-app refuses non-empty target directories.
+- [FRED BLACK project structure](fred-black-project-structure.md) — reference-poc/ is a frozen design+data donor; src/data/*.json is the real source of truth for the Next.js app.
+- [Mock role-based auth pattern](mock-role-based-auth.md) — edge-safe signed cookie sessions + middleware role-gating, no DB, for demo apps needing "real" login UX with mock users.

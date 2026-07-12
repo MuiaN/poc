@@ -1,0 +1,47 @@
+[
+  {
+    "country": "TANZANIA",
+    "cat": "WEATHER",
+    "catColor": "#f39c12",
+    "headline": "HTDA: Afternoon Thunderstorm Risk — Dar es Salaam Ops",
+    "body": "Convective outlook indicates 70% probability of TS activity 1400–1900 LT at Julius Nyerere Intl. ATR 72-600 sectors to Zanzibar (HTZA) and Kilimanjaro (HTKJ) flagged for potential holding or delays.",
+    "source": "TMA Tanzania Met | Translation: Original English / Translated from Swahili",
+    "time": "9h ago"
+  },
+  {
+    "country": "TANZANIA",
+    "cat": "INFRASTRUCTURE",
+    "catColor": "#b45309",
+    "headline": "HTDA Terminal 2 Lighting Upgrade — Night Ops Reduced 15%",
+    "body": "Night-ops capacity reduced during 48-hour electrical overhaul. Standby generators operational but secondary taxiways unlit. Plan for extended ground times on late arrivals.",
+    "source": "TAA Official | Translation: Original English / Translated from Swahili",
+    "time": "22h ago"
+  },
+  {
+    "country": "KENYA",
+    "cat": "SECURITY",
+    "catColor": "#dc2626",
+    "headline": "HKJK: Enhanced Passenger Screening — Departure Delays",
+    "body": "Enhanced screening at JKIA following security advisory. Operators reporting 20–35 min ground delays on all departures. Passengers advised to arrive early. KCAA coordinating.",
+    "source": "KCAA Security Bulletin | Translation: Original English",
+    "time": "1h ago"
+  },
+  {
+    "country": "UGANDA",
+    "cat": "REGULATION",
+    "catColor": "#7c3aed",
+    "headline": "Entebbe (HUEN) Runway 17/35 WIP — Reduced RESA Margin",
+    "body": "Scheduled maintenance work in progress on Runway 17/35. No operational closures but pilots advised of reduced RESA margin during approach. Ref AIP Uganda AD 2-HUEN-2-1.",
+    "source": "METAR HRYR | Translation: Original English",
+    "time": "5h ago"
+  },
+  {
+    "country": "RWANDA",
+    "cat": "WEATHER",
+    "catColor": "#f39c12",
+    "headline": "Kigali (HRYR): CB Monitoring — Western Highlands Advisory",
+    "body": "VFR conditions prevailing. Met office monitoring CB development over western highlands. No restrictions but crews advised to check updated TAF on departure.",
+    "source": "Rwanda Met Service | Translation: Original English",
+    "time": "6h ago"
+  }
+]

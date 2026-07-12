@@ -1,0 +1,35 @@
+[
+  {
+    "org": "Price Forbes",
+    "country": "Speciality Insurance Broker",
+    "group": "brokers",
+    "details": [
+      "—",
+      "www.priceforbes.com",
+      "The Minster Building, 21 Mincing Lane, London, England"
+    ],
+    "emergRows": []
+  },
+  {
+    "org": "Fred Black Insurance Brokers Ltd",
+    "country": "",
+    "group": "brokers",
+    "details": [
+      "+254 718 792430 | +254 790 498445",
+      "info@fredblack.net",
+      "Ground Floor, Bay Court Office Block, Watermark Business Park, Karen, Nairobi"
+    ],
+    "emergRows": []
+  },
+  {
+    "org": "Stone Africa IOC",
+    "country": "",
+    "group": "partners",
+    "details": [
+      "+254 116 043568 | +254 030 7903866",
+      "info@stone-africa.co",
+      "Annex B, Watermark Business Park, Karen, Nairobi"
+    ],
+    "emergRows": []
+  }
+]
