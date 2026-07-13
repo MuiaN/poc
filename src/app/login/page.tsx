@@ -1,23 +1,46 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { DEMO_LOGINS, DEMO_PASSWORD } from "@/data/mock-users";
-import { ROLE_LABEL } from "@/lib/nav";
+import { Icon, UserIcon } from "@/components/icons";
+import { Spinner } from "@/components/ui";
+import { DEMO_LOGINS, MockUser } from "@/data/mock-users";
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = searchParams.get("next");
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
+  // Sign In state
+  const [siEmail, setSiEmail] = useState("");
+  const [siPassword, setSiPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  async function submit(e?: React.FormEvent) {
+  // Demo login from URL param
+  useEffect(() => {
+    const demoRole = searchParams.get("demo");
+    if (demoRole === "insurer" || demoRole === "operator") {
+      const email =
+        demoRole === "insurer" ? "demo.insurer@fredblack.demo" : "demo.operator@fredblack.demo";
+      const password = "FredBlack-Demo-2026!";
+      setSiEmail(email);
+      setSiPassword(password);
+      // Automatically submit after a short delay
+      setTimeout(() => {
+        handleSignIn(null, email, password);
+      }, 100);
+    }
+  }, [searchParams]);
+
+  async function handleSignIn(e?: React.FormEvent | null, email = siEmail, password = siPassword) {
     e?.preventDefault();
     setError(null);
+    if (!email || !password) {
+      setError("Please enter your email and password.");
+      return;
+    }
     setLoading(true);
     try {
       const res = await fetch("/api/login", {
@@ -27,93 +50,123 @@ function LoginForm() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "Something went wrong. Please try again.");
+        setError(data.error ?? "Sign in failed. Please try again.");
         return;
       }
-      router.push(next && next.startsWith(data.redirect) ? next : data.redirect);
+      // Redirect to the dashboard specified by the API response
+      router.push(data.redirect);
       router.refresh();
     } catch {
       setError("Couldn't reach the server. Please try again.");
     } finally {
       setLoading(false);
     }
-  }
-
-  function quickFill(demoEmail: string) {
-    setEmail(demoEmail);
-    setPassword(DEMO_PASSWORD);
-    setError(null);
+    return false; // prevent form submission
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-bg px-6 py-16">
-      <div className="mb-8 flex flex-col items-center text-center">
-        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-accent text-base font-bold text-white">
-          FB
-        </div>
-        <h1 className="font-display text-2xl font-bold tracking-wide text-text">FRED BLACK</h1>
-        <p className="mt-2 max-w-sm text-[13px] text-text-2">Sign in to your aviation intelligence workspace.</p>
-      </div>
+    <main className="relative flex flex-1 flex-col items-center justify-center bg-bg p-6 lg:p-8">
+      {/* Background Gradient */}
+      <div className="fixed inset-0 z-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(26,111,232,0.18)_0%,transparent_70%)]" />
 
-      <div className="w-full max-w-sm rounded-lg border border-border bg-bg-2 p-6 shadow-card">
-        <form onSubmit={submit} className="flex flex-col gap-3">
-          <div>
-            <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-text-3">Email</label>
-            <input
-              type="email"
-              required
-              autoFocus
-              autoComplete="username"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@company.com"
-              className="w-full rounded-md border border-border-2 bg-bg-3 px-3 py-2 text-[13px] text-text outline-none focus:border-accent"
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-text-3">Password</label>
-            <input
-              type="password"
-              required
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="w-full rounded-md border border-border-2 bg-bg-3 px-3 py-2 text-[13px] text-text outline-none focus:border-accent"
-            />
+      <div className="relative z-10 flex w-full max-w-5xl flex-1 items-center justify-center gap-12">
+        {/* Left side: Login Form */}
+        <div className="w-full max-w-md flex-shrink-0">
+          <div className="relative z-10 mb-6 flex items-center justify-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent shadow-[0_4px_16px_var(--accent-glow)]">
+              <Icon name="fleet" className="h-[22px] w-[22px] fill-white" />
+            </div>
+            <div>
+              <div className="text-[17px] font-extrabold tracking-[0.05em] text-text">FRED BLACK</div>
+              <div className="mt-0.5 text-[11px] text-text-3">Aviation Intelligence Platform</div>
+            </div>
           </div>
 
-          {error && (
-            <div className="rounded-md border border-danger bg-danger-dim px-3 py-2 text-[12px] text-danger">{error}</div>
-          )}
+          <div className="relative z-10 w-full max-w-md overflow-hidden rounded-2xl border border-border bg-bg-2 shadow-[0_8px_32px_rgba(0,0,0,0.45)]">
+            {/* Tab Header */}
+            <div className="border-b border-border">
+              <div className="bg-bg-2 p-3 text-center text-xs font-semibold text-accent shadow-[inset_0_-2px_0_var(--accent)]">
+                Sign In
+              </div>
+            </div>
+            {/* Sign In Pane */}
+            <div className="p-8 pt-7">
+              <h2 className="text-xl font-bold tracking-tight text-text">Welcome back</h2>
+              <p className="mb-6 mt-1 text-[13px] leading-relaxed text-text-2">Sign in to access the dashboard.</p>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="mt-1 rounded-md bg-accent px-3 py-2 text-[13px] font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
-          >
-            {loading ? "Signing in…" : "Sign in"}
-          </button>
-        </form>
-      </div>
+              {error && (
+                <div className="mb-4 rounded-lg border border-danger/30 bg-danger-dim p-3 text-xs text-danger">
+                  {error}
+                </div>
+              )}
 
-      <div className="mt-6 w-full max-w-sm">
-        <div className="mb-2 text-center text-[11px] font-semibold uppercase tracking-wide text-text-3">
-          Demo accounts — password: {DEMO_PASSWORD}
+              <form onSubmit={handleSignIn} className="flex flex-col gap-4">
+                <div>
+                  <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-text-2">
+                    Email address
+                  </label>
+                  <input
+                    type="email"
+                    value={siEmail}
+                    onChange={(e) => setSiEmail(e.target.value)}
+                    placeholder="you@airline.com"
+                    className="w-full rounded-[9px] border border-border-2 bg-bg-3 px-3.5 py-2.5 text-sm text-text outline-none transition-all placeholder:text-text-3 focus:border-accent focus:shadow-[0_0_0_3px_var(--accent-dim)]"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-text-2">
+                    Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={siPassword}
+                      onChange={(e) => setSiPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full rounded-[9px] border border-border-2 bg-bg-3 px-3.5 py-2.5 pr-14 text-sm text-text outline-none transition-all placeholder:text-text-3 focus:border-accent focus:shadow-[0_0_0_3px_var(--accent-dim)]"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 cursor-pointer text-[11px] font-semibold text-text-3 transition-colors hover:text-text-2"
+                    >
+                      {showPassword ? "Hide" : "Show"}
+                    </button>
+                  </div>
+                </div>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-[9px] bg-accent text-sm font-semibold text-white transition hover:bg-accent-h active:scale-[.99] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {loading ? (
+                    <>
+                      <Spinner />
+                      <span>Signing In...</span>
+                    </>
+                  ) : (
+                    "Sign In"
+                  )}
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <div className="relative z-10 mt-5 text-center text-[11px] text-text-3">
+            © 2026 Stone Africa &nbsp;·&nbsp; FRED BLACK Aviation Intelligence
+          </div>
         </div>
-        <div className="flex flex-col gap-2">
-          {DEMO_LOGINS.map((u) => (
-            <button
-              key={u.email}
-              onClick={() => quickFill(u.email)}
-              className="flex items-center justify-between rounded-md border border-border bg-bg-2 px-3 py-2 text-left text-[12px] transition-colors hover:border-accent"
-            >
-              <span className="text-text-2">
-                <span className="font-semibold text-text">{ROLE_LABEL[u.role]}</span> · {u.company}
-              </span>
-              <span className="text-text-3">{u.email}</span>
-            </button>
-          ))}
+
+        {/* Right side: Demo Logins */}
+        <div className="hidden w-full max-w-xs flex-shrink-0 lg:block">
+          <div className="mb-4 text-center text-xs font-bold uppercase tracking-wider text-text-2">
+            One-Click Demo Login
+          </div>
+          <div className="flex flex-col gap-3">
+            {DEMO_LOGINS.map((user) => (
+              <DemoLoginButton key={user.role} user={user} handleSignIn={handleSignIn} />
+            ))}
+          </div>
         </div>
       </div>
     </main>
@@ -122,8 +175,26 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
+    // Suspense is required to use useSearchParams()
     <Suspense fallback={null}>
       <LoginForm />
     </Suspense>
+  );
+}
+
+function DemoLoginButton({ user, handleSignIn }: { user: MockUser; handleSignIn: (e: null, email: string, password: string) => void }) {
+  return (
+    <button
+      onClick={() => handleSignIn(null, user.email, user.password)}
+      className="group flex items-center gap-3 rounded-lg border border-border-2 bg-bg-3 p-3 text-left transition-all hover:border-accent hover:bg-accent-dim"
+    >
+      <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md bg-bg text-text-2 transition-colors group-hover:bg-accent group-hover:text-white">
+        <UserIcon className="h-5 w-5" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="text-sm font-bold text-text">{user.roleLabel}</div>
+        <div className="truncate text-[11px] text-text-3">{user.email}</div>
+      </div>
+    </button>
   );
 }

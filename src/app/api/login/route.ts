@@ -1,16 +1,18 @@
 import { NextResponse } from "next/server";
-import { findUserByEmail } from "@/data/mock-users";
+import { DEMO_PASSWORD, findUserByEmail } from "@/data/mock-users";
 import { createSessionToken, SESSION_COOKIE, SESSION_MAX_AGE_SECONDS } from "@/lib/session";
 import { ROLE_BASE } from "@/lib/nav";
 
 export async function POST(request: Request) {
-  const body = await request.json().catch(() => null);
+  const body = await request.json();
   const email = typeof body?.email === "string" ? body.email : "";
   const password = typeof body?.password === "string" ? body.password : "";
 
   const user = findUserByEmail(email);
 
-  if (!user || user.password !== password) {
+  // In this mock setup, all demo users share the same password.
+  // A real app would use bcrypt.compare(password, user.passwordHash)
+  if (!user || password !== DEMO_PASSWORD) {
     return NextResponse.json({ error: "Incorrect email or password." }, { status: 401 });
   }
 

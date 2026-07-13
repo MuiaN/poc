@@ -1,48 +1,82 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { getNav, ROLE_LABEL } from "@/lib/nav";
-import type { Role } from "@/lib/types";
-import { Icon } from "./icons";
+import { cn } from "@/components/ui";
+import type { Role, SessionUser } from "@/lib/types";
+import { Icon, PlaneIcon, ChatIcon, LogoutIcon } from "./icons";
 
-export function Sidebar({ role, company }: { role: Role; company: string }) {
+export function Sidebar({ role, user }: { role: Role; user: SessionUser }) {
+  const router = useRouter();
   const pathname = usePathname();
   const items = getNav(role);
+  const initials = user.name
+    .split(" ")
+    .map((n) => n[0])
+    .join("");
+
+  async function logout() {
+    if (!confirm("Sign out of FRED BLACK?")) return;
+    await fetch("/api/logout", { method: "POST" });
+    router.push("/login");
+    router.refresh();
+  }
 
   return (
-    <aside className="relative hidden w-[240px] flex-shrink-0 flex-col overflow-hidden border-r border-border bg-bg-2 md:flex">
-      <div className="flex items-center gap-3 border-b border-border px-5 py-5">
-        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-accent text-sm font-bold text-white">
-          FB
+    <aside className="sidebar hidden md:flex">
+      <PlaneIcon className="sidebar-plane" />
+      <div className="logo-area">
+        <div className="logo-icon">
+          <Icon name="fleet" className="h-[18px] w-[18px] fill-white" />
         </div>
-        <div className="min-w-0">
-          <div className="truncate font-display text-[13px] font-bold text-text">{company}</div>
-          <div className="text-[10px] uppercase tracking-wide text-text-3">Aviation Intelligence</div>
+        <div>
+          <div className="logo-name">FRED BLACK</div>
+          <div className="logo-tag">Aviation Intelligence</div>
         </div>
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-2 py-3">
+      <nav className="nav">
         {items.map((item) => {
           const active = pathname === item.href;
           return (
-            <Link
-              key={item.key}
-              href={item.href}
-              className={`mb-0.5 flex items-center gap-2.5 rounded-md px-3 py-2 text-[12.5px] font-medium transition-colors ${
-                active ? "bg-accent-dim text-accent" : "text-text-2 hover:bg-bg-3 hover:text-text"
-              }`}
-            >
-              <Icon name={item.icon} className="flex-shrink-0" />
-              <span className="truncate">{item.label}</span>
+            <Link key={item.key} href={item.href} className={cn("nav-item", active && "active")}>
+              <Icon name={item.icon} />
+              <span>{item.label}</span>
             </Link>
           );
         })}
       </nav>
 
-      <div className="border-t border-border px-4 py-3 text-[10px] text-text-3">
-        <div>{company}</div>
-        <div className="mt-0.5">{ROLE_LABEL[role]} workspace</div>
+      <div className="help-box">
+        <div className="help-top">
+          <div className="help-icon">
+            <ChatIcon className="h-[14px] w-[14px] fill-white" />
+          </div>
+          <div className="help-title">Need Help?</div>
+        </div>
+        <div className="help-sub">Contact our support 24/7</div>
+      </div>
+
+      <div className="user-bar">
+        <div className="avatar">{initials}</div>
+        <div className="min-w-0 flex-1">
+          <div className="u-name">{user.name}</div>
+          <div className="u-role">{ROLE_LABEL[role]}</div>
+        </div>
+        <div className="ml-auto flex items-center gap-1.5">
+          <div
+            className={cn(
+              "rounded-md border px-2 py-0.5 text-[8px] font-bold uppercase tracking-wider",
+              role === "underwriter" ? "border-accent/20 bg-accent-dim text-accent" : "border-warn/20 bg-warn-dim text-warn",
+            )}
+          >
+            {role === "underwriter" ? "Insurer" : ROLE_LABEL[role]}
+          </div>
+          <button onClick={logout} title="Sign out" className="flex h-[26px] w-[26px] items-center justify-center rounded-md border border-border bg-transparent text-text-3 transition-colors hover:border-danger hover:text-danger">
+            <LogoutIcon className="h-3 w-3" />
+          </button>
+        </div>
       </div>
     </aside>
   );

@@ -50,9 +50,13 @@ const config: Config = {
           from: { opacity: "0", transform: "translateY(6px)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
+        spin: {
+          to: { transform: "rotate(360deg)" },
+        },
       },
       animation: {
         fadeUp: "fadeUp .3s ease both",
+        spin: "spin .7s linear infinite",
       },
     },
   },

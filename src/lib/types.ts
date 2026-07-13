@@ -1,5 +1,12 @@
 export type Role = "admin" | "underwriter" | "operator";
 
+export interface SessionUser {
+  name: string;
+  email: string;
+  role: Role;
+  company: string;
+}
+
 export interface NavLeaf {
   key: string;
   label: string;

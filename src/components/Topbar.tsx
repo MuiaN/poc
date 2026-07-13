@@ -1,44 +1,49 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { type HTMLAttributes } from "react";
+import { useTheme } from "next-themes";
 import { ROLE_LABEL } from "@/lib/nav";
-import type { SessionUser } from "./DashboardShell";
+import type { SessionUser } from "@/lib/types";
+import { cn } from "@/components/ui";
+import { BellIcon, MoonIcon, SearchIcon, SunIcon, ChevronDownIcon } from "./icons";
 
-export function Topbar({ title, user }: { title: string; user: SessionUser }) {
+export function Topbar({ title, user, className, ...props }: { title: string; user: SessionUser } & HTMLAttributes<HTMLElement>) {
   const router = useRouter();
-  const [loggingOut, setLoggingOut] = useState(false);
-
-  async function logout() {
-    setLoggingOut(true);
-    await fetch("/api/logout", { method: "POST" });
-    router.push("/login");
-    router.refresh();
-  }
+  const { theme, setTheme } = useTheme();
+  const initials = user.name
+    .split(" ")
+    .map((n) => n[0])
+    .join("");
 
   return (
-    <header className="flex flex-shrink-0 items-center justify-between gap-4 border-b border-border bg-bg-2 px-5 py-3">
-      <div className="min-w-0">
-        <div className="font-display text-[14px] font-bold text-text">{title}</div>
-      </div>
+    <header className={cn("topbar", className)} {...props}>
+      <div className="spacer" />
+      <div className="tb-badge">{ROLE_LABEL[user.role]} View</div>
 
-      <div className="flex items-center gap-3">
-        <div className="hidden text-right sm:block">
-          <div className="text-[12px] font-semibold text-text">{user.name}</div>
-          <div className="text-[10.5px] text-text-3">
-            {ROLE_LABEL[user.role]} · {user.company}
-          </div>
+      <button className="tb-icon" title="Search">
+        <SearchIcon />
+      </button>
+      <button className="tb-icon" title="Notifications">
+        <BellIcon />
+      </button>
+      <button
+        className="tb-icon"
+        title="Toggle theme"
+        onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      >
+        <SunIcon className="h-[15px] w-[15px] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+        <MoonIcon className="absolute h-[15px] w-[15px] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+        <span className="sr-only">Toggle theme</span>
+      </button>
+
+      <div className="user-chip">
+        <div className="uc-av">{initials}</div>
+        <div>
+          <div className="uc-name">{user.name}</div>
+          <div className="uc-role">{ROLE_LABEL[user.role]}</div>
         </div>
-        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-border-2 bg-bg-3 text-[11px] font-bold text-text-2">
-          {user.name.charAt(0)}
-        </div>
-        <button
-          onClick={logout}
-          disabled={loggingOut}
-          className="rounded-md border border-border-2 px-2.5 py-1.5 text-[11px] font-semibold text-text-2 transition-colors hover:border-accent hover:text-text disabled:opacity-60"
-        >
-          {loggingOut ? "Signing out…" : "Sign out"}
-        </button>
+        <ChevronDownIcon className="ml-1 h-3.5 w-3.5 text-text-3" />
       </div>
     </header>
   );

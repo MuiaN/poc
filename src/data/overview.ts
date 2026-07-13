@@ -1,0 +1,86 @@
+export const KPI_DATA = {
+  policies: {
+    label: "Active Policies",
+    value: "50",
+    sub: "23 open cases",
+    tone: "amber",
+    icon: "policies",
+  },
+  aircraft: {
+    label: "Insured Aircraft",
+    labelOp: "My Fleet",
+    value: "200",
+    valueOp: "36",
+    sub: "Total Aircraft",
+    subOp: "Active fleet",
+    tone: "blue",
+    icon: "fleet",
+  },
+  flights: {
+    label: "Active Flights",
+    value: "48",
+    valueOp: "12",
+    sub: "Live Now",
+    tone: "green",
+    icon: "map",
+  },
+} as const;
+
+export const FLEET_BY_TYPE = [
+  {
+    id: "regional",
+    name: "Regional / Turboprop",
+    sub: "ATR 72 · ATR 42 · Dash 8-400 · Do 228",
+    stats: { ins: { aircraft: 22, active: 21, aog: 0 }, cli: { aircraft: 0, active: 0, aog: 0 } },
+    aircraft: [
+      { reg: "5Y-JME1", type: "De Havilland Dash 8-400", msn: "4550", year: 2016, hours: 22410, cycles: 8640, lastCheck: "Feb 2026", nextCheck: "Feb 2027", op: "Jambojet", status: "active" },
+      { reg: "ET-DOR", type: "Dornier Do 228-212", msn: "8251", year: 2010, hours: 16540, cycles: 24880, lastCheck: "May 2025", nextCheck: "May 2026", op: "Ethiopian Airlines", status: "active" },
+      { reg: "5H-PWA", type: "ATR 72-500", msn: "1128", year: 2015, hours: 19400, cycles: 6820, lastCheck: "Mar 2026", nextCheck: "Jul 2026", op: "Precision Air", status: "active" },
+      { reg: "5H-PWG1", type: "ATR 42-500", msn: "880", year: 2014, hours: 16240, cycles: 5910, lastCheck: "Apr 2026", nextCheck: "Oct 2026", op: "Precision Air", status: "active" },
+    ],
+  },
+  {
+    id: "boeing",
+    name: "Boeing",
+    sub: "737-800 · 767-300F · 777 · 787-8 · 787-9 · MAX · 737-300F",
+    stats: { ins: { aircraft: 230, active: 218, aog: 12 }, cli: { aircraft: 19, active: 18, aog: 1 } },
+    aircraft: [
+      { reg: "5Y-KZJ", type: "Boeing 787-8", msn: "40700", year: 2018, hours: 28430, cycles: 5820, lastCheck: "Nov 2024", nextCheck: "Nov 2026", op: "Kenya Airways", status: "active" },
+      { reg: "5Y-KZK", type: "Boeing 787-8", msn: "40701", year: 2018, hours: 27990, cycles: 5710, lastCheck: "Jan 2025", nextCheck: "Jan 2027", op: "Kenya Airways", status: "active" },
+      { reg: "5Y-KZL", type: "Boeing 787-8", msn: "40702", year: 2019, hours: 25600, cycles: 5220, lastCheck: "Mar 2025", nextCheck: "Mar 2027", op: "Kenya Airways", status: "active" },
+      { reg: "5Y-KZM", type: "Boeing 787-8", msn: "40703", year: 2019, hours: 24810, cycles: 5050, lastCheck: "May 2024", nextCheck: "May 2026", op: "Kenya Airways", status: "active" },
+      { reg: "5Y-KZN", type: "Boeing 787-8", msn: "40704", year: 2020, hours: 22140, cycles: 4520, lastCheck: "Jul 2024", nextCheck: "Jul 2026", op: "Kenya Airways", status: "active" },
+      { reg: "5Y-KZQ", type: "Boeing 787-8", msn: "40706", year: 2021, hours: 18340, cycles: 3740, lastCheck: "Nov 2023", nextCheck: "Overdue ⚠️", op: "Kenya Airways", status: "maintenance" },
+      { reg: "5Y-KQA", type: "Boeing 737-800", msn: "37609", year: 2013, hours: 48320, cycles: 22140, lastCheck: "Oct 2024", nextCheck: "Oct 2026", op: "Kenya Airways", status: "active" },
+      { reg: "5Y-KCA", type: "Boeing 737-300F", msn: "28200", year: 2004, hours: 54810, cycles: 23410, lastCheck: "Jan 2025", nextCheck: "Jan 2026", op: "Kenya Airways Cargo", status: "active" },
+      { reg: "ET-ATL", type: "Boeing 787-8", msn: "38500", year: 2014, hours: 36420, cycles: 7480, lastCheck: "Feb 2025", nextCheck: "Feb 2027", op: "Ethiopian Airlines", status: "active" },
+      { reg: "ET-AQL", type: "Boeing 787-9", msn: "41200", year: 2016, hours: 29810, cycles: 6120, lastCheck: "May 2025", nextCheck: "May 2027", op: "Ethiopian Airlines", status: "active" },
+      { reg: "ET-AWA", type: "Boeing 777-300ER", msn: "61100", year: 2015, hours: 42680, cycles: 8740, lastCheck: "Mar 2025", nextCheck: "Mar 2027", op: "Ethiopian Airlines", status: "active" },
+    ],
+  },
+  {
+    id: "embraer",
+    name: "Embraer",
+    sub: "E190",
+    stats: { ins: { aircraft: 13, active: 12, aog: 1 }, cli: { aircraft: 13, active: 12, aog: 1 } },
+    aircraft: [
+      { reg: "5Y-KYA", type: "Embraer E190", msn: "19000401", year: 2014, hours: 32840, cycles: 11210, lastCheck: "Jan 2025", nextCheck: "Jan 2027", op: "Kenya Airways", status: "active" },
+      { reg: "5Y-KYB", type: "Embraer E190", msn: "19000428", year: 2014, hours: 31970, cycles: 10940, lastCheck: "Mar 2025", nextCheck: "Mar 2027", op: "Kenya Airways", status: "active" },
+      { reg: "5Y-KYC", type: "Embraer E190", msn: "19000455", year: 2015, hours: 29610, cycles: 10110, lastCheck: "May 2025", nextCheck: "May 2027", op: "Kenya Airways", status: "active" },
+      { reg: "5Y-KYL", type: "Embraer E190", msn: "19000682", year: 2019, hours: 15610, cycles: 5340, lastCheck: "Dec 2025", nextCheck: "Overdue ⚠️", op: "Kenya Airways", status: "maintenance" },
+    ],
+  },
+  {
+    id: "airbus",
+    name: "Airbus",
+    sub: "A220-300 · A320 · A320neo · A330 · A350-900XWB · A350-1000",
+    stats: { ins: { aircraft: 108, active: 103, aog: 5 }, cli: { aircraft: 0, active: 0, aog: 0 } },
+    aircraft: [
+      { reg: "ET-AQA", type: "Airbus A350-1000", msn: "570", year: 2022, hours: 8240, cycles: 1680, lastCheck: "Jan 2026", nextCheck: "Jan 2028", op: "Ethiopian Airlines", status: "active" },
+      { reg: "ET-ASQ", type: "Airbus A350-900XWB", msn: "381", year: 2018, hours: 22540, cycles: 4610, lastCheck: "Oct 2025", nextCheck: "Oct 2027", op: "Ethiopian Airlines", status: "active" },
+      { reg: "5X-NIL", type: "Airbus A330-800neo", msn: "1988", year: 2021, hours: 8900, cycles: 1450, lastCheck: "Apr 2026", nextCheck: "Oct 2026", op: "Uganda Airlines", status: "active" },
+      { reg: "9XR-WA1", type: "Airbus A330-300", msn: "1520", year: 2014, hours: 38200, cycles: 8640, lastCheck: "Mar 2026", nextCheck: "Mar 2028", op: "RwandAir", status: "active" },
+      { reg: "5H-TCA", type: "Airbus A220-300", msn: "55082", year: 2022, hours: 7840, cycles: 3610, lastCheck: "Feb 2025", nextCheck: "Feb 2027", op: "Air Tanzania", status: "active" },
+    ],
+  },
+];

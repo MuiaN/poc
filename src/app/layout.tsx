@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Providers } from "@/components/providers";
 import "./globals.css";
 
 const inter = Inter({
@@ -20,8 +21,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-theme="dark" className={inter.variable}>
-      <body className="font-body">{children}</body>
+    <html lang="en" className={`${inter.variable} h-full`} suppressHydrationWarning>
+      <body className="flex h-full flex-col font-body">
+        <Providers attribute="class" defaultTheme="dark" enableSystem>
+          {children}
+        </Providers>
+      </body>
     </html>
   );
 }

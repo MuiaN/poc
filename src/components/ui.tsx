@@ -20,12 +20,12 @@ export function PanelHeader({
   title,
   action,
 }: {
-  title: string;
+  title: ReactNode;
   action?: ReactNode;
 }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3">
-      <span className="text-[10px] font-bold uppercase tracking-wider text-text-2">{title}</span>
+      <div className="text-[10px] font-bold uppercase tracking-wider text-text-2">{title}</div>
       {action}
     </div>
   );
@@ -163,5 +163,17 @@ export function Empty({ title, sub }: { title: string; sub?: string }) {
       <div className="text-[13px] font-semibold text-text-2">{title}</div>
       {sub && <div className="mt-1 text-[11.5px] text-text-3">{sub}</div>}
     </div>
+  );
+}
+
+export function Spinner({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div
+      className={cn(
+        "h-4 w-4 animate-spin rounded-full border-[2.5px] border-white/25 border-t-white",
+        className,
+      )}
+      {...props}
+    />
   );
 }

@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { SESSION_COOKIE, verifySessionToken } from "@/lib/session";
-import type { SessionUser } from "@/components/DashboardShell";
+import type { SessionUser } from "@/lib/types";
 
 /** Reads and verifies the session cookie in a server component. Middleware
  *  already guarantees a valid, role-matching session for dashboard routes,
