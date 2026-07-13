@@ -137,3 +137,10 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+.replit.md
+.GEMINI.md
+.replit
+.next
+.agents
+.gitignore

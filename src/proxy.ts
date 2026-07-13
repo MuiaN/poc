@@ -9,7 +9,7 @@ const ROLE_FOR_PREFIX: Record<string, Role> = {
   "/operators": "operator",
 };
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const session = await verifySessionToken(request.cookies.get(SESSION_COOKIE)?.value);
 
