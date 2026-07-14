@@ -26,6 +26,67 @@ export const KPI_DATA = {
   },
 } as const;
 
+export const INSURER_CLIENTS = [
+  { name: "Kenya Airways", iata: "KQ", color: "#CC0001" },
+  { name: "Jambojet", iata: "JM", color: "#FF5500" },
+  { name: "Ethiopian Airlines", iata: "ET", color: "#009B3A" },
+  { name: "Uganda Airlines", iata: "U7", color: "#FCDC04" },
+  { name: "RwandAir", iata: "WB", color: "#20C4F4" },
+  { name: "Air Tanzania", iata: "TC", color: "#1BB4E8" },
+  { name: "Precision Air", iata: "PW", color: "#E8821B" },
+];
+
+export const FLIGHTS_DATA = [
+  { id: "KQ100", ac: "B772", client: "Kenya Airways", fr: "HKJK", to: "EGLL", status: "En Route", eta: "4h 45m" },
+  { id: "KQ101", ac: "B772", client: "Kenya Airways", fr: "EGLL", to: "HKJK", status: "En Route", eta: "1h 38m" },
+  { id: "KQ300", ac: "B738", client: "Kenya Airways", fr: "HKJK", to: "HAAB", status: "En Route", eta: "48m" },
+  { id: "KQ202", ac: "B738", client: "Kenya Airways", fr: "HTDA", to: "HKJK", status: "En Route", eta: "1h 2m" },
+  { id: "KQ304", ac: "B738", client: "Kenya Airways", fr: "HKJK", to: "HRYR", status: "En Route", eta: "1h 18m" },
+  { id: "KQ406", ac: "B789", client: "Kenya Airways", fr: "HKJK", to: "OMDB", status: "En Route", eta: "1h 28m" },
+  { id: "KQ112", ac: "B789", client: "Kenya Airways", fr: "OMDB", to: "HKJK", status: "En Route", eta: "1h 55m" },
+  { id: "KQ502", ac: "B772", client: "Kenya Airways", fr: "HKJK", to: "FAOR", status: "En Route", eta: "2h 32m" },
+  { id: "KQ450", ac: "B738", client: "Kenya Airways", fr: "HKJK", to: "HUEN", status: "En Route", eta: "58m" },
+  { id: "KQ710", ac: "B789", client: "Kenya Airways", fr: "HKJK", to: "VIDP", status: "En Route", eta: "2h 58m" },
+  { id: "KQ250", ac: "B738", client: "Kenya Airways", fr: "HKJK", to: "HTZA", status: "En Route", eta: "1h 7m" },
+  { id: "KQ320", ac: "B738", client: "Kenya Airways", fr: "HAAB", to: "HKJK", status: "Landed", eta: "07:45Z" },
+  { id: "KQ600", ac: "B738", client: "Kenya Airways", fr: "HKJK", to: "HSSS", status: "Scheduled", eta: "Dep. 14:30" },
+  { id: "JM400", ac: "Q400", client: "Jambojet", fr: "HKJK", to: "HKMO", status: "Landed", eta: "08:20Z" },
+  { id: "JM402", ac: "Q400", client: "Jambojet", fr: "HKMO", to: "HKJK", status: "En Route", eta: "38m" },
+  { id: "JM404", ac: "Q400", client: "Jambojet", fr: "HKJK", to: "HKKI", status: "En Route", eta: "42m" },
+  { id: "JM406", ac: "Q400", client: "Jambojet", fr: "HKKI", to: "HKJK", status: "Scheduled", eta: "Dep. 13:00" },
+  { id: "JM500", ac: "Q400", client: "Jambojet", fr: "HKJK", to: "HTDA", status: "En Route", eta: "1h 35m" },
+  { id: "ET306", ac: "B789", client: "Ethiopian Airlines", fr: "HAAB", to: "HKJK", status: "En Route", eta: "55m" },
+  { id: "ET307", ac: "B789", client: "Ethiopian Airlines", fr: "HKJK", to: "HAAB", status: "En Route", eta: "42m" },
+  { id: "ET320", ac: "A350", client: "Ethiopian Airlines", fr: "HAAB", to: "EGLL", status: "En Route", eta: "4h 5m" },
+  { id: "ET314", ac: "B789", client: "Ethiopian Airlines", fr: "HAAB", to: "OMDB", status: "En Route", eta: "1h 58m" },
+  { id: "ET202", ac: "Q400", client: "Ethiopian Airlines", fr: "HAAB", to: "HSSJ", status: "En Route", eta: "52m" },
+  { id: "ET512", ac: "B738", client: "Ethiopian Airlines", fr: "HAAB", to: "HTDA", status: "En Route", eta: "1h 18m" },
+  { id: "ET318", ac: "B738", client: "Ethiopian Airlines", fr: "HAAB", to: "HUEN", status: "En Route", eta: "38m" },
+  { id: "ET204", ac: "ATR72", client: "Ethiopian Airlines", fr: "HAAB", to: "HDAM", status: "En Route", eta: "58m" },
+  { id: "ET206", ac: "ATR72", client: "Ethiopian Airlines", fr: "HAAB", to: "HHAS", status: "En Route", eta: "40m" },
+  { id: "ET400", ac: "B738", client: "Ethiopian Airlines", fr: "HAAB", to: "FZAA", status: "En Route", eta: "3h 5m" },
+  { id: "ET100", ac: "B789", client: "Ethiopian Airlines", fr: "HAAB", to: "ZBAA", status: "En Route", eta: "8h 5m" },
+  { id: "ET506", ac: "Q400", client: "Ethiopian Airlines", fr: "HAAB", to: "HCMM", status: "En Route", eta: "1h 2m" },
+  { id: "ET416", ac: "ATR72", client: "Ethiopian Airlines", fr: "HAAB", to: "HBBA", status: "En Route", eta: "1h 10m" },
+  { id: "ET808", ac: "A350", client: "Ethiopian Airlines", fr: "HAAB", to: "KJFK", status: "En Route", eta: "9h 5m" },
+  { id: "ET410", ac: "B738", client: "Ethiopian Airlines", fr: "HAAB", to: "HKJK", status: "Landed", eta: "06:30Z" },
+  { id: "U7201", ac: "A338", client: "Uganda Airlines", fr: "HUEN", to: "HKJK", status: "En Route", eta: "58m" },
+  { id: "U7202", ac: "A338", client: "Uganda Airlines", fr: "HKJK", to: "HUEN", status: "En Route", eta: "52m" },
+  { id: "U7205", ac: "A338", client: "Uganda Airlines", fr: "HUEN", to: "HAAB", status: "En Route", eta: "1h 8m" },
+  { id: "U7301", ac: "A338", client: "Uganda Airlines", fr: "HUEN", to: "HRYR", status: "En Route", eta: "48m" },
+  { id: "WB100", ac: "B738", client: "RwandAir", fr: "HRYR", to: "HKJK", status: "En Route", eta: "1h 22m" },
+  { id: "WB101", ac: "B738", client: "RwandAir", fr: "HKJK", to: "HRYR", status: "En Route", eta: "1h 8m" },
+  { id: "WB200", ac: "A330", client: "RwandAir", fr: "HRYR", to: "EGLL", status: "En Route", eta: "6h 50m" },
+  { id: "WB300", ac: "B738", client: "RwandAir", fr: "HRYR", to: "HAAB", status: "En Route", eta: "1h 28m" },
+  { id: "WB401", ac: "B738", client: "RwandAir", fr: "HRYR", to: "OMDB", status: "En Route", eta: "2h 35m" },
+  { id: "TC501", ac: "B39M", client: "Air Tanzania", fr: "HTDA", to: "HRYR", status: "En Route", eta: "1h 28m" },
+  { id: "TC502", ac: "B39M", client: "Air Tanzania", fr: "HRYR", to: "HTDA", status: "En Route", eta: "1h 20m" },
+  { id: "TC320", ac: "A220", client: "Air Tanzania", fr: "HTDA", to: "HAAB", status: "En Route", eta: "1h 36m" },
+  { id: "PW201", ac: "AT75", client: "Precision Air", fr: "HTDA", to: "HTZA", status: "En Route", eta: "32m" },
+  { id: "PW202", ac: "AT75", client: "Precision Air", fr: "HTZA", to: "HTDA", status: "Landed", eta: "10:15Z" },
+  { id: "PW205", ac: "AT45", client: "Precision Air", fr: "HTDA", to: "HTKJ", status: "En Route", eta: "36m" },
+];
+
 export const FLEET_BY_TYPE = [
   {
     id: "regional",
@@ -83,4 +144,69 @@ export const FLEET_BY_TYPE = [
       { reg: "5H-TCA", type: "Airbus A220-300", msn: "55082", year: 2022, hours: 7840, cycles: 3610, lastCheck: "Feb 2025", nextCheck: "Feb 2027", op: "Air Tanzania", status: "active" },
     ],
   },
+];
+
+export const INSURANCE_NEWS_ITEMS = [
+  {
+    country: "KENYA",
+    cat: "SECURITY",
+    catColor: "#dc2626",
+    time: "1h ago",
+    headline: "HKJK: Heightened Security Checks — Kenya Airways Operations Affected",
+    body: "Enhanced passenger screening at JKIA following threat advisory. Kenya Airways (5Y-KQA) reporting 20–35 min ground delays on all departures. Coordinating with KCAA.",
+    source: "KCAA Security Bulletin | Translation: Original English",
+    portfolioTag: "INS-2024-0786 · Kenya Airways",
+  },
+  {
+    country: "ETHIOPIA",
+    cat: "WEATHER",
+    catColor: "#f39c12",
+    time: "3h ago",
+    headline: "HAAB: CB Activity on HKJK–HAAB Corridor; Ethiopian Airlines Advisory",
+    body: "Significant convective cells developing along the Nairobi–Addis corridor between FL240–FL360. Ethiopian Airlines (ET-AYA) flight ops centre monitoring; possible re-routing via HRYR.",
+    source: "TAF HAAB / Ethiopian Airlines Ops | Translation: Original English",
+    portfolioTag: "INS-2024-0812 · Ethiopian Airlines",
+  },
+  { country: "TANZANIA", cat: "WEATHER", catColor: "#f39c12", time: "9h ago", headline: "HTDA: Afternoon Thunderstorm Risk — Precision Air ATR Operations", body: "Convective outlook for Julius Nyerere Intl indicates a 70% probability of TS activity 1400–1900 LT. Precision Air ATR 72-600 (5H-TGF) short-haul sectors to Zanzibar and Kilimanjaro flagged for potential holding.", portfolioTag: "INS-2024-0955 · Precision Air" },
+];
+
+export const INSURER_NOTAMS = [
+  { loc: "HKJK", num: "A0063/26", cls: "Intl", sev: "#3b9eff", valid: "14/05–27/05", cond: "AIRAC AIP SUP 21/26 — Radar Min Terrain Clearance Chart updated. Affects all IFR ops at Nairobi today." },
+  { loc: "HKJK", num: "A0082/26", cls: "Intl", sev: "#f39c12", valid: "05/05–19/05", cond: "Loose debris Bay F3. Engine shutdown required for towing F3–F9. Ground delays expected for KQ/PW departures." },
+  { loc: "HTDA", num: "A0089/26", cls: "Intl", sev: "#f39c12", valid: "02/05–02/08", cond: "RWY 23 RESA grading WIP. Caution during LDG/TKOF. Affects all ATR ops at Julius Nyerere today." },
+];
+
+export const INSURER_COUNTRIES = [
+  { name: "Kenya", risk: "Medium", riskColor: "#F39C12", iso: "ke" },
+  { name: "Tanzania", risk: "Low", riskColor: "#27AE60", iso: "tz" },
+  { name: "Uganda", risk: "Low", riskColor: "#27AE60", iso: "ug" },
+  { name: "Rwanda", risk: "Low", riskColor: "#27AE60", iso: "rw" },
+  { name: "Ethiopia", risk: "High", riskColor: "#E67E22", iso: "et" },
+];
+
+export const ASN_RECENT_INCIDENTS = [
+  { date: "2026-05-02", cs: "KQ410", ac: "Boeing 737-800", op: "Kenya Airways", fat: 0, desc: "Bird strike on landing rollout at HKJK; minor engine damage, no injuries." },
+  { date: "2026-04-10", cs: "ET812", ac: "Airbus A350-900", op: "Ethiopian Airlines", fat: 0, desc: "Spurious cargo door light on approach; returned to ADD. False alarm confirmed." },
+  { date: "2026-03-05", cs: "JW201", ac: "Boeing 737-800", op: "Jubba Airways", fat: 0, desc: "Aborted landing at HADC due to vehicle on runway; landed safely on second attempt." },
+];
+
+export const ASN_HISTORIC_INCIDENTS = [
+  { date: "2019-03-10", cs: "ET302", ac: "Boeing 737 MAX 8", op: "Ethiopian Airlines", fat: 157, desc: "Crashed shortly after takeoff from ADD; MCAS malfunction. All 157 killed." },
+  { date: "2007-05-05", cs: "KQ507", ac: "Boeing 737-800", op: "Kenya Airways", fat: 114, desc: "Crashed into swamp near Douala shortly after takeoff. 114 killed." },
+  { date: "2012-11-12", cs: "PW494", ac: "ATR 42-320", op: "Precision Air", fat: 19, desc: "Ditched in Lake Victoria near Bukoba after fuel starvation. 19 of 43 killed." },
+  { date: "2000-01-30", cs: "KQ431", ac: "Boeing 737-200", op: "Kenya Airways", fat: 169, desc: "Crashed into sea off Abidjan shortly after takeoff. All 169 killed." },
+  { date: "1996-11-23", cs: "ET961", ac: "Boeing 767-200ER", op: "Ethiopian Airlines", fat: 125, desc: "Hijacked, fuel exhausted; ditched in Indian Ocean off Comoros. 125 killed." },
+  { date: "2010-01-25", cs: "ET409", ac: "Boeing 737-800", op: "Ethiopian Airlines", fat: 90, desc: "Crashed into sea off Beirut shortly after takeoff. 90 killed." },
+  { date: "2011-07-08", cs: "CAD301", ac: "CASA CN-235", op: "Hewa Bora Airways", fat: 74, desc: "Crashed near Kisangani; 74 of 118 killed." },
+  { date: "1974-11-20", cs: "KQ101h", ac: "Boeing 707-351C", op: "East African Airways", fat: 59, desc: "Crashed into Mount Kilimanjaro on descent to HTDA. 59 killed." },
+  { date: "1993-06-12", cs: "ATC201", ac: "Boeing 737-200", op: "Air Tanzania", fat: 50, desc: "Crashed at Kilimanjaro International Airport in poor visibility. 50 killed." },
+  { date: "2013-11-04", cs: "SS201", ac: "Antonov An-26", op: "South Sudan Airlines", fat: 42, desc: "Crashed near Juba; 42 passengers killed on impact." },
+  { date: "2008-07-10", cs: "SD501", ac: "Antonov An-24RV", op: "Sudan Airways", fat: 30, desc: "Runway excursion at Khartoum; aircraft caught fire. 30 killed." },
+  { date: "2017-11-11", cs: "TC511", ac: "ATR 42-320", op: "Coastal Aviation", fat: 11, desc: "Crashed into Lake Victoria near Bukoba; 11 killed, 4 survived." },
+  { date: "2008-04-15", cs: "HBK201", ac: "Antonov An-26", op: "Hewa Bora Airways", fat: 13, desc: "Crashed on approach to Kindu airport. 13 killed." },
+  { date: "2026-01-14", cs: "S9CH01", ac: "Cessna Grand Caravan", op: "South Sudan Charter", fat: 6, desc: "Crashed on approach to Juba in fog; 6 of 8 on board killed." },
+  { date: "2018-02-05", cs: "AML201", ac: "Cessna 208B Caravan", op: "Amref Aviation", fat: 4, desc: "Crashed on approach to Arusha; 4 killed including medical crew." },
+  { date: "2013-08-05", cs: "CZA201", ac: "Cessna 208B Caravan", op: "Coastal Aviation", fat: 4, desc: "Crashed on approach to Dodoma in IMC. 4 killed." },
+  { date: "1976-07-04", cs: "EA001", ac: "Airbus A300B4", op: "Air France (hijack)", fat: 4, desc: "Hijacked to Entebbe; Israeli rescue operation. 4 hostages and all hijackers killed." },
+  { date: "2016-02-02", cs: "D3159", ac: "Airbus A321", op: "Daallo Airlines", fat: 1, desc: "Bomb exploded mid-flight; blew hole in fuselage. Aircraft landed at HADC. 1 killed." },
 ];

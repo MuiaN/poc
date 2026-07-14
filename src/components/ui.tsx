@@ -44,22 +44,31 @@ export function KpiCard({
   label,
   value,
   sub,
+  valueClassName,
+  subClassName,
 }: {
   icon: ReactNode;
   tone?: "blue" | "green" | "amber" | "red";
   label: string;
   value: string;
   sub?: string;
+  valueClassName?: string;
+  subClassName?: string;
 }) {
   return (
-    <Card className="flex items-center gap-3 p-4 transition-shadow hover:shadow-card-md">
+    <Card className="flex items-center gap-3 p-3.5 transition-shadow hover:shadow-card-md">
       <div className={cn("flex h-[42px] w-[42px] flex-shrink-0 items-center justify-center rounded-[10px]", kpiIconBg[tone])}>
         {icon}
       </div>
-      <div className="min-w-0">
-        <div className="mb-0.5 text-[10px] font-semibold uppercase tracking-wide text-text-2">{label}</div>
-        <div className="font-display text-[26px] font-bold leading-none text-text">{value}</div>
-        {sub && <div className="mt-0.5 text-[10px] text-text-3">{sub}</div>}
+      <div className="min-w-0 flex-1">
+        <div className="mb-0.5 text-[10px] font-semibold uppercase tracking-wider text-text-2">{label}</div>
+        <div className={cn("font-display text-[26px] font-bold leading-none", valueClassName)}>{value}</div>
+        {sub && <div className={cn("mt-px text-[10px]", !subClassName && "text-text-3", subClassName)}>{sub}</div>}
+      </div>
+      <div className="ml-auto flex-shrink-0 text-text-3">
+        <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+          <polyline points="9 18 15 12 9 6" />
+        </svg>
       </div>
     </Card>
   );

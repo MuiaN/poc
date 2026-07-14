@@ -794,7 +794,6 @@ body {
   padding: 3px 10px;
   border-radius: 3px;
   border: 1px solid var(--border-2);
-  background: var(--bg-3);
   color: var(--text-2);
   cursor: pointer;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
@@ -805,7 +804,6 @@ body {
   color: var(--accent);
 }
 .cnf-btn.active {
-  background: var(--accent);
   border-color: var(--accent);
   color: #fff;
 }

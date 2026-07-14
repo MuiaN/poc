@@ -19,7 +19,7 @@ export function Topbar({ title, user, className, ...props }: { title: string; us
   return (
     <header className={cn("topbar", className)} {...props}>
       <div className="spacer" />
-      <div className="tb-badge">{ROLE_LABEL[user.role]} View</div>
+      <div className="tb-badge">{user.role === "operator" ? user.company : `${ROLE_LABEL[user.role]} View`}</div>
 
       <button className="tb-icon" title="Search">
         <SearchIcon />

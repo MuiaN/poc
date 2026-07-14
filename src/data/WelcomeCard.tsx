@@ -6,7 +6,7 @@ export function WelcomeCard({ name, role }: { name: string; role: Role }) {
 
   return (
     <div className="welcome-card">
-      <h2>{`Welcome back, ${firstName}!`}</h2>
+      <h2>{`Welcome back, ${firstName}! 👋`}</h2>
       <p>
         {isOp
           ? "Here's an overview of your Kenya Airways fleet and operations today."
