@@ -20,6 +20,7 @@ export type NavIconKey =
   | "claims"
   | "newsfeed"
   | "countries"
+  | "shield"
   | "notams"
   | "contacts"
   | "uploads"

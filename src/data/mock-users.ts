@@ -20,12 +20,12 @@ export const DEMO_PASSWORD = "fredblack2026";
  *  Admin "Users & Invites" screen. */
 export const MOCK_USERS: MockUser[] = [
   { name: "Amina Wafula", email: "amina.wafula@fredblack.africa", password: DEMO_PASSWORD, role: "admin", roleLabel: "Admin", company: "FRED BLACK", status: "active", lastActive: "2026-07-12" },
-  { name: "A. Mwangi", email: "a.mwangi@fredblack.africa", password: DEMO_PASSWORD, role: "underwriter", roleLabel: "Underwriter", company: "FRED BLACK", status: "active", lastActive: "2026-07-11" },
-  { name: "S. Bekele", email: "s.bekele@fredblack.africa", password: DEMO_PASSWORD, role: "underwriter", roleLabel: "Underwriter", company: "FRED BLACK", status: "active", lastActive: "2026-07-10" },
-  { name: "J. Otieno", email: "j.otieno@kenya-airways.com", password: DEMO_PASSWORD, role: "operator", roleLabel: "Operator", company: "Kenya Airways", status: "active", lastActive: "2026-07-12" },
-  { name: "P. Uwase", email: "p.uwase@rwandair.com", password: DEMO_PASSWORD, role: "operator", roleLabel: "Operator", company: "RwandAir", status: "invited", lastActive: "—" },
-  { name: "D. Haile", email: "d.haile@ethiopianairlines.com", password: DEMO_PASSWORD, role: "operator", roleLabel: "Operator", company: "Ethiopian Airlines", status: "active", lastActive: "2026-07-09" },
-  { name: "F. Kamau", email: "f.kamau@fly540.com", password: DEMO_PASSWORD, role: "operator", roleLabel: "Operator", company: "Fly540", status: "suspended", lastActive: "2026-05-02" },
+  { name: "Albert Mwangi", email: "a.mwangi@fredblack.africa", password: DEMO_PASSWORD, role: "underwriter", roleLabel: "Underwriter", company: "FRED BLACK", status: "active", lastActive: "2026-07-11" },
+  { name: "Simon Bekele", email: "s.bekele@fredblack.africa", password: DEMO_PASSWORD, role: "underwriter", roleLabel: "Underwriter", company: "FRED BLACK", status: "active", lastActive: "2026-07-10" },
+  { name: "John Otieno", email: "j.otieno@kenya-airways.com", password: DEMO_PASSWORD, role: "operator", roleLabel: "Operator", company: "Kenya Airways", status: "active", lastActive: "2026-07-12" },
+  { name: "Peter Uwase", email: "p.uwase@rwandair.com", password: DEMO_PASSWORD, role: "operator", roleLabel: "Operator", company: "RwandAir", status: "invited", lastActive: "—" },
+  { name: "David Haile", email: "d.haile@ethiopianairlines.com", password: DEMO_PASSWORD, role: "operator", roleLabel: "Operator", company: "Ethiopian Airlines", status: "active", lastActive: "2026-07-09" },
+  { name: "Frank Kamau", email: "f.kamau@fly540.com", password: DEMO_PASSWORD, role: "operator", roleLabel: "Operator", company: "Fly540", status: "suspended", lastActive: "2026-05-02" },
 ];
 
 export function findUserByEmail(email: string): MockUser | undefined {

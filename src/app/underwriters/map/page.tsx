@@ -1,5 +1,5 @@
-import { MapPage } from "@/components/pages/Map";
+import { DashboardPage } from "@/components/pages/Dashboard";
 
 export default function Page() {
-  return <MapPage role="underwriter" />;
+  return <DashboardPage role="underwriter" />;
 }

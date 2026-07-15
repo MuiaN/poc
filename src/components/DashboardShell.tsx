@@ -1,7 +1,11 @@
+"use client";
+
+import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import type { Role, SessionUser } from "@/lib/types";
 import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
+import { cn } from "./ui";
 
 export function DashboardShell({
   role,
@@ -14,12 +18,22 @@ export function DashboardShell({
   user: SessionUser;
   children: ReactNode;
 }) {
+  const pathname = usePathname();
+  const isMapPage = pathname.endsWith("/map");
+
   return (
     <div className="flex h-full w-full">
       <Sidebar role={role} user={user} />
       <div className="main">
         <Topbar title={title} user={user} />
-        <main className="content">{children}</main>
+        <main
+          className={cn(
+            "flex-1 overflow-y-auto",
+            isMapPage ? "flex flex-col" : "content",
+          )}
+        >
+          {children}
+        </main>
       </div>
     </div>
   );

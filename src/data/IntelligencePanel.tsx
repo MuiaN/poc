@@ -66,7 +66,7 @@ export function IntelligencePanel() {
       </div>
 
       {/* Intelligence Pane */}
-      <div className={cn("grid-cols-[1fr_1fr_220px]", tab === "intelligence" ? "grid" : "hidden")}>
+      <div className={cn(tab === "intelligence" ? "grid" : "hidden")} style={{ gridTemplateColumns: '1fr 1fr 220px' }}>
         {/* News Column */}
         <div className="border-r border-border">
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-bg-3 p-3">

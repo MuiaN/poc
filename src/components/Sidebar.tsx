@@ -68,10 +68,14 @@ export function Sidebar({ role, user }: { role: Role; user: SessionUser }) {
           <div
             className={cn(
               "rounded-md border px-2 py-0.5 text-[8px] font-bold uppercase tracking-wider",
-              role === "underwriter" ? "border-accent/20 bg-accent-dim text-accent" : "border-warn/20 bg-warn-dim text-warn",
+              role === "underwriter"
+                ? "border-accent/20 bg-accent-dim text-accent"
+                : role === "admin"
+                  ? "border-purple-500/20 bg-purple-500/10 text-purple-500"
+                  : "border-warn/20 bg-warn-dim text-warn",
             )}
-          > 
-            {role === "operator" ? "Operator" : "Insurer"}
+          >
+            {role === "admin" ? "Admin" : role === "operator" ? "Operator" : "Insurer"}
           </div> 
           <button onClick={logout} title="Sign out" className="flex h-[26px] w-[26px] items-center justify-center rounded-md border border-border bg-transparent text-text-3 transition-colors hover:border-danger hover:text-danger">
             <LogoutIcon className="h-3 w-3" />
