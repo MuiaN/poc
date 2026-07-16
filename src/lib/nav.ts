@@ -19,7 +19,7 @@ export function getNav(role: Role): NavLeaf[] {
   const base = ROLE_BASE[role];
   const common: NavLeaf[] = [
     { key: "overview", label: "Overview", href: `${base}`, icon: "overview" },
-    { key: "map", label: "Live Map", href: `${base}/map`, icon: "map" },
+    { key: "map", label: "Dashboard", href: `${base}/map`, icon: "shield" },
   ];
 
   const claims: NavLeaf = { key: "claims", label: "Claims", href: `${base}/claims`, icon: "claims" };

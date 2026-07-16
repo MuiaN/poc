@@ -143,4 +143,6 @@ vite.config.ts.timestamp-*
 .replit
 .next
 .agents
+.vscode
+WORK_LOG.md
 .gitignore
