@@ -597,6 +597,7 @@ export function DashboardPage({ role }: { role: Role }) {
   const [selectedLiveUpdate, setSelectedLiveUpdate] = useState<{ item: any; category: string } | null>(null);
   const [selectedASN, setSelectedASN] = useState<any | null>(null);
   const [selectedACLED, setSelectedACLED] = useState<any | null>(null);
+  const [selectedFlightZone, setSelectedFlightZone] = useState<any | null>(null);
   const [focusMode, setFocusMode] = useState(false);
   const [dtfOpen, setDtfOpen] = useState(false);
   const [dtfActiveTab, setDtfActiveTab] = useState<string | null>(null);
@@ -638,6 +639,17 @@ export function DashboardPage({ role }: { role: Role }) {
 
   // ACLED security events layer refs
   const acledLayersRef = useRef<{ marker: google.maps.Marker }[]>([]);
+
+  // Flight Zones (airspace) layer refs
+  const flightZonesLayersRef = useRef<Record<string, google.maps.Data | null>>({
+    ctr: null,
+    tma: null,
+    fir: null,
+    prohibited: null,
+    danger: null,
+    afis: null,
+    restricted: null,
+  });
 
   // Panel open states
   const [openBuckets, setOpenBuckets] = useState({
@@ -762,6 +774,8 @@ export function DashboardPage({ role }: { role: Role }) {
     setSelectedFlight(null);
     SIM_FLIGHTS_DATA.forEach(flight => bounds.extend(flight.from));
     map.fitBounds(bounds);
+    // Disable POI clickable icons to prevent Google's default white InfoWindow
+    map.setOptions({ clickableIcons: false });
     mapRef.current = map;
   };
 
@@ -988,6 +1002,136 @@ export function DashboardPage({ role }: { role: Role }) {
       acledLayersRef.current = [];
     }
   }, [layerVisibility.acled]);
+
+  // Flight Zones (Airspace) implementation
+  const createFlightZoneLayer = useCallback((map: google.maps.Map, zoneType: string, color: string, weight: number, fillOpacity: number) => {
+    const dataLayer = new google.maps.Data({
+      map: map,
+      style: {
+        strokeColor: color,
+        strokeWeight: weight,
+        fillColor: color,
+        fillOpacity: fillOpacity,
+      },
+    });
+
+    // Load GeoJSON data for this zone type
+    fetch('/data/africa_airspace.geojson')
+      .then(res => res.json())
+.then(geojson => {
+        // Filter features by type
+        const filteredFeatures = geojson.features.filter((feature: any) => {
+          const props = feature.properties;
+          // The type is in properties.type based on the POC reference:
+          // 1: Restricted, 2: Danger, 3: Prohibited, 4: CTR, 10: FIR, 13: AFIS
+          const typeNum = props.type;
+          switch (zoneType) {
+            case 'ctr': return typeNum === 4; // CTR
+            case 'tma': return typeNum === 10; // TMA (same as FIR in this data)
+            case 'fir': return typeNum === 10; // FIR
+            case 'prohibited': return typeNum === 3; // Prohibited
+            case 'danger': return typeNum === 2; // Danger
+            case 'restricted': return typeNum === 1; // Restricted
+            case 'afis': return typeNum === 13; // AFIS
+            default: return false;
+          }
+        });
+
+        const filteredGeojson = {
+          ...geojson,
+          features: filteredFeatures
+        };
+
+        dataLayer.addGeoJson(filteredGeojson);
+
+        // Add click listener for popup
+        // Add click listener for popup
+        dataLayer.addListener('click', (event: google.maps.Data.MouseEvent) => {
+          const feature = event.feature;
+          
+          // Google Maps Data layer flattens GeoJSON properties - access directly via getProperty()
+          const name = feature.getProperty('name') || 'Unnamed Airspace';
+          const icaoClass = feature.getProperty('icaoClass') || 'Unknown';
+          const activity = feature.getProperty('activity') ?? 'Unknown';
+          const country = feature.getProperty('country') || 'Unknown';
+          const upperLimit = feature.getProperty('upperLimit') ? `${(feature.getProperty('upperLimit') as any).value} ${(feature.getProperty('upperLimit') as any).unit === 1 ? 'ft' : 'm'}` : 'Unknown';
+          const lowerLimit = feature.getProperty('lowerLimit') ? `${(feature.getProperty('lowerLimit') as any).value} ${(feature.getProperty('lowerLimit') as any).unit === 1 ? 'ft' : 'm'}` : 'Unknown';
+          const onDemand = feature.getProperty('onDemand') ? 'Yes' : 'No';
+          const onRequest = feature.getProperty('onRequest') ? 'Yes' : 'No';
+          const byNotam = feature.getProperty('byNotam') ? 'Yes' : 'No';
+
+          // Create popup content
+          const content = `
+            <div style="font-family:'Inter',sans-serif;min-width:240px;padding:8px;">
+              <div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#ef4444;margin-bottom:6px;">
+                ${zoneType.toUpperCase()} AIRSPACE
+              </div>
+              <div style="font-size:14px;font-weight:700;color:var(--text);line-height:1.35;margin-bottom:6px;">${name}</div>
+              <table style="font-size:11.5px;width:100%;border-collapse:collapse;">
+                <tr><td style="color:var(--text-2);padding:3px 0;width:40%;">ICAO Class</td><td style="font-weight:600;color:var(--text);">${icaoClass}</td></tr>
+                <tr><td style="color:var(--text-2);padding:3px 0;">Activity</td><td style="font-weight:600;color:var(--text);">${activity === 0 ? 'Active' : activity === 1 ? 'Inactive' : 'Unknown'}</td></tr>
+                <tr><td style="color:var(--text-2);padding:3px 0;">Upper Limit</td><td style="font-weight:600;color:var(--text);">${upperLimit}</td></tr>
+                <tr><td style="color:var(--text-2);padding:3px 0;">Lower Limit</td><td style="font-weight:600;color:var(--text);">${lowerLimit}</td></tr>
+                <tr><td style="color:var(--text-2);padding:3px 0;">Country</td><td style="font-weight:600;color:var(--text);">${country}</td></tr>
+                <tr><td style="color:var(--text-2);padding:3px 0;">On Demand</td><td style="font-weight:600;color:var(--text);">${onDemand}</td></tr>
+                <tr><td style="color:var(--text-2);padding:3px 0;">On Request</td><td style="font-weight:600;color:var(--text);">${onRequest}</td></tr>
+                <tr><td style="color:var(--text-2);padding:3px 0;">By NOTAM</td><td style="font-weight:600;color:var(--text);">${byNotam}</td></tr>
+              </table>
+            </div>
+          `;
+
+          // Create custom popup via React state (matching ACLED/ASN pattern)
+          setSelectedFlightZone({
+            name: feature.getProperty('name'),
+            icaoClass: feature.getProperty('icaoClass'),
+            activity: feature.getProperty('activity'),
+            country: feature.getProperty('country'),
+            upperLimit: feature.getProperty('upperLimit'),
+            lowerLimit: feature.getProperty('lowerLimit'),
+            onDemand: feature.getProperty('onDemand'),
+            onRequest: feature.getProperty('onRequest'),
+            byNotam: feature.getProperty('byNotam'),
+            zoneType: zoneType,
+            latitude: event.latLng!.lat(),
+            longitude: event.latLng!.lng(),
+          });
+        });
+      })
+      .catch(err => console.error(`Failed to load ${zoneType} data:`, err));
+
+    return dataLayer;
+  }, []);
+
+  // Manage Flight Zones layer visibility
+  useEffect(() => {
+    if (!mapRef.current) return;
+    const map = mapRef.current;
+
+    const zoneTypes = [
+      { key: 'ctr', color: '#f97316', weight: 2, fillOpacity: 0.15 },
+      { key: 'tma', color: '#5C3317', weight: 2, fillOpacity: 0.1 },
+      { key: 'fir', color: '#4B0082', weight: 2, fillOpacity: 0.15 },
+      { key: 'prohibited', color: '#32CD32', weight: 2, fillOpacity: 0.15 },
+      { key: 'danger', color: '#ef4444', weight: 2, fillOpacity: 0.15 },
+      { key: 'afis', color: '#eab308', weight: 2, fillOpacity: 0.15 },
+      { key: 'restricted', color: '#94a3b8', weight: 2, fillOpacity: 0.15 },
+    ];
+
+    zoneTypes.forEach(zone => {
+      const isVisible = layerVisibility[zone.key as keyof typeof layerVisibility];
+      const existingLayer = flightZonesLayersRef.current[zone.key];
+
+      if (isVisible && !existingLayer) {
+        // Create layer
+        const layer = createFlightZoneLayer(map, zone.key, zone.color, zone.weight, zone.fillOpacity);
+        flightZonesLayersRef.current[zone.key] = layer;
+      } else if (!isVisible && existingLayer) {
+        // Remove layer
+        existingLayer.setMap(null);
+        flightZonesLayersRef.current[zone.key] = null;
+      }
+    });
+  }, [layerVisibility, createFlightZoneLayer]);
 
   const toggleBucket = (bucket: keyof typeof openBuckets) => {
     setOpenBuckets(prev => ({ ...prev, [bucket]: !prev[bucket] }));
@@ -1743,6 +1887,101 @@ export function DashboardPage({ role }: { role: Role }) {
                 </div>
               </div>
             )}
+
+            {/* Flight Zone Popup - centered modal matching ACLED/ASN design */}
+            {selectedFlightZone && (
+              <div 
+                className="absolute z-50"
+                style={{
+                  left: '50%',
+                  top: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  pointerEvents: 'auto'
+                }}
+              >
+                <div 
+                  className="bg-bg-2 text-text font-body overflow-hidden border border-border"
+                  style={{
+                    backgroundColor: 'var(--bg-2)',
+                    color: 'var(--text)',
+                    width: '360px',
+                    boxShadow: '0 4px 20px rgba(0,0,0,.4)',
+                    borderRadius: '10px',
+                    margin: 0,
+                    padding: 0
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '8px 12px 0' }}>
+                    <div style={{ fontSize: '9px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '.08em', color: '#ef4444', marginBottom: '6px' }}>
+                      FLIGHT ZONE
+                    </div>
+                    <button 
+                      onClick={() => setSelectedFlightZone(null)}
+                      style={{
+                        background: 'var(--bg-3)',
+                        border: 'none',
+                        color: 'var(--text-2)',
+                        width: '24px',
+                        height: '24px',
+                        borderRadius: '50%',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '14px',
+                        fontWeight: 'bold',
+                        flexShrink: 0,
+                        padding: 0,
+                        lineHeight: 1
+                      }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <div style={{ padding: '8px 14px 12px' }}>
+                    <div style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text)', lineHeight: 1.35, marginBottom: '6px' }}>
+                      {selectedFlightZone.name || 'Unnamed Airspace'} &nbsp;·&nbsp; {selectedFlightZone.zoneType?.toUpperCase() || 'Unknown'}
+                    </div>
+                    <table style={{ fontSize: '11.5px', width: '100%', borderCollapse: 'collapse', marginBottom: '8px' }}>
+                      <tbody>
+                        <tr>
+                          <td style={{ color: 'var(--text-2)', padding: '3px 0', width: '40%' }}>ICAO Class</td>
+                          <td style={{ fontWeight: '600', color: 'var(--text)' }}>{selectedFlightZone.icaoClass || 'Unknown'}</td>
+                        </tr>
+                        <tr>
+                          <td style={{ color: 'var(--text-2)', padding: '3px 0' }}>Activity</td>
+                          <td style={{ fontWeight: '600', color: 'var(--text)' }}>{selectedFlightZone.activity === 0 ? 'Active' : selectedFlightZone.activity === 1 ? 'Inactive' : 'Unknown'}</td>
+                        </tr>
+                        <tr>
+                          <td style={{ color: 'var(--text-2)', padding: '3px 0' }}>Upper Limit</td>
+                          <td style={{ fontWeight: '600', color: 'var(--text)' }}>{selectedFlightZone.upperLimit ? `${selectedFlightZone.upperLimit.value} ${selectedFlightZone.upperLimit.unit === 1 ? 'ft' : 'm'}` : 'Unknown'}</td>
+                        </tr>
+                        <tr>
+                          <td style={{ color: 'var(--text-2)', padding: '3px 0' }}>Lower Limit</td>
+                          <td style={{ fontWeight: '600', color: 'var(--text)' }}>{selectedFlightZone.lowerLimit ? `${selectedFlightZone.lowerLimit.value} ${selectedFlightZone.lowerLimit.unit === 1 ? 'ft' : 'm'}` : 'Unknown'}</td>
+                        </tr>
+                        <tr>
+                          <td style={{ color: 'var(--text-2)', padding: '3px 0' }}>Country</td>
+                          <td style={{ fontWeight: '600', color: 'var(--text)' }}>{selectedFlightZone.country || 'Unknown'}</td>
+                        </tr>
+                        <tr>
+                          <td style={{ color: 'var(--text-2)', padding: '3px 0' }}>On Demand</td>
+                          <td style={{ fontWeight: '600', color: 'var(--text)' }}>{selectedFlightZone.onDemand ? 'Yes' : 'No'}</td>
+                        </tr>
+                        <tr>
+                          <td style={{ color: 'var(--text-2)', padding: '3px 0' }}>On Request</td>
+                          <td style={{ fontWeight: '600', color: 'var(--text)' }}>{selectedFlightZone.onRequest ? 'Yes' : 'No'}</td>
+                        </tr>
+                        <tr>
+                          <td style={{ color: 'var(--text-2)', padding: '3px 0' }}>By NOTAM</td>
+                          <td style={{ fontWeight: '600', color: 'var(--text)' }}>{selectedFlightZone.byNotam ? 'Yes' : 'No'}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            )}
           </GoogleMap>
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-bg-2 text-text-2">
@@ -1751,7 +1990,7 @@ export function DashboardPage({ role }: { role: Role }) {
         )}
 
         {/* Zoom Controls - Top Left (before search box) */}
-        <div style={{ position: 'absolute', top: '15px', left: '9px', zIndex: 10000, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <div style={{ position: 'absolute', top: '15px', left: '9px', zIndex: 40, display: 'flex', flexDirection: 'column', gap: '4px' }}>
           <button
             onClick={zoomIn}
             style={{ width: '36px', height: '36px', background: 'var(--bg-2)', border: '1px solid var(--border)', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '18px', fontWeight: '600', color: 'var(--text-2)', boxShadow: 'var(--shadow)' }}
@@ -1769,7 +2008,7 @@ export function DashboardPage({ role }: { role: Role }) {
         </div>
 
         {/* Search Box - Top Left (exact POC design) */}
-        <div className="search-box" style={{ top: '15px', left: '50px', zIndex: 9999, display: 'flex', gap: '8px', background: 'var(--bg-2)', border: '1px solid var(--border)', padding: '10px', borderRadius: '8px' }}>
+        <div className="search-box" style={{ top: '15px', left: '50px', zIndex: 40, display: 'flex', gap: '8px', background: 'var(--bg-2)', border: '1px solid var(--border)', padding: '10px', borderRadius: '8px' }}>
           <input
             type="text"
             id="searchInput"
@@ -1786,7 +2025,7 @@ export function DashboardPage({ role }: { role: Role }) {
         </div>
 
         {/* Focus Toggle - Below Search (exact POC design) */}
-        <div className="toggle-box" style={{ top: '70px', left: '50px', zIndex: 9999, background: 'var(--bg-2)', border: '1px solid var(--border)', padding: '10px', borderRadius: '8px', color: 'var(--text)', fontSize: '12px' }}>
+        <div className="toggle-box" style={{ top: '70px', left: '50px', zIndex: 40, background: 'var(--bg-2)', border: '1px solid var(--border)', padding: '10px', borderRadius: '8px', color: 'var(--text)', fontSize: '12px' }}>
           <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
             <input type="checkbox" id="focusMode" onChange={toggleFocusMode} style={{ accentColor: 'var(--accent)', width: '16px', height: '16px' }} />
             <span>Focus</span>
@@ -1794,7 +2033,7 @@ export function DashboardPage({ role }: { role: Role }) {
         </div>
 
         {/* Date & Time Filter - Top Center (exact POC design) */}
-        <div id="dtf-widget" style={{ position: 'absolute', top: '15px', left: '50%', transform: 'translateX(-50%)', zIndex: 2147483647, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', fontFamily: 'var(--font-body)' }}>
+        <div id="dtf-widget" style={{ position: 'absolute', top: '15px', left: '50%', transform: 'translateX(-50%)', zIndex: 40, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', fontFamily: 'var(--font-body)' }}>
           <button
             id="dtf-trigger"
             onClick={toggleDtfDropdown}
@@ -1867,7 +2106,7 @@ export function DashboardPage({ role }: { role: Role }) {
             position: 'absolute',
             right: '16px',
             top: '16px',
-            zIndex: 9999,
+            zIndex: 40,
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
