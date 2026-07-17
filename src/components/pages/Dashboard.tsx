@@ -608,7 +608,7 @@ export function DashboardPage({ role }: { role: Role }) {
     minorAirports: true,
     airbases: true,
     airstrips: true,
-    liveFlights: true,
+    liveFlights: false,
     weather: false,
     securityFeed: false,
     regulation: false,
@@ -654,7 +654,7 @@ export function DashboardPage({ role }: { role: Role }) {
   // Panel open states
   const [openBuckets, setOpenBuckets] = useState({
     airfields: true,
-    liveFlights: true,
+    liveFlights: false,
     liveUpdates: false,
     aviationSafety: false,
     securityHist: false,
@@ -2147,23 +2147,23 @@ export function DashboardPage({ role }: { role: Role }) {
             {/* Bucket: Airfields */}
             <div className="border-b border-border">
               <div className="flex cursor-pointer items-center gap-2 px-3.5 py-2 text-sm font-semibold text-text hover:bg-bg-hover" onClick={() => toggleBucket('airfields')}>
-                <input type="checkbox" className="accent-accent" checked={Object.values(layerVisibility).slice(0, 4).some(v => v)} onChange={(e) => { e.stopPropagation(); setLayerVisibility(p => ({ ...p, majorAirports: e.target.checked, minorAirports: e.target.checked, airbases: e.target.checked, airstrips: e.target.checked })) }} />
+                <input type="checkbox" className="accent-accent" checked={Object.values(layerVisibility).slice(0, 4).some(v => v)} onClick={(e) => e.stopPropagation()} onChange={(e) => { e.stopPropagation(); setLayerVisibility(p => ({ ...p, majorAirports: e.target.checked, minorAirports: e.target.checked, airbases: e.target.checked, airstrips: e.target.checked })) }} />
                 <svg className="h-4 w-4 fill-red-600" viewBox="0 0 24 24"><path d="M2.5 19h19v2h-19zm7.18-1.73l4.35 1.16 5.31 1.42c.8.21 1.62-.26 1.84-1.06.21-.8-.26-1.62-1.06-1.84l-3.77-1.01-2.89-4.86-1.45.39.89 4.34-3.27-.87-.87-1.73-1.09.29.96 3.78z"/></svg>
                 <span className="flex-1">Airfields</span>
                 <svg className={cn("h-3 w-3 shrink-0 stroke-current stroke-2 text-text-3 transition-transform", openBuckets.airfields && "rotate-180")} viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
               </div>
               <div className={cn("py-1", !openBuckets.airfields && "hidden")}>
-                <label className="flex cursor-pointer items-center gap-2 px-3.5 py-1 pl-8 text-xs text-text-2 hover:bg-bg-hover"><input type="checkbox" className="accent-accent" checked={layerVisibility.majorAirports} onChange={() => toggleLayer('majorAirports')} /><div className="h-2 w-2 rounded-full bg-red-600" /><span>Major Airports</span></label>
-                <label className="flex cursor-pointer items-center gap-2 px-3.5 py-1 pl-8 text-xs text-text-2 hover:bg-bg-hover"><input type="checkbox" className="accent-accent" checked={layerVisibility.minorAirports} onChange={() => toggleLayer('minorAirports')} /><div className="h-2 w-2 rounded-full bg-blue-600" /><span>Minor Airports</span></label>
-                <label className="flex cursor-pointer items-center gap-2 px-3.5 py-1 pl-8 text-xs text-text-2 hover:bg-bg-hover"><input type="checkbox" className="accent-accent" checked={layerVisibility.airbases} onChange={() => toggleLayer('airbases')} /><div className="h-2 w-2 rounded-full bg-green-600" /><span>Air Bases</span></label>
-                <label className="flex cursor-pointer items-center gap-2 px-3.5 py-1 pl-8 text-xs text-text-2 hover:bg-bg-hover"><input type="checkbox" className="accent-accent" checked={layerVisibility.airstrips} onChange={() => toggleLayer('airstrips')} /><div className="h-2 w-2 rounded-full bg-yellow-800" /><span>Airstrips</span></label>
+                <label className="flex cursor-pointer items-center gap-2 px-3.5 py-1 pl-8 text-xs text-text-2 hover:bg-bg-hover"><input type="checkbox" className="accent-accent" checked={layerVisibility.majorAirports} onClick={(e) => e.stopPropagation()} onChange={(e) => { e.stopPropagation(); toggleLayer('majorAirports'); }} /><div className="h-2 w-2 rounded-full bg-red-600" /><span>Major Airports</span></label>
+                <label className="flex cursor-pointer items-center gap-2 px-3.5 py-1 pl-8 text-xs text-text-2 hover:bg-bg-hover"><input type="checkbox" className="accent-accent" checked={layerVisibility.minorAirports} onClick={(e) => e.stopPropagation()} onChange={(e) => { e.stopPropagation(); toggleLayer('minorAirports'); }} /><div className="h-2 w-2 rounded-full bg-blue-600" /><span>Minor Airports</span></label>
+                <label className="flex cursor-pointer items-center gap-2 px-3.5 py-1 pl-8 text-xs text-text-2 hover:bg-bg-hover"><input type="checkbox" className="accent-accent" checked={layerVisibility.airbases} onClick={(e) => e.stopPropagation()} onChange={(e) => { e.stopPropagation(); toggleLayer('airbases'); }} /><div className="h-2 w-2 rounded-full bg-green-600" /><span>Air Bases</span></label>
+                <label className="flex cursor-pointer items-center gap-2 px-3.5 py-1 pl-8 text-xs text-text-2 hover:bg-bg-hover"><input type="checkbox" className="accent-accent" checked={layerVisibility.airstrips} onClick={(e) => e.stopPropagation()} onChange={(e) => { e.stopPropagation(); toggleLayer('airstrips'); }} /><div className="h-2 w-2 rounded-full bg-yellow-800" /><span>Airstrips</span></label>
               </div>
             </div>
 
             {/* Bucket: Live Flights */}
             <div className="border-b border-border">
               <div className="flex cursor-pointer items-center gap-2 px-3.5 py-2 text-sm font-semibold text-text hover:bg-bg-hover" onClick={() => toggleBucket('liveFlights')}>
-                <input type="checkbox" className="accent-accent" checked={layerVisibility.liveFlights} onChange={(e) => { e.stopPropagation(); toggleLayer('liveFlights'); }} />
+                <input type="checkbox" className="accent-accent" checked={layerVisibility.liveFlights} onClick={(e) => e.stopPropagation()} onChange={(e) => { e.stopPropagation(); toggleLayer('liveFlights'); }} />
                 <svg className="h-4 w-4 fill-success" viewBox="0 0 24 24"><path d="M21 16v-2l-8-5V3.5A1.5 1.5 0 0 0 11.5 2 1.5 1.5 0 0 0 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg>
                 <span className="flex-1">Live Flights</span>
                 <svg className={cn("h-3 w-3 shrink-0 stroke-current stroke-2 text-text-3 transition-transform", openBuckets.liveFlights && "rotate-180")} viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
@@ -2192,6 +2192,7 @@ export function DashboardPage({ role }: { role: Role }) {
                     layerVisibility.commercial,
                     layerVisibility.infrastructure,
                   ].some(v => v)}
+                  onClick={(e) => e.stopPropagation()}
                   onChange={(e) => {
                     e.stopPropagation();
                     const isChecked = e.target.checked;
@@ -2210,53 +2211,53 @@ export function DashboardPage({ role }: { role: Role }) {
                 <svg className={cn("h-3 w-3 shrink-0 stroke-current stroke-2 text-text-3 transition-transform", openBuckets.liveUpdates && "rotate-180")} viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
               </div>
               <div className={cn("py-1", !openBuckets.liveUpdates && "hidden")}>
-                <label className="flex cursor-pointer items-center gap-2 px-3.5 py-1 pl-8 text-xs text-text-2 hover:bg-bg-hover"><input type="checkbox" className="accent-accent" checked={layerVisibility.weather} onChange={() => toggleLayer('weather')} /><div className="h-2 w-2 rounded-full bg-warn" /><span>Weather</span></label>
-                <label className="flex cursor-pointer items-center gap-2 px-3.5 py-1 pl-8 text-xs text-text-2 hover:bg-bg-hover"><input type="checkbox" className="accent-accent" checked={layerVisibility.securityFeed} onChange={() => toggleLayer('securityFeed')} /><div className="h-2 w-2 rounded-full bg-danger" /><span>Security</span></label>
-                <label className="flex cursor-pointer items-center gap-2 px-3.5 py-1 pl-8 text-xs text-text-2 hover:bg-bg-hover"><input type="checkbox" className="accent-accent" checked={layerVisibility.regulation} onChange={() => toggleLayer('regulation')} /><div className="h-2 w-2 rounded-full bg-purple-500" /><span>Regulation</span></label>
-                <label className="flex cursor-pointer items-center gap-2 px-3.5 py-1 pl-8 text-xs text-text-2 hover:bg-bg-hover"><input type="checkbox" className="accent-accent" checked={layerVisibility.commercial} onChange={() => toggleLayer('commercial')} /><div className="h-2 w-2 rounded-full bg-blue-500" /><span>Commercial</span></label>
-                <label className="flex cursor-pointer items-center gap-2 px-3.5 py-1 pl-8 text-xs text-text-2 hover:bg-bg-hover"><input type="checkbox" className="accent-accent" checked={layerVisibility.infrastructure} onChange={() => toggleLayer('infrastructure')} /><div className="h-2 w-2 rounded-full bg-orange-700" /><span>Infrastructure</span></label>
+                <label className="flex cursor-pointer items-center gap-2 px-3.5 py-1 pl-8 text-xs text-text-2 hover:bg-bg-hover"><input type="checkbox" className="accent-accent" checked={layerVisibility.weather} onClick={(e) => e.stopPropagation()} onChange={(e) => { e.stopPropagation(); toggleLayer('weather'); }} /><div className="h-2 w-2 rounded-full bg-warn" /><span>Weather</span></label>
+                <label className="flex cursor-pointer items-center gap-2 px-3.5 py-1 pl-8 text-xs text-text-2 hover:bg-bg-hover"><input type="checkbox" className="accent-accent" checked={layerVisibility.securityFeed} onClick={(e) => e.stopPropagation()} onChange={(e) => { e.stopPropagation(); toggleLayer('securityFeed'); }} /><div className="h-2 w-2 rounded-full bg-danger" /><span>Security</span></label>
+                <label className="flex cursor-pointer items-center gap-2 px-3.5 py-1 pl-8 text-xs text-text-2 hover:bg-bg-hover"><input type="checkbox" className="accent-accent" checked={layerVisibility.regulation} onClick={(e) => e.stopPropagation()} onChange={(e) => { e.stopPropagation(); toggleLayer('regulation'); }} /><div className="h-2 w-2 rounded-full bg-purple-500" /><span>Regulation</span></label>
+                <label className="flex cursor-pointer items-center gap-2 px-3.5 py-1 pl-8 text-xs text-text-2 hover:bg-bg-hover"><input type="checkbox" className="accent-accent" checked={layerVisibility.commercial} onClick={(e) => e.stopPropagation()} onChange={(e) => { e.stopPropagation(); toggleLayer('commercial'); }} /><div className="h-2 w-2 rounded-full bg-blue-500" /><span>Commercial</span></label>
+                <label className="flex cursor-pointer items-center gap-2 px-3.5 py-1 pl-8 text-xs text-text-2 hover:bg-bg-hover"><input type="checkbox" className="accent-accent" checked={layerVisibility.infrastructure} onClick={(e) => e.stopPropagation()} onChange={(e) => { e.stopPropagation(); toggleLayer('infrastructure'); }} /><div className="h-2 w-2 rounded-full bg-orange-700" /><span>Infrastructure</span></label>
               </div>
             </div>
             {/* Bucket: Aviation Safety */}
             <div className="border-b border-border">
               <div className="flex cursor-pointer items-center gap-2 px-3.5 py-2 text-sm font-semibold text-text hover:bg-bg-hover" onClick={() => toggleBucket('aviationSafety')}>
-                <input type="checkbox" className="accent-accent" checked={layerVisibility.asn} onChange={(e) => { e.stopPropagation(); toggleLayer('asn'); }} />
+<input type="checkbox" className="accent-accent" checked={layerVisibility.asn} onClick={(e) => e.stopPropagation()} onChange={(e) => { e.stopPropagation(); toggleLayer('asn'); }} />
                 <svg className="h-4 w-4 fill-blue-600" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
                 <span className="flex-1">Aviation Safety</span>
                 <svg className={cn("h-3 w-3 shrink-0 stroke-current stroke-2 text-text-3 transition-transform", openBuckets.aviationSafety && "rotate-180")} viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
               </div>
               <div className={cn("py-1", !openBuckets.aviationSafety && "hidden")}>
-                <label className="flex cursor-pointer items-center gap-2 px-3.5 py-1 pl-8 text-xs text-text-2 hover:bg-bg-hover"><input type="checkbox" className="accent-accent" checked={layerVisibility.asn} onChange={() => toggleLayer('asn')} /><div className="h-2 w-2 rounded-full bg-danger" /><span>ASN Incidents</span></label>
+                <label className="flex cursor-pointer items-center gap-2 px-3.5 py-1 pl-8 text-xs text-text-2 hover:bg-bg-hover"><input type="checkbox" className="accent-accent" checked={layerVisibility.asn} onChange={(e) => { e.stopPropagation(); toggleLayer('asn'); }} /><div className="h-2 w-2 rounded-full bg-danger" /><span>ASN Incidents</span></label>
               </div>
             </div>
             {/* Bucket: Historic Security Events */}
             <div className="border-b border-border">
               <div className="flex cursor-pointer items-center gap-2 px-3.5 py-2 text-sm font-semibold text-text hover:bg-bg-hover" onClick={() => toggleBucket('securityHist')}>
-                <input type="checkbox" className="accent-accent" checked={layerVisibility.acled} onChange={(e) => { e.stopPropagation(); toggleLayer('acled'); }} />
+<input type="checkbox" className="accent-accent" checked={layerVisibility.acled} onClick={(e) => e.stopPropagation()} onChange={(e) => { e.stopPropagation(); toggleLayer('acled'); }} />
                 <svg className="h-4 w-4 fill-danger" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
                 <span className="flex-1">Historic Security Events</span>
                 <svg className={cn("h-3 w-3 shrink-0 stroke-current stroke-2 text-text-3 transition-transform", openBuckets.securityHist && "rotate-180")} viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
               </div>
               <div className={cn("py-1", !openBuckets.securityHist && "hidden")}>
-                <label className="flex cursor-pointer items-center gap-2 px-3.5 py-1 pl-8 text-xs text-text-2 hover:bg-bg-hover"><input type="checkbox" className="accent-accent" checked={layerVisibility.acled} onChange={() => toggleLayer('acled')} /><div className="h-2 w-2 rounded-full bg-danger" /><span>ACLED Events</span></label>
+                <label className="flex cursor-pointer items-center gap-2 px-3.5 py-1 pl-8 text-xs text-text-2 hover:bg-bg-hover"><input type="checkbox" className="accent-accent" checked={layerVisibility.acled} onChange={(e) => { e.stopPropagation(); toggleLayer('acled'); }} /><div className="h-2 w-2 rounded-full bg-danger" /><span>ACLED Events</span></label>
               </div>
             </div>
             {/* Bucket: Flight Zones */}
             <div className="border-b-0">
               <div className="flex cursor-pointer items-center gap-2 px-3.5 py-2 text-sm font-semibold text-text hover:bg-bg-hover" onClick={() => toggleBucket('flightZones')}>
-                <input type="checkbox" className="accent-accent" checked={Object.values(layerVisibility).slice(12).some(v => v)} onChange={(e) => { e.stopPropagation(); setLayerVisibility(p => ({ ...p, ctr: e.target.checked, tma: e.target.checked, fir: e.target.checked, prohibited: e.target.checked, danger: e.target.checked, afis: e.target.checked, restricted: e.target.checked })) }} />
+                <input type="checkbox" className="accent-accent" checked={Object.values(layerVisibility).slice(12).some(v => v)} onClick={(e) => e.stopPropagation()} onChange={(e) => { e.stopPropagation(); setLayerVisibility(p => ({ ...p, ctr: e.target.checked, tma: e.target.checked, fir: e.target.checked, prohibited: e.target.checked, danger: e.target.checked, afis: e.target.checked, restricted: e.target.checked })) }} />
                 <svg className="h-4 w-4 fill-purple-500" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm0-14c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4z"/></svg>
                 <span className="flex-1">Flight Zones</span>
                 <svg className={cn("h-3 w-3 shrink-0 stroke-current stroke-2 text-text-3 transition-transform", openBuckets.flightZones && "rotate-180")} viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
               </div>
               <div className={cn("py-1", !openBuckets.flightZones && "hidden")}>
-                <label className="flex cursor-pointer items-center gap-2 px-3.5 py-1 pl-8 text-xs text-text-2 hover:bg-bg-hover"><input type="checkbox" className="accent-accent" checked={layerVisibility.ctr} onChange={() => toggleLayer('ctr')} /><div className="h-2 w-2 rounded-full bg-orange-500" /><span>CTR — Control Zones</span></label>
-                <label className="flex cursor-pointer items-center gap-2 px-3.5 py-1 pl-8 text-xs text-text-2 hover:bg-bg-hover"><input type="checkbox" className="accent-accent" checked={layerVisibility.tma} onChange={() => toggleLayer('tma')} /><div className="h-2 w-2 rounded-full bg-yellow-900" /><span>TMA — Terminal Areas</span></label>
-                <label className="flex cursor-pointer items-center gap-2 px-3.5 py-1 pl-8 text-xs text-text-2 hover:bg-bg-hover"><input type="checkbox" className="accent-accent" checked={layerVisibility.fir} onChange={() => toggleLayer('fir')} /><div className="h-2 w-2 rounded-full bg-indigo-900" /><span>FIR — Flight Info Regions</span></label>
-                <label className="flex cursor-pointer items-center gap-2 px-3.5 py-1 pl-8 text-xs text-text-2 hover:bg-bg-hover"><input type="checkbox" className="accent-accent" checked={layerVisibility.prohibited} onChange={() => toggleLayer('prohibited')} /><div className="h-2 w-2 rounded-full bg-lime-500" /><span>Prohibited Airspace</span></label>
-                <label className="flex cursor-pointer items-center gap-2 px-3.5 py-1 pl-8 text-xs text-text-2 hover:bg-bg-hover"><input type="checkbox" className="accent-accent" checked={layerVisibility.danger} onChange={() => toggleLayer('danger')} /><div className="h-2 w-2 rounded-full bg-danger" /><span>Danger Airspace</span></label>
-                <label className="flex cursor-pointer items-center gap-2 px-3.5 py-1 pl-8 text-xs text-text-2 hover:bg-bg-hover"><input type="checkbox" className="accent-accent" checked={layerVisibility.afis} onChange={() => toggleLayer('afis')} /><div className="h-2 w-2 rounded-full bg-yellow-400" /><span>AFIS Zones</span></label>
-                <label className="flex cursor-pointer items-center gap-2 px-3.5 py-1 pl-8 text-xs text-text-2 hover:bg-bg-hover"><input type="checkbox" className="accent-accent" checked={layerVisibility.restricted} onChange={() => toggleLayer('restricted')} /><div className="h-2 w-2 rounded-full bg-gray-400" /><span>Restricted Airspace</span></label>
+                <label className="flex cursor-pointer items-center gap-2 px-3.5 py-1 pl-8 text-xs text-text-2 hover:bg-bg-hover"><input type="checkbox" className="accent-accent" checked={layerVisibility.ctr} onClick={(e) => e.stopPropagation()} onChange={(e) => { e.stopPropagation(); toggleLayer('ctr'); }} /><div className="h-2 w-2 rounded-full bg-orange-500" /><span>CTR — Control Zones</span></label>
+                <label className="flex cursor-pointer items-center gap-2 px-3.5 py-1 pl-8 text-xs text-text-2 hover:bg-bg-hover"><input type="checkbox" className="accent-accent" checked={layerVisibility.tma} onClick={(e) => e.stopPropagation()} onChange={(e) => { e.stopPropagation(); toggleLayer('tma'); }} /><div className="h-2 w-2 rounded-full bg-yellow-900" /><span>TMA — Terminal Areas</span></label>
+                <label className="flex cursor-pointer items-center gap-2 px-3.5 py-1 pl-8 text-xs text-text-2 hover:bg-bg-hover"><input type="checkbox" className="accent-accent" checked={layerVisibility.fir} onClick={(e) => e.stopPropagation()} onChange={(e) => { e.stopPropagation(); toggleLayer('fir'); }} /><div className="h-2 w-2 rounded-full bg-indigo-900" /><span>FIR — Flight Info Regions</span></label>
+                <label className="flex cursor-pointer items-center gap-2 px-3.5 py-1 pl-8 text-xs text-text-2 hover:bg-bg-hover"><input type="checkbox" className="accent-accent" checked={layerVisibility.prohibited} onClick={(e) => e.stopPropagation()} onChange={(e) => { e.stopPropagation(); toggleLayer('prohibited'); }} /><div className="h-2 w-2 rounded-full bg-lime-500" /><span>Prohibited Airspace</span></label>
+                <label className="flex cursor-pointer items-center gap-2 px-3.5 py-1 pl-8 text-xs text-text-2 hover:bg-bg-hover"><input type="checkbox" className="accent-accent" checked={layerVisibility.danger} onClick={(e) => e.stopPropagation()} onChange={(e) => { e.stopPropagation(); toggleLayer('danger'); }} /><div className="h-2 w-2 rounded-full bg-danger" /><span>Danger Airspace</span></label>
+                <label className="flex cursor-pointer items-center gap-2 px-3.5 py-1 pl-8 text-xs text-text-2 hover:bg-bg-hover"><input type="checkbox" className="accent-accent" checked={layerVisibility.afis} onClick={(e) => e.stopPropagation()} onChange={(e) => { e.stopPropagation(); toggleLayer('afis'); }} /><div className="h-2 w-2 rounded-full bg-yellow-400" /><span>AFIS Zones</span></label>
+                <label className="flex cursor-pointer items-center gap-2 px-3.5 py-1 pl-8 text-xs text-text-2 hover:bg-bg-hover"><input type="checkbox" className="accent-accent" checked={layerVisibility.restricted} onClick={(e) => e.stopPropagation()} onChange={(e) => { e.stopPropagation(); toggleLayer('restricted'); }} /><div className="h-2 w-2 rounded-full bg-gray-400" /><span>Restricted Airspace</span></label>
               </div>
             </div>
             {/* Other buckets would go here */}
