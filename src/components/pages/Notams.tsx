@@ -32,11 +32,12 @@ export function Notams() {
   const mil = NOTAMS.filter((n) => n.cls === "Military").length;
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-2">
       <PageHeader
         title="NOTAMs"
         action={
           <div className="flex items-center gap-1.5">
+            <span className="text-[11px] font-semibold text-text-2">Filter by Class:</span>
             {(["all", "International", "Military"] as const).map((f) => (
               <button
                 key={f}
@@ -58,11 +59,22 @@ export function Notams() {
       <Card>
         <PanelHeader title="Active Notices" />
         <div className="overflow-x-auto">
-          <table className="w-full table-fixed border-collapse text-[12.5px]">
+          <table className="w-full border-collapse text-[12.5px]" style={{ tableLayout: "fixed" }}>
+            <colgroup>
+              <col style={{ width: "6%" }} />
+              <col style={{ width: "9%" }} />
+              <col style={{ width: "10%" }} />
+              <col style={{ width: "11%" }} />
+              <col style={{ width: "11%" }} />
+              <col style={{ width: "53%" }} />
+            </colgroup>
             <thead>
               <tr>
                 {["Location", "NOTAM #", "Class", "Start (UTC)", "End (UTC)", "Condition"].map((c) => (
-                  <th key={c} className="whitespace-nowrap border-b border-r border-border bg-bg-3 px-2.5 py-2 text-left text-[10px] font-bold uppercase tracking-wider text-text-2 last:border-r-0">
+                  <th
+                    key={c}
+                    className="whitespace-nowrap border-b border-r border-border bg-bg-3 px-2.5 py-2 text-left text-[10px] font-bold uppercase tracking-wider text-text-2 last:border-r-0"
+                  >
                     {c}
                   </th>
                 ))}
@@ -70,19 +82,33 @@ export function Notams() {
             </thead>
             <tbody>
               {rows.map((n, i) => (
-                <tr key={i} className={i % 2 === 0 ? "bg-bg-2" : "bg-bg-3"}>
-                  <td className="border-b border-r border-border px-2.5 py-2 font-semibold text-text">{n.loc}</td>
-                  <td className="border-b border-r border-border px-2.5 py-2 font-mono text-accent">{n.num}</td>
-                  <td className="border-b border-r border-border px-2.5 py-2">
+                <tr
+                  key={i}
+                  className={i % 2 === 0 ? "bg-bg-2" : "bg-bg-3"}
+                  style={{ borderRight: "1px solid var(--border)" }}
+                >
+                  <td className="border-b border-r border-border px-2.5 py-2 font-semibold text-text cell-loc">{n.loc}</td>
+                  <td className="border-b border-r border-border px-2.5 py-2 font-mono text-accent cell-num">{n.num}</td>
+                  <td className="border-b border-r border-border px-2.5 py-2 cell-class">
                     <Badge tone={n.cls === "Military" ? "warn" : "info"}>{n.cls}</Badge>
                   </td>
-                  <td className="whitespace-pre-line border-b border-r border-border px-2.5 py-2 text-text-2">{n.start}</td>
-                  <td className="whitespace-pre-line border-b border-r border-border px-2.5 py-2 text-text-2">{n.end}</td>
-                  <td className="whitespace-pre-wrap border-b border-border px-2.5 py-2 text-text">{n.cond}</td>
+                  <td className="whitespace-pre-line border-b border-r border-border px-2.5 py-2 text-text-2 cell-date">{n.start}</td>
+                  <td className="whitespace-pre-line border-b border-r border-border px-2.5 py-2 text-text-2 cell-date">{n.end}</td>
+                  <td className="whitespace-pre-wrap border-b border-border px-2.5 py-2 text-text cell-cond">{n.cond}</td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+        <div className="bg-bg-3 border-t border-border px-4 py-2 text-right">
+          <a
+            href="https://notams.aim.faa.gov/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[12px] text-text-2 italic hover:text-accent transition-colors"
+          >
+            notams.aim.faa.gov/
+          </a>
         </div>
       </Card>
     </div>

@@ -30,3 +30,8 @@ export type NavIconKey =
   | "companies"
   | "billing"
   | "stone";
+
+
+export interface NavItem extends NavLeaf {
+  children?: NavItem[];
+}

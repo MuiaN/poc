@@ -1,10 +1,22 @@
-import { Card, DataTable, PageHeader, Badge, PanelHeader } from "@/components/ui";
+import { Card, DataTable, PageHeader, Badge, PanelHeader, Button } from "@/components/ui";
+import { Icon } from "@/components/icons";
 import { policies } from "@/data";
 
 export function Policies() {
   return (
     <div className="flex flex-col gap-4">
-      <PageHeader title="Policies" subtitle="Active and historical hull & liability policies across the portfolio" />
+      <PageHeader
+        title="Policies"
+        subtitle="Active and historical hull & liability policies across the portfolio"
+        action={
+          <Button variant="primary">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13">
+              <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+            </svg>
+            New Policy
+          </Button>
+        }
+      />
       <Card>
         <PanelHeader title={`${policies.length} Policies`} />
         <div className="overflow-x-auto">

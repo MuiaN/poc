@@ -2,19 +2,46 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
 import { getNav, ROLE_LABEL } from "@/lib/nav";
 import { cn } from "@/components/ui";
 import type { Role, SessionUser } from "@/lib/types";
-import { Icon, PlaneIcon, ChatIcon, LogoutIcon } from "./icons";
+import { Icon, PlaneIcon, ChatIcon, LogoutIcon, ChevronDownIcon } from "./icons";
 
 export function Sidebar({ role, user }: { role: Role; user: SessionUser }) {
   const router = useRouter();
   const pathname = usePathname();
-  const items = getNav(role);
+  const allItems = getNav(role);
   const initials = user.name
     .split(" ")
     .map((n) => n[0])
     .join("");
+  const [countryProfilesOpen, setCountryProfilesOpen] = useState(false);
+
+  const COUNTRY_REGIONS = [
+    {
+      label: "East Africa",
+      countries: [
+        { code: "ke", name: "Kenya" },
+        { code: "tz", name: "Tanzania" },
+        { code: "ug", name: "Uganda" },
+        { code: "rw", name: "Rwanda" },
+        { code: "bi", name: "Burundi" },
+      ],
+    },
+    {
+      label: "Horn & Central",
+      countries: [
+        { code: "cd", name: "DR Congo" },
+        { code: "so", name: "Somalia" },
+        { code: "et", name: "Ethiopia" },
+        { code: "ss", name: "South Sudan" },
+        { code: "sd", name: "Sudan" },
+        { code: "dj", name: "Djibouti" },
+        { code: "er", name: "Eritrea" },
+      ],
+    },
+  ];
 
   async function logout() {
     if (!confirm("Sign out of FRED BLACK?")) return;
@@ -37,8 +64,56 @@ export function Sidebar({ role, user }: { role: Role; user: SessionUser }) {
       </div>
 
       <nav className="nav">
-        {items.map((item) => {
+        {allItems.map((item) => {
           const active = pathname === item.href;
+          if (item.key === "countries") {
+            return (
+              <div key={item.key} className="nav-item-group">
+                <button
+                  className={cn("nav-item w-full justify-between", active && "active")}
+                  onClick={() => setCountryProfilesOpen(!countryProfilesOpen)}
+                >
+                  <div className="flex items-center gap-2 flex-1">
+                    <Icon name={item.icon} />
+                    <span>{item.label}</span>
+                  </div>
+                  <ChevronDownIcon
+                    className={cn(
+                      "h-3 w-3 stroke-current transition-transform",
+                      countryProfilesOpen && "rotate-180"
+                    )}
+                  />
+                </button>
+                {countryProfilesOpen && (
+                  <div className="overflow-hidden transition-all duration-200">
+                    <div className="px-3 pb-2">
+                      {COUNTRY_REGIONS.map((region) => (
+                        <div key={region.label}>
+                          <div className="text-[9px] font-bold uppercase tracking-wider text-text-3 px-3 py-1 border-t border-border">
+                            {region.label}
+                          </div>
+                          {region.countries.map((c) => (
+                            <Link
+                              key={c.code}
+                              href={`/countries/${c.code}`}
+                              className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-text-2 hover:bg-accent-dim hover:text-accent transition-colors rounded-[6px] mb-1"
+                            >
+                              <img
+                                src={`https://flagcdn.com/w20/${c.code}.png`}
+                                alt=""
+                                className="w-5 h-3 rounded flex-shrink-0"
+                              />
+                              {c.name}
+                            </Link>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          }
           return (
             <Link key={item.key} href={item.href} className={cn("nav-item", active && "active")}>
               <Icon name={item.icon} />
@@ -76,7 +151,7 @@ export function Sidebar({ role, user }: { role: Role; user: SessionUser }) {
             )}
           >
             {role === "admin" ? "Admin" : role === "operator" ? "Operator" : "Insurer"}
-          </div> 
+          </div>
           <button onClick={logout} title="Sign out" className="flex h-[26px] w-[26px] items-center justify-center rounded-md border border-border bg-transparent text-text-3 transition-colors hover:border-danger hover:text-danger">
             <LogoutIcon className="h-3 w-3" />
           </button>
