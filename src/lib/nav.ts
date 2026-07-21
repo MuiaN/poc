@@ -34,6 +34,8 @@ export function getNav(role: Role): NavLeaf[] {
     { key: "uploads", label: "Uploads", href: `${base}/uploads`, icon: "uploads" },
   ];
 
+  const stone: NavLeaf = { key: "stone", label: "Stone Africa", href: `${base}/stone`, icon: "stone" };
+
   if (role === "admin") {
     return [
       ...common,
@@ -43,14 +45,14 @@ export function getNav(role: Role): NavLeaf[] {
       ...rest,
       { key: "companies", label: "Companies", href: `${base}/companies`, icon: "companies" },
       { key: "users", label: "Users & Invites", href: `${base}/users`, icon: "users" },
-      { key: "billing", label: "Billing", href: `${base}/billing`, icon: "billing" },
+      stone,
     ];
   }
 
   if (role === "underwriter") {
-    return [...common, claims, policies, fleet, ...rest, { key: "billing", label: "Billing", href: `${base}/billing`, icon: "billing" }];
+    return [...common, claims, policies, fleet, ...rest, stone];
   }
 
   // operator
-  return [...common, fleet, ...rest, { key: "billing", label: "Billing", href: `${base}/billing`, icon: "billing" }];
+  return [...common, fleet, ...rest, stone];
 }

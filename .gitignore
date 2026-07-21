@@ -141,6 +141,7 @@ vite.config.ts.timestamp-*
 .replit.md
 .GEMINI.md
 .replit
+.kilo
 .next
 .agents
 .vscode

@@ -25,6 +25,7 @@ export interface InsuranceContact {
 export interface MaintenanceContact {
   org: string;
   country: string;
+  flag: string;
   group: "east" | "horn";
   phone: string;
   email: string;
@@ -128,14 +129,14 @@ export const insuranceContacts: InsuranceContact[] = [
 ];
 
 export const maintenanceContacts: MaintenanceContact[] = [
-  { org: "Kenya Airways Engineering", country: "Kenya", group: "east", phone: "+254 020 327 4000", email: "engineering@kenya-airways.com", address: "Kenya Airways Engineering Base, JKIA, Nairobi" },
-  { org: "Precision Air Technical Services", country: "Tanzania", group: "east", phone: "+255 22 213 0800", email: "technical@precisionairtz.com", address: "Julius Nyerere International Airport, Terminal 1, Dar es Salaam" },
-  { org: "Air Tanzania Engineering", country: "Tanzania", group: "east", phone: "+255 22 284 0204", email: "engineering@airtanzania.co.tz", address: "Julius Nyerere International Airport, Dar es Salaam" },
-  { org: "Uganda Airlines Technical Services", country: "Uganda", group: "east", phone: "+256 200 525 000", email: "technical@ugandaairlines.co.ug", address: "Entebbe International Airport, Entebbe" },
-  { org: "RwandAir Technical Operations", country: "Rwanda", group: "east", phone: "+250 252 588 521", email: "technical@rwandair.com", address: "Kigali International Airport (RwandAir Maintenance Base), Kigali" },
-  { org: "Ethiopian Airlines MRO", country: "Ethiopia", group: "horn", phone: "+251 116 178 000", email: "mro@ethiopianairlines.com", address: "Ethiopian Airlines Maintenance Base, Bole International Airport, Addis Ababa" },
-  { org: "Congo Airways Technical", country: "DR Congo", group: "horn", phone: "+243 81 698 1000", email: "technique@congoairways.com", address: "N'Djili International Airport, Kinshasa" },
-  { org: "Sudan Airways Engineering", country: "Sudan", group: "horn", phone: "+249 183 784 000", email: "engineering@sudanairways.com", address: "Khartoum International Airport Area, Khartoum · Operations affected since 2023" },
+  { org: "Kenya Airways Engineering", country: "Kenya", group: "east", flag: "ke", phone: "+254 020 327 4000", email: "engineering@kenya-airways.com", address: "Kenya Airways Engineering Base, JKIA, Nairobi" },
+  { org: "Precision Air Technical Services", country: "Tanzania", group: "east", flag: "tz", phone: "+255 22 213 0800", email: "technical@precisionairtz.com", address: "Julius Nyerere International Airport, Terminal 1, Dar es Salaam" },
+  { org: "Air Tanzania Engineering", country: "Tanzania", group: "east", flag: "tz", phone: "+255 22 284 0204", email: "engineering@airtanzania.co.tz", address: "Julius Nyerere International Airport, Dar es Salaam" },
+  { org: "Uganda Airlines Technical Services", country: "Uganda", group: "east", flag: "ug", phone: "+256 200 525 000", email: "technical@ugandaairlines.co.ug", address: "Entebbe International Airport, Entebbe" },
+  { org: "RwandAir Technical Operations", country: "Rwanda", group: "east", flag: "rw", phone: "+250 252 588 521", email: "technical@rwandair.com", address: "Kigali International Airport (RwandAir Maintenance Base), Kigali" },
+  { org: "Ethiopian Airlines MRO", country: "Ethiopia", group: "horn", flag: "et", phone: "+251 116 178 000", email: "mro@ethiopianairlines.com", address: "Ethiopian Airlines Maintenance Base, Bole International Airport, Addis Ababa" },
+  { org: "Congo Airways Technical", country: "DR Congo", group: "horn", flag: "cd", phone: "+243 81 698 1000", email: "technique@congoairways.com", address: "N'Djili International Airport, Kinshasa" },
+  { org: "Sudan Airways Engineering", country: "Sudan", group: "horn", flag: "sd", phone: "+249 183 784 000", email: "engineering@sudanairways.com", address: "Khartoum International Airport Area, Khartoum · Operations affected since 2023" },
 ];
 
 export const TABS = [
