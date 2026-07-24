@@ -12,11 +12,13 @@ export function DashboardShell({
   title,
   user,
   children,
+  fullWidth = false,
 }: {
   role: Role;
   title: string;
   user: SessionUser;
   children: ReactNode;
+  fullWidth?: boolean;
 }) {
   const pathname = usePathname();
   const isMapPage = pathname.endsWith("/map");
@@ -30,6 +32,7 @@ export function DashboardShell({
           className={cn(
             "flex-1 overflow-y-auto",
             isMapPage ? "flex flex-col" : "content",
+            fullWidth && "p-0"
           )}
         >
           {children}

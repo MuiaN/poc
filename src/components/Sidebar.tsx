@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import { getNav, ROLE_LABEL } from "@/lib/nav";
+import { getNav, ROLE_LABEL, ROLE_BASE } from "@/lib/nav";
 import { cn } from "@/components/ui";
 import type { Role, SessionUser } from "@/lib/types";
 import { Icon, PlaneIcon, ChatIcon, LogoutIcon, ChevronDownIcon } from "./icons";
@@ -95,7 +95,7 @@ export function Sidebar({ role, user }: { role: Role; user: SessionUser }) {
                           {region.countries.map((c) => (
                             <Link
                               key={c.code}
-                              href={`/countries/${c.code}`}
+                              href={`${ROLE_BASE[role]}/countries/${c.code}`}
                               className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-text-2 hover:bg-accent-dim hover:text-accent transition-colors rounded-[6px] mb-1"
                             >
                               <img

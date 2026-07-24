@@ -1,6 +1,7 @@
 import { CountryProfile } from "@/components/pages/CountryProfile";
 
-    export default function Page({ params }: { params: { key: string } }) {
-      return <CountryProfile countryKey={params.key} />;
-    }
+export default async function Page({ params }: { params: Promise<{ key: string }> }) {
+  const { key } = await params;
+  return <CountryProfile countryKey={key} />;
+}
     

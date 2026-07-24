@@ -124,16 +124,16 @@ export const liveFlights: LiveFlight[] = [
 ];
 
 export const COUNTRIES = [
-  { key: "kenya", name: "Kenya", flag: "ke", region: "East Africa" },
-  { key: "tanzania", name: "Tanzania", flag: "tz", region: "East Africa" },
-  { key: "uganda", name: "Uganda", flag: "ug", region: "East Africa" },
-  { key: "rwanda", name: "Rwanda", flag: "rw", region: "East Africa" },
-  { key: "burundi", name: "Burundi", flag: "bi", region: "East Africa" },
-  { key: "drcongo", name: "DR Congo", flag: "cd", region: "Horn & Central" },
-  { key: "somalia", name: "Somalia", flag: "so", region: "Horn & Central" },
-  { key: "ethiopia", name: "Ethiopia", flag: "et", region: "Horn & Central" },
-  { key: "southsudan", name: "South Sudan", flag: "ss", region: "Horn & Central" },
-  { key: "sudan", name: "Sudan", flag: "sd", region: "Horn & Central" },
-  { key: "djibouti", name: "Djibouti", flag: "dj", region: "Horn & Central" },
-  { key: "eritrea", name: "Eritrea", flag: "er", region: "Horn & Central" },
+  { key: "ke", name: "Kenya", flag: "ke", region: "East Africa" },
+  { key: "tz", name: "Tanzania", flag: "tz", region: "East Africa" },
+  { key: "ug", name: "Uganda", flag: "ug", region: "East Africa" },
+  { key: "rw", name: "Rwanda", flag: "rw", region: "East Africa" },
+  { key: "bi", name: "Burundi", flag: "bi", region: "East Africa" },
+  { key: "cd", name: "DR Congo", flag: "cd", region: "Horn & Central" },
+  { key: "so", name: "Somalia", flag: "so", region: "Horn & Central" },
+  { key: "et", name: "Ethiopia", flag: "et", region: "Horn & Central" },
+  { key: "ss", name: "South Sudan", flag: "ss", region: "Horn & Central" },
+  { key: "sd", name: "Sudan", flag: "sd", region: "Horn & Central" },
+  { key: "dj", name: "Djibouti", flag: "dj", region: "Horn & Central" },
+  { key: "er", name: "Eritrea", flag: "er", region: "Horn & Central" },
 ];
