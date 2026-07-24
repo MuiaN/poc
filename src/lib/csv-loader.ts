@@ -9,6 +9,12 @@ export interface CountryProfile {
   kpi_terrorism: string;
   kpi_airspace: string;
   kpi_regulatory: string;
+  // KPI extra info fields
+  kpi_hull_risk_info: string;
+  kpi_war_risk_info: string;
+  kpi_terrorism_info: string;
+  kpi_airspace_info: string;
+  kpi_regulatory_info: string;
   aviation_overview: string;
   hull_risk_table_json: string;
   regulatory_json: string;
@@ -186,6 +192,31 @@ function parseCSV(csvText: string): CountryProfile[] {
       };
       row.weather_risk_json = JSON.stringify(weatherRisk);
 
+      // Parse KPI fields: format "Value|Additional Info"
+      const parseKpi = (field: string) => {
+        const val = row[field] || '';
+        const parts = val.split('|');
+        return {
+          value: parts[0] || '',
+          info: parts[1] || '',
+        };
+      };
+      const hull = parseKpi('kpi_hull_risk');
+      const war = parseKpi('kpi_war_risk');
+      const terror = parseKpi('kpi_terrorism');
+      const airspace = parseKpi('kpi_airspace');
+      const regulatory = parseKpi('kpi_regulatory');
+      row.kpi_hull_risk = hull.value;
+      row.kpi_hull_risk_info = hull.info;
+      row.kpi_war_risk = war.value;
+      row.kpi_war_risk_info = war.info;
+      row.kpi_terrorism = terror.value;
+      row.kpi_terrorism_info = terror.info;
+      row.kpi_airspace = airspace.value;
+      row.kpi_airspace_info = airspace.info;
+      row.kpi_regulatory = regulatory.value;
+      row.kpi_regulatory_info = regulatory.info;
+
       // Build seasonal_risk_json from quarterly/monthly columns
       const seasonalRisk = {
         q1_aviation: parseInt(row.q1_aviation || '1', 10),
@@ -225,7 +256,186 @@ function parseCSV(csvText: string): CountryProfile[] {
       const monthlyRainfall = seasonalRisk.monthly_rainfall.map((v, i) => ({ month: ['J','F','M','A','M','J','J','A','S','O','N','D'][i], risk: v }));
       row.monthly_rainfall_json = JSON.stringify(monthlyRainfall);
 
-      results.push(row as CountryProfile);
+      // Build hull_risk_table_json from pipe/semicolon format
+      // Format: Location|Hull Risk|War Risk|Note;Location|Hull Risk|War Risk|Note;...
+      if (row.hull_risk_table_json) {
+        const hullRows = row.hull_risk_table_json.split(';').map(r => r.trim()).filter(r => r);
+        const parsedHull = hullRows.map(r => {
+          const parts = r.split('|');
+          return {
+            location: parts[0] || '',
+            hull_risk: parts[1] || '',
+            war_risk: parts[2] || '',
+            note: parts[3] || '',
+          };
+        });
+        row.hull_risk_table_json = JSON.stringify(parsedHull);
+      }
+
+      // Build regulatory_json from key=value;key=value format
+      if (row.regulatory_json) {
+        const regPairs = row.regulatory_json.split(';').map(r => r.trim()).filter(r => r);
+        const regObj: Record<string, string> = {};
+        regPairs.forEach(pair => {
+          const eqIdx = pair.indexOf('=');
+          if (eqIdx > 0) {
+            const key = pair.substring(0, eqIdx).trim();
+            const value = pair.substring(eqIdx + 1).trim();
+            regObj[key] = value;
+          }
+        });
+        row.regulatory_json = JSON.stringify(regObj);
+      }
+
+// Build threat_vectors_json from pipe/semicolon format
+      // Format: severity|title|description|aviation_exposure;severity|title|description|aviation_exposure;...
+      // Record separator is ;HIGH| or ;MODERATE| or ;WATCH| (semicolon + severity + pipe)
+      if (row.threat_vectors_json) {
+        const text = row.threat_vectors_json;
+        const vectors: Array<{severity: string; title: string; description: string; aviation_exposure: string}> = [];
+        
+        // Split by semicolon followed by severity keyword and pipe
+        // Use regex to split only on record separators, not semicolons in text
+        const segments = text.split(/;(?=(?:HIGH|MODERATE|WATCH)\|)/);
+        
+        segments.forEach(segment => {
+          const trimmed = segment.trim();
+          if (!trimmed) return;
+          
+          // Parse: severity|title|description|aviation_exposure
+          const firstPipe = trimmed.indexOf('|');
+          const secondPipe = trimmed.indexOf('|', firstPipe + 1);
+          const thirdPipe = trimmed.indexOf('|', secondPipe + 1);
+          
+          if (firstPipe > 0 && secondPipe > firstPipe && thirdPipe > secondPipe) {
+            vectors.push({
+              severity: trimmed.substring(0, firstPipe),
+              title: trimmed.substring(firstPipe + 1, secondPipe),
+              description: trimmed.substring(secondPipe + 1, thirdPipe),
+              aviation_exposure: trimmed.substring(thirdPipe + 1),
+            });
+          }
+        });
+        
+row.threat_vectors_json = JSON.stringify(vectors);
+      }
+
+      // Build exposure_flags_json from pipe/semicolon format
+      // Format: Exposure|Risk|Note;Exposure|Risk|Note;...
+      if (row.exposure_flags_json) {
+        const flagRows = row.exposure_flags_json.split(';').map(r => r.trim()).filter(r => r);
+        const parsedFlags = flagRows.map(r => {
+          const parts = r.split('|');
+          return {
+            exposure: parts[0] || '',
+            risk: parts[1] || '',
+            note: parts.slice(2).join('|') || '',
+          };
+        });
+        row.exposure_flags_json = JSON.stringify(parsedFlags);
+      }
+
+      // Build seasonal_calendar_json from pipe/semicolon format
+      // Format: period|name|badge|status|description;period|name|badge|status|description;...
+      // The dash in periods is an en-dash (U+2013)
+      if (row.seasonal_calendar_json) {
+        const text = row.seasonal_calendar_json;
+        const seasons: Array<{period: string; name: string; badge: string; status: string; description: string; seasonType: string}> = [];
+        
+        // Split by semicolon followed by period pattern (month + hyphen/en-dash + month + pipe)
+        const segments = text.split(/;(?=[A-Za-z]+[-–][A-Za-z]+\|)/);
+        
+        segments.forEach(segment => {
+          const trimmed = segment.trim();
+          if (!trimmed) return;
+          
+          const parts = trimmed.split('|');
+          // Handle both 5-field (with badge) and 4-field (no badge) formats
+          if (parts.length >= 4) {
+            const period = parts[0] || '';
+            const name = parts[1] || '';
+            let badge = '';
+            let status = 'dry';
+            let description = '';
+            
+            if (parts.length === 5) {
+              // Full format: period|name|badge|status|description
+              badge = parts[2] || '';
+              status = parts[3] || 'dry';
+              description = parts[4] || '';
+            } else if (parts.length === 4) {
+              // Format without badge: period|name|status|description
+              badge = '';
+              status = parts[2] || 'dry';
+              description = parts[3] || '';
+            }
+            
+            // Determine season type from period for fixed coloring
+            const p = period.toLowerCase();
+            let seasonType = 'dry';
+            if (p.includes('mar') || p.includes('may')) seasonType = 'long-rains';
+            else if (p.includes('jun') || p.includes('sep')) seasonType = 'dry';
+            else if (p.includes('oct') || p.includes('dec')) seasonType = 'short-rains';
+            else if (p.includes('jan') || p.includes('feb')) seasonType = 'dry';
+            
+            seasons.push({ period, name, badge, status, description, seasonType });
+          }
+        });
+        
+        row.seasonal_calendar_json = JSON.stringify(seasons);
+      }
+
+      // Build incident_log_json from pipe/semicolon format
+      // Format: Date|Airport|Aircraft|Operator|Category|Severity|Description|Source;...
+      if (row.incident_log_json) {
+        const incidentRows = row.incident_log_json.split(';').map(r => r.trim()).filter(r => r);
+        const parsedIncidents = incidentRows.map(r => {
+          const parts = r.split('|');
+          return {
+            date: parts[0] || '',
+            airport: parts[1] || '',
+            aircraft: parts[2] || '',
+            operator: parts[3] || '',
+            category: parts[4] || '',
+            severity: parts[5] || '',
+            description: parts[6] || '',
+            source: parts[7] || '',
+          };
+        });
+        row.incident_log_json = JSON.stringify(parsedIncidents);
+      }
+
+      // Build bird_hotspots_json from pipe/semicolon format
+      // Format: Location|Risk|Species|Note;...
+      if (row.bird_hotspots_json) {
+        const hotspotRows = row.bird_hotspots_json.split(';').map(r => r.trim()).filter(r => r);
+        const parsedHotspots = hotspotRows.map(r => {
+          const parts = r.split('|');
+          return {
+            location: parts[0] || '',
+            risk: parts[1] || '',
+            species: parts[2] || '',
+            note: parts[3] || '',
+          };
+        });
+        row.bird_hotspots_json = JSON.stringify(parsedHotspots);
+      }
+
+      // Build weather_events_json from pipe/semicolon format
+      // Format: Date|Description;...
+      if (row.weather_events_json) {
+        const eventRows = row.weather_events_json.split(';').map(r => r.trim()).filter(r => r);
+        const parsedEvents = eventRows.map(r => {
+          const parts = r.split('|');
+          return {
+            date: parts[0] || '',
+            description: parts[1] || '',
+          };
+        });
+        row.weather_events_json = JSON.stringify(parsedEvents);
+      }
+
+      results.push(row as unknown as CountryProfile);
     }
   }
 

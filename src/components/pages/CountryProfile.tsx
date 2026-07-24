@@ -33,8 +33,10 @@ interface ExposureFlag {
 interface SeasonalPeriod {
   period: string;
   name: string;
-  description: string;
+  badge: string;
   status: "active" | "dry" | "short"; // for styling
+  description: string;
+  seasonType: "long-rains" | "dry" | "short-rains";
 }
 
 interface WeatherRisk {
@@ -138,6 +140,11 @@ export const CountryProfile: React.FC<CountryProfileProps> = ({ countryKey }) =>
     kpi_terrorism,
     kpi_airspace,
     kpi_regulatory,
+    kpi_hull_risk_info,
+    kpi_war_risk_info,
+    kpi_terrorism_info,
+    kpi_airspace_info,
+    kpi_regulatory_info,
     aviation_overview,
     wx_flight_delays,
     wx_diversions,
@@ -171,13 +178,13 @@ export const CountryProfile: React.FC<CountryProfileProps> = ({ countryKey }) =>
 
   const riskClass = (risk: string) => {
     const r = risk.toLowerCase();
-    if (r.includes("low")) return "r-low";
-    if (r.includes("moderate") || r === "mod") return "r-mod";
-    if (r.includes("elevated")) return "r-el";
-    if (r.includes("high")) return "r-high";
-    if (r.includes("seasonal")) return "r-seasonal";
-    if (r.includes("monitor")) return "r-monitor";
-    if (r.includes("moderate–elevated") || r === "mod-el") return "r-mod-el";
+    if (r.includes("low")) return "cp-r-low";
+    if (r.includes("moderate") || r === "mod") return "cp-r-mod";
+    if (r.includes("elevated")) return "cp-r-el";
+    if (r.includes("high")) return "cp-r-high";
+    if (r.includes("seasonal")) return "cp-r-seasonal";
+    if (r.includes("monitor")) return "cp-r-monitor";
+    if (r.includes("moderate–elevated") || r === "mod-el") return "cp-r-mod-el";
     return "";
   };
 
@@ -191,7 +198,20 @@ export const CountryProfile: React.FC<CountryProfileProps> = ({ countryKey }) =>
     return "src-open";
   };
 
-  // ─── Helper: seasonal status class ───────────────────────────
+  // ─── Helper: regulatory value class ──────────────────────────────
+
+  const regValueClass = (key: string, value: string) => {
+    const k = key.toLowerCase().replace(/[^a-z0-9]/g, '_');
+    // Special highlight for TSA OSS
+    if (key === "TSA OSS") return "cp-kv-v special";
+    // Amber for Labour and JKIA items
+    if (key === "Labour" || key === "JKIA" || key === "JKIA 2nd runway") return "cp-kv-v amber";
+    // Blue for Civil authority and Tel / Web
+    if (key === "Civil authority" || key === "Tel / Web") return "cp-kv-v blue";
+    // Green for compliance items
+    if (key === "ICAO AVSEC" || key === "IATA IOSA" || key === "EASA TCO" || key === "EU Air Safety List" || key === "ISAGO" || key === "KCAA") return "cp-kv-v green";
+    return "cp-kv-v";
+  };
 
   const seasonClass = (status: string) => {
     switch (status) {
@@ -201,6 +221,55 @@ export const CountryProfile: React.FC<CountryProfileProps> = ({ countryKey }) =>
       default: return "s-dry";
     }
   };
+
+  // ─── Determine active season based on current month ────────────────
+  const getSeasonKey = (period: string) => {
+    const p = period.toLowerCase();
+    if (p.includes("mar") || p.includes("may")) return "long-rains";  // Mar-May
+    if (p.includes("jun") || p.includes("sep")) return "dry-1";      // Jun-Sep
+    if (p.includes("oct") || p.includes("dec")) return "short-rains"; // Oct-Dec
+    if (p.includes("jan") || p.includes("feb")) return "dry-2";      // Jan-Feb
+    return "";
+  };
+
+  const getActiveSeasonKey = () => {
+    const m = new Date().getMonth() + 1; // 1-12
+    if (m >= 3 && m <= 5) return "long-rains";
+    if (m >= 6 && m <= 9) return "dry-1";
+    if (m >= 10 && m <= 12) return "short-rains";
+    return "dry-2";
+  };
+
+  const activeSeasonKey = getActiveSeasonKey();
+
+  // Calendar order (chronological through the year)
+  const calendarOrder = ["dry-2", "long-rains", "dry-1", "short-rains"];
+  
+  // Sort seasons: active first, then chronological order starting from active season
+  const sortedSeasons = [...seasonalCalendar].sort((a, b) => {
+    const aKey = getSeasonKey(a.period);
+    const bKey = getSeasonKey(b.period);
+    const aActive = aKey === activeSeasonKey ? 0 : 1;
+    const bActive = bKey === activeSeasonKey ? 0 : 1;
+    if (aActive !== bActive) return aActive - bActive;
+    
+    // For non-active, order chronologically starting from active season
+    const activeIdx = calendarOrder.indexOf(activeSeasonKey);
+    const aIdx = (calendarOrder.indexOf(aKey) - activeIdx + 4) % 4;
+    const bIdx = (calendarOrder.indexOf(bKey) - activeIdx + 4) % 4;
+    return aIdx - bIdx;
+  });
+
+  // Update status: active for current season, otherwise use the season key for CSS
+  const seasonsWithStatus = sortedSeasons.map(s => {
+    const seasonKey = getSeasonKey(s.period);
+    const isActive = seasonKey === activeSeasonKey;
+    return {
+      ...s,
+      seasonKey,  // for CSS class
+      isActive   // for ACTIVE NOW badge
+    };
+  });
 
   // ─── Build quarterly risk data ────────────────────────────────
 
@@ -456,31 +525,41 @@ export const CountryProfile: React.FC<CountryProfileProps> = ({ countryKey }) =>
           ════════════════════════════════════════════════════════════ */}
       <div className={`tab-panel ${activeTab === "overview" ? "active" : ""}`} style={{ display: activeTab === "overview" ? "block" : "none", padding: "12px 14px 18px" }}>
         {/* KPI Strip */}
-        <div className="kpi-strip" style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", border: "1px solid var(--border)", marginBottom: "12px", background: "var(--bg-2)" }}>
-          <div className="kpi-card" style={{ padding: "9px 13px", borderRight: "1px solid var(--border)" }}>
-            <div className="kpi-label" style={{ fontSize: "9.5px", color: "var(--text-2)", textTransform: "uppercase", letterSpacing: "0.4px", marginBottom: "3px" }}>Hull risk rating</div>
-            <div className="kpi-val c-orange" style={{ fontSize: "18px", fontWeight: 700, lineHeight: 1.2, color: "var(--warn)" }}>{kpi_hull_risk}</div>
-            <div className="kpi-sub" style={{ fontSize: "10px", color: "var(--text-2)", marginTop: "3px", lineHeight: "1.4" }}>Major hubs stable</div>
+        <div className="cp-kpi-strip">
+          <div className="cp-kpi-card">
+            <div className="cp-kpi-label">Hull risk rating</div>
+            <div className="cp-kpi-row">
+              <div className="cp-kpi-val cp-c-orange">{kpi_hull_risk}</div>
+            </div>
+            <div className="cp-kpi-sub">{kpi_hull_risk_info}</div>
           </div>
-          <div className="kpi-card" style={{ padding: "9px 13px", borderRight: "1px solid var(--border)" }}>
-            <div className="kpi-label">War risk (aviation)</div>
-            <div className="kpi-val c-orange">{kpi_war_risk}</div>
-            <div className="kpi-sub">Northeastern corridors elevated · Lamu County watch</div>
+          <div className="cp-kpi-card">
+            <div className="cp-kpi-label">War risk (aviation)</div>
+            <div className="cp-kpi-row">
+              <div className="cp-kpi-val cp-c-orange">{kpi_war_risk}</div>
+            </div>
+            <div className="cp-kpi-sub">{kpi_war_risk_info}</div>
           </div>
-          <div className="kpi-card" style={{ padding: "9px 13px", borderRight: "1px solid var(--border)" }}>
-            <div className="kpi-label">Terrorism exposure</div>
-            <div className="kpi-val c-green" style={{ color: "var(--success)" }}>{kpi_terrorism}</div>
-            <div className="kpi-sub">Geographically bounded — Northeastern only</div>
+          <div className="cp-kpi-card">
+            <div className="cp-kpi-label">Terrorism exposure</div>
+            <div className="cp-kpi-row">
+              <div className="cp-kpi-val cp-c-green">{kpi_terrorism}</div>
+            </div>
+            <div className="cp-kpi-sub">{kpi_terrorism_info}</div>
           </div>
-          <div className="kpi-card" style={{ padding: "9px 13px", borderRight: "1px solid var(--border)" }}>
-            <div className="kpi-label">Airspace status</div>
-            <div className="kpi-val c-navy" style={{ color: "var(--text)" }}>{kpi_airspace}</div>
-            <div className="kpi-sub">HKNA FIR · no active restrictions</div>
+          <div className="cp-kpi-card">
+            <div className="cp-kpi-label">Airspace status</div>
+            <div className="cp-kpi-row">
+              <div className="cp-kpi-val cp-c-navy">{kpi_airspace}</div>
+            </div>
+            <div className="cp-kpi-sub">{kpi_airspace_info}</div>
           </div>
-          <div className="kpi-card" style={{ padding: "9px 13px" }}>
-            <div className="kpi-label">Regulatory standing</div>
-            <div className="kpi-val c-navy" style={{ color: "var(--text)" }}>{kpi_regulatory}</div>
-            <div className="kpi-sub">ICAO · IATA IOSA · EASA TCO</div>
+          <div className="cp-kpi-card" style={{ borderRight: "none" }}>
+            <div className="cp-kpi-label">Regulatory standing</div>
+            <div className="cp-kpi-row">
+              <div className="cp-kpi-val cp-c-navy">{kpi_regulatory}</div>
+            </div>
+            <div className="cp-kpi-sub">{kpi_regulatory_info}</div>
           </div>
         </div>
 
@@ -516,8 +595,8 @@ export const CountryProfile: React.FC<CountryProfileProps> = ({ countryKey }) =>
                 {hullRows.map((row, idx) => (
                   <tr key={idx} style={{ background: idx % 2 === 0 ? "var(--bg-3)" : "transparent" }}>
                     <td style={{ padding: "5px 8px", borderBottom: "1px solid var(--border)", verticalAlign: "top", lineHeight: "1.45", color: "var(--text)" }}>{row.location}</td>
-                    <td style={{ padding: "5px 8px", borderBottom: "1px solid var(--border)", verticalAlign: "top", lineHeight: "1.45", color: "var(--text)" }}><span className={`risk ${riskClass(row.hull_risk)}`}>{row.hull_risk}</span></td>
-                    <td style={{ padding: "5px 8px", borderBottom: "1px solid var(--border)", verticalAlign: "top", lineHeight: "1.45", color: "var(--text)" }}><span className={`risk ${riskClass(row.war_risk)}`}>{row.war_risk}</span></td>
+                    <td style={{ padding: "5px 8px", borderBottom: "1px solid var(--border)", verticalAlign: "top", lineHeight: "1.45", color: "var(--text)" }}><span className={`cp-risk ${riskClass(row.hull_risk)}`}>{row.hull_risk}</span></td>
+                    <td style={{ padding: "5px 8px", borderBottom: "1px solid var(--border)", verticalAlign: "top", lineHeight: "1.45", color: "var(--text)" }}><span className={`cp-risk ${riskClass(row.war_risk)}`}>{row.war_risk}</span></td>
                     <td className="note" style={{ padding: "5px 8px", borderBottom: "1px solid var(--border)", verticalAlign: "top", lineHeight: "1.45", color: "var(--text-2)", fontSize: "10.5px" }}>{row.note}</td>
                   </tr>
                 ))}
@@ -531,12 +610,32 @@ export const CountryProfile: React.FC<CountryProfileProps> = ({ countryKey }) =>
               Regulatory Status &amp; Compliance
             </div>
             <div className="pb" style={{ padding: "9px 11px", fontSize: "11.5px", lineHeight: "1.58", color: "var(--text)" }}>
-              {Object.entries(regulatoryObj).map(([key, value]) => (
-                <div key={key} className="kv" style={{ display: "flex", justifyContent: "space-between", padding: "4px 0", borderBottom: "1px solid var(--border)", fontSize: "11px", gap: "6px", alignItems: "flex-start" }}>
-                  <span className="kv-k" style={{ color: "var(--text-2)", flexShrink: 0 }}>{key}</span>
-                  <span className="kv-v" style={{ textAlign: "right", fontWeight: 600, color: "var(--text)", fontSize: "10.5px" }} dangerouslySetInnerHTML={{ __html: value }} />
-                </div>
-              ))}
+              {Object.entries(regulatoryObj).map(([key, value]) => {
+                const isLabour = key === "Labour" || key === "JKIA" || key === "JKIA 2nd runway";
+                const isTsa = key === "TSA OSS";
+                return (
+                  <div
+                    key={key}
+                    className="kv"
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      padding: isLabour ? "5px 4px" : "4px 0",
+                      borderBottom: isLabour ? "none" : "1px solid var(--border)",
+                      borderTop: isLabour ? "2px solid var(--border)" : "none",
+                      background: isTsa ? "var(--success-dim)" : "transparent",
+                      borderRadius: isTsa ? "2px" : "0",
+                      fontSize: "11px",
+                      gap: "6px",
+                      alignItems: "flex-start",
+                      marginTop: isLabour ? "3px" : "0",
+                    }}
+                  >
+                    <span className="kv-k" style={{ color: isTsa ? "var(--success)" : "var(--text-2)", flexShrink: 0, fontWeight: isTsa ? 700 : undefined }}>{key}</span>
+                    <span className={regValueClass(key, value)} style={{ textAlign: "right", fontWeight: isTsa ? 800 : 600, fontSize: isTsa ? "11px" : "10.5px", color: isTsa ? "var(--success)" : undefined }} dangerouslySetInnerHTML={{ __html: value }} />
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -563,20 +662,24 @@ export const CountryProfile: React.FC<CountryProfileProps> = ({ countryKey }) =>
               Active Threat Vectors &nbsp;<span style={{ fontWeight: 400, fontSize: "10.5px" }}>[Jan–Apr 2026]</span>
             </div>
             <div className="pb" style={{ padding: "11px 12px", fontSize: "11.5px", lineHeight: "1.58", color: "var(--text)" }}>
-              {threatVectors.map((tv, idx) => (
-                <div key={idx} className={`threat-card tc-border-${tv.severity.toLowerCase()}`} style={{ border: "1px solid var(--border)", marginBottom: "10px" }}>
-                  <div className="tc-head" style={{ display: "flex", alignItems: "center", gap: "10px", padding: "7px 11px", borderBottom: "1px solid var(--border)" }}>
-                    <span className={`tc-badge tc-${tv.severity.toLowerCase()}`} style={{ display: "inline-block", fontSize: "9.5px", fontWeight: 800, padding: "2px 8px", borderRadius: "2px", whiteSpace: "nowrap", letterSpacing: "0.5px", background: tv.severity === "HIGH" ? "var(--danger)" : tv.severity === "MODERATE" ? "var(--warn)" : "var(--success)", color: tv.severity === "HIGH" ? "#fff" : "#0B0F1A" }}>
-                      {tv.severity}
-                    </span>
-                    <span className="tc-title" style={{ fontSize: "12px", fontWeight: 700, color: "var(--text)" }}>{tv.title}</span>
+              {threatVectors.map((tv, idx) => {
+                const sevClass = tv.severity === "HIGH" ? "high" : tv.severity === "MODERATE" ? "mod" : "watch";
+                const badgeClass = tv.severity === "HIGH" ? "high" : tv.severity === "MODERATE" ? "mod" : "watch";
+                return (
+                  <div key={idx} className={`cp-threat-card tc-border-${sevClass}`} style={{ marginBottom: "10px" }}>
+                    <div className="tc-head" style={{ display: "flex", alignItems: "center", gap: "10px", padding: "7px 11px", borderBottom: "1px solid var(--border)" }}>
+                      <span className={`tc-badge tc-${badgeClass}`} style={{ display: "inline-block", fontSize: "9.5px", fontWeight: 800, padding: "2px 8px", borderRadius: "2px", whiteSpace: "nowrap", letterSpacing: "0.5px", background: tv.severity === "HIGH" ? "var(--danger)" : tv.severity === "MODERATE" ? "var(--warn)" : "var(--success)", color: tv.severity === "HIGH" ? "#fff" : "#0B0F1A" }}>
+                        {tv.severity}
+                      </span>
+                      <span className="tc-title" style={{ fontSize: "12px", fontWeight: 700, color: "var(--text)" }}>{tv.title}</span>
+                    </div>
+<div className="tc-body" style={{ padding: "9px 11px", fontSize: "11px", lineHeight: "1.55", color: "var(--text)" }}>
+                      <p>{tv.description}</p>
+                      <p className="tc-italic" style={{ fontStyle: "italic", color: "var(--text-2)", marginTop: "6px" }}>Aviation exposure: {tv.aviation_exposure}</p>
+                    </div>
                   </div>
-                  <div className="tc-body" style={{ padding: "9px 11px", fontSize: "11px", lineHeight: "1.55", color: "var(--text)" }}>
-                    <p>{tv.description}</p>
-                    <p className="tc-italic" style={{ fontStyle: "italic", color: "var(--text-2)", marginTop: "6px" }}>Aviation exposure: {tv.aviation_exposure}</p>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
@@ -597,7 +700,7 @@ export const CountryProfile: React.FC<CountryProfileProps> = ({ countryKey }) =>
                 {exposureFlags.map((flag, idx) => (
                   <tr key={idx} style={{ background: idx % 2 === 0 ? "var(--bg-3)" : "transparent" }}>
                     <td style={{ padding: "5px 8px", borderBottom: "1px solid var(--border)", verticalAlign: "top", lineHeight: "1.45", color: "var(--text)" }}>{flag.exposure}</td>
-                    <td style={{ padding: "5px 8px", borderBottom: "1px solid var(--border)", verticalAlign: "top", lineHeight: "1.45", color: "var(--text)" }}><span className={`risk ${riskClass(flag.risk)}`}>{flag.risk}</span></td>
+                    <td style={{ padding: "5px 8px", borderBottom: "1px solid var(--border)", verticalAlign: "top", lineHeight: "1.45", color: "var(--text)" }}><span className={`cp-risk ${riskClass(flag.risk)}`}>{flag.risk}</span></td>
                     <td className="note" style={{ padding: "5px 8px", borderBottom: "1px solid var(--border)", verticalAlign: "top", lineHeight: "1.45", color: "var(--text-2)", fontSize: "10.5px" }}>{flag.note}</td>
                   </tr>
                 ))}
@@ -618,14 +721,15 @@ export const CountryProfile: React.FC<CountryProfileProps> = ({ countryKey }) =>
               Seasonal Calendar — Kenya Bimodal Rainfall
             </div>
             <div className="pb" style={{ padding: "10px" }}>
-              {seasonalCalendar.map((season, idx) => (
-                <div key={idx} className="season-card" style={{ display: "flex", border: "1px solid var(--border)", background: "var(--bg-2)", marginBottom: "8px" }}>
-                  <div className={`season-label ${seasonClass(season.status)}`} style={{ width: "58px", flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", padding: "8px 6px", fontSize: "10px", fontWeight: 700, textAlign: "center" }}>
-                    <span className="s-date" style={{ fontSize: "11px", fontWeight: 800, lineHeight: "1.3" }}>{season.period}</span>
-                    {season.status === "active" && <span className="s-badge" style={{ fontSize: "8px", background: "rgba(255,255,255,0.25)", borderRadius: "2px", padding: "1px 4px", marginTop: "3px" }}>ACTIVE NOW</span>}
+              {seasonsWithStatus.map((season, idx) => (
+                <div key={idx} className="cp-season-card" style={{ display: "flex", border: "1px solid var(--border)", background: "var(--bg-2)", marginBottom: "8px" }}>
+                  <div className={`cp-season-label cp-s-${season.seasonKey}`} style={{ width: "58px", flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", padding: "8px 6px", fontSize: "10px", fontWeight: 700, textAlign: "center" }}>
+                    <span className="cp-s-date" style={{ fontSize: "11px", fontWeight: 800, lineHeight: "1.3" }}>{season.period}</span>
+                    {season.isActive && <span className="cp-s-badge" style={{ fontSize: "8px", background: "rgba(255,255,255,0.25)", borderRadius: "2px", padding: "1px 4px", marginTop: "3px" }}>ACTIVE NOW</span>}
                   </div>
-                  <div className="season-body" style={{ padding: "9px 11px", fontSize: "11px", lineHeight: "1.5", color: "var(--text-2)" }}>
-                    <div className="season-name" style={{ fontWeight: 700, fontSize: "11.5px", color: "var(--text)", marginBottom: "4px" }}>{season.name}</div>
+                  <div className="cp-season-body" style={{ padding: "9px 11px", fontSize: "11px", lineHeight: "1.5", color: "var(--text-2)" }}>
+                    <div className="cp-season-name" style={{ fontWeight: 700, fontSize: "11.5px", color: "var(--text)", marginBottom: "4px" }}>{season.name}</div>
+                    {season.badge && <div className="cp-season-badge" style={{ fontSize: "9.5px", color: "var(--text-3)", fontStyle: "italic", marginBottom: "4px" }}>{season.badge}</div>}
                     {season.description}
                   </div>
                 </div>
@@ -875,7 +979,7 @@ export const CountryProfile: React.FC<CountryProfileProps> = ({ countryKey }) =>
                     <div key={idx} className={`bs-card ${idx === birdHotspots.length - 1 ? "bs-5" : ""}`} style={{ border: "1px solid var(--border)", background: "var(--bg-2)", padding: "9px 11px", gridColumn: idx === birdHotspots.length - 1 ? "1 / -1" : "auto" }}>
                       <div className="bs-head" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "5px", gap: "6px" }}>
                         <span className="bs-loc" style={{ fontSize: "11px", fontWeight: 700, color: "var(--text)" }}>{spot.location}</span>
-                        <span className={`risk ${riskClass(spot.risk)}`} style={{ display: "inline-block", fontSize: "10px", fontWeight: 700, padding: "2px 7px", borderRadius: "2px", whiteSpace: "nowrap" }}>{spot.risk}</span>
+                        <span className={`cp-risk ${riskClass(spot.risk)}`} style={{ display: "inline-block", fontSize: "10px", fontWeight: 700, padding: "2px 7px", borderRadius: "2px", whiteSpace: "nowrap" }}>{spot.risk}</span>
                       </div>
                       <div className="bs-species" style={{ fontSize: "10px", color: "var(--text-2)", fontStyle: "italic", marginBottom: "4px" }}>Species: {spot.species}</div>
                       <div className="bs-note" style={{ fontSize: "10.5px", color: "var(--text-2)", lineHeight: "1.45" }}>{spot.note}</div>

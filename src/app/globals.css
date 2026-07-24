@@ -1565,15 +1565,15 @@ body {
 .cp-tab-panel { display: none; padding: 12px 14px 18px; }
 .cp-tab-panel.active { display: block; }
 
-.cp-kpi-strip { display: grid; grid-template-columns: repeat(5, 1fr); border: 1px solid var(--border); margin-bottom: 12px; background: var(--bg-2); }
-.cp-kpi-card { padding: 9px 13px; border-right: 1px solid var(--border); }
-.cp-kpi-card:last-child { border-right: none; }
-.cp-kpi-label { font-size: 9.5px; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 3px; }
-.cp-kpi-val   { font-size: 18px; font-weight: 700; line-height: 1.2; }
-.cp-kpi-sub   { font-size: 10px; color: var(--text-2); margin-top: 3px; line-height: 1.4; }
+.cp-kpi-strip { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; padding: 10px; border: 1px solid var(--border); margin-bottom: 12px; background: var(--bg-2); border-radius: 10px; }
+.cp-kpi-card { padding: 14px 12px; display: flex; flex-direction: column; min-height: 90px; background: var(--bg-3); border-radius: 8px; }
+.cp-kpi-label { font-size: 9.5px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px; font-weight: 700; }
+.cp-kpi-row { display: flex; flex-direction: column; gap: 2px; }
+.cp-kpi-val { font-size: 20px; font-weight: 800; line-height: 1.15; color: var(--text); }
+.cp-kpi-sub { font-size: 10.5px; color: var(--text-2); line-height: 1.4; font-weight: 500; }
 .cp-c-orange  { color: var(--warn); }
 .cp-c-green   { color: var(--success); }
-.cp-c-navy    { color: var(--text); }
+.cp-c-navy    { color: var(--accent); }
 .cp-c-red     { color: var(--danger); }
 .cp-c-amber   { color: var(--warn); }
 
@@ -1618,6 +1618,8 @@ body {
 .cp-kv-v.red   { color: var(--danger); }
 .cp-kv-v.green { color: var(--success); font-weight: 700; }
 .cp-kv-v.amber { color: var(--warn); }
+.cp-kv-v.special { background: var(--success-dim); padding: 5px 4px; border-radius: 2px; color: var(--success); font-weight: 800; font-size: 11px; }
+.cp-kv.divider { border-top: 2px solid var(--border); padding-top: 5px; margin-top: 3px; }
 
 .cp-threat-card { border: 1px solid var(--border); margin-bottom: 10px; }
 .cp-threat-card:last-child { margin-bottom: 0; }
@@ -1639,7 +1641,11 @@ body {
 .cp-season-card:last-child { margin-bottom: 0; }
 .cp-season-label { width: 58px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 8px 6px; font-size: 10px; font-weight: 700; text-align: center; }
 .cp-s-active { background: var(--warn);   color: #0B0F1A; }
-.cp-s-dry    { background: var(--accent); color: #fff; }
+.cp-s-long-rains { background: var(--warn); color: #0B0F1A; }
+.cp-s-short-rains { background: #f97316; color: #fff; }
+.cp-s-dry { background: var(--accent); color: #fff; }
+.cp-s-dry-1 { background: var(--accent); color: #fff; }
+.cp-s-dry-2 { background: #475569; color: #fff; }
 .cp-s-short  { background: #475569;       color: #fff; }
 .cp-season-label .cp-s-date  { font-size: 11px; font-weight: 800; line-height: 1.3; }
 .cp-season-label .cp-s-badge { font-size: 8px; background: rgba(255,255,255,0.25); border-radius: 2px; padding: 1px 4px; margin-top: 3px; }
