@@ -5,370 +5,7 @@ import { GoogleMap, useJsApiLoader, Marker } from "@react-google-maps/api";
 import { PageHeader, cn } from "@/components/ui";
 import type { Role } from "@/lib/types";
 import Papa from "papaparse";
-
-// Enhanced airfield data with full POC-style risk assessment
-const AIRFIELDS = [
-  { 
-    name: "Jomo Kenyatta International Airport", code: "HKJK", city: "Nairobi", type: "Major Airport", coords: [-1.3192, 36.9278], 
-    riskScore: 7, timezone: "GMT+3", category: "International", elevation:"5330 ft", runways:"06/24 (4117m) – Asphalt", 
-    airspace: "Class C/D CTR + TMA", atc: "Full ATC", nightoperations:"Yes", fuel: "Full international services", 
-    image:"/images/jomo.jpg",
-    riskLevel: "Moderate",
-    threatProfile: "Operations have stabilised following the formal conclusion of the February labour dispute. While seasonal rains continue to affect scheduling, the location's risk profile is now defined by the moderate-risk urban environment, marked by opportunistic crime, infrastructure fragility, and early election cycle mobilisation, rather than systemic collapse. Travellers face heightened exposure to in-traffic robberies, spontaneous political crowd-puller events, and localised unrest along primary transit routes.",
-    riskReport: "JKIA operations have been significantly impacted by torrential rains and flash floods through March, causing frequent diversions and terminal delays. While a major workers strike was suspended in February, subsequent labour notices indicated unresolved grievances and a fragile operational environment. The facility remains highly susceptible to short-notice disruptions from adverse weather, industrial action, and impactful access challenges. As a high-visibility international gateway, it retains symbolic target value, though current posture suggests no specific imminent threats.<br><br>Beyond the terminal, the broader metropolitan area faces a shifting security landscape defined by infrastructure fragility and unusually early electioneering for the 2027 cycle. Severe road damage from seasonal rains intensified gridlock at key transit nodes, significantly elevating the risk of carjackings and smash-and-grab robberies targeting stationary vehicles.<br><br>Political crowd-puller events and spontaneous protests pose a recurring risk of localised unrest and flash-violence in peri-urban and low-income. While police patrols have intensified along major highways, petty theft and burglaries remain prevalent in high-density areas and affluent satellite towns. Furthermore, sophisticated white-collar crime in peri-urban zones necessitate high situational awareness and thorough due diligence when engaging in business opportunities. Travellers should avoid political gatherings, secure all valuables in transit, and strictly utilise pre-verified transport to mitigate these opportunistic and evolving threats.",
-    extraInfo: `<h3>Operational Context</h3><p>Primary international gateway with continuous high-volume IFR passenger and cargo operations.</p><h3>Operational Profile</h3><table border="1" cellpadding="6"><tr><th>Factor</th><th>Assessment</th></tr><tr><td>Ops Mix</td><td>Commercial-heavy (pax + cargo)</td></tr><tr><td>Training Activity</td><td>Low</td></tr><tr><td>Rotary Presence</td><td>Low–Moderate</td></tr><tr><td>UAV Activity</td><td>Very Low</td></tr><tr><td>Traffic Type</td><td>IFR-dominant</td></tr></table><h3>Operational Risk Drivers</h3><table border="1" cellpadding="6"><tr><th>Factor</th><th>Level</th></tr><tr><td>IFR/VFR Mix</td><td>High IFR complexity</td></tr><tr><td>Congestion</td><td>Very High</td></tr><tr><td>Approach/Departure Risk</td><td>Moderate–High</td></tr><tr><td>Runway Condition</td><td>Good</td></tr><tr><td>Wildlife Hazard</td><td>Low</td></tr><tr><td>Ground Exposure</td><td>High</td></tr></table><h3>External & Environmental Factors</h3><table border="1" cellpadding="6"><tr><th>Factor</th><th>Level</th></tr><tr><td>Weather Risk</td><td>Moderate</td></tr><tr><td>Terrain / Obstacles</td><td>Controlled</td></tr><tr><td>Security Risk</td><td>Low</td></tr><tr><td>Emergency Response</td><td>Strong</td></tr><tr><td>Alternates Availability</td><td>Strong</td></tr><tr><td>Operational Reliability</td><td>High</td></tr></table><h3>Risk Summary</h3><strong>Primary Risk Category:</strong> High consequence<p><strong>Risk Type:</strong> Severity-driven</p><p><strong>Overall Risk Level:</strong> High</p><h3>Top Risk Drivers:</h3><ul><li>High traffic volume</li><li>IFR sequencing complexity</li><li>Runway/taxi congestion</li><li>Large aircraft operations</li><li>Weather disruptions</li></ul><h3>Operational Character</h3><p>Moderate-traffic airport where weather variability drives operational risk.</p><h3>Accidents / Incidents</h3><ul><li>No major accidents (last 2 years)</li><li>Historical: runway/taxi-related incidents</li></ul>`,
-    domains: {
-      D1: { name: "Airside Operations & Safety", score: 5 },
-      D2: { name: "Airport Infrastructure & Assets", score: 7 },
-      D3: { name: "Immediate Environs (0–10kms)", score: 4 },
-      D4: { name: "Civil Aviation Authority", score: 7 },
-      D5: { name: "Wider Airspace", score: 6 }
-    },
-    worstCredibleDomain: "D2 – Airport Infrastructure & Assets",
-    meanImpactSeverity: 0.28,
-    status: "NORMAL",
-    activeDisruptions: ["Seasonal Weather Delays", "Labour Grievances", "Political Mobilisation"],
-    lastUpdate: "18 July 2026",
-    domainImpactAssessment: [
-      { domain: "D1 – Airside Operations & Safety", likelihoods: 2, impact: 3, liColor: "6", severity: "MEDIUM", rationale: "Weather-driven landing constraints and occasional labour-related staffing gaps present minor but recurring operational friction." },
-      { domain: "D2 – Airport Infrastructure & Assets", likelihoods: 3, impact: 4, liColor: "12", severity: "HIGH", rationale: "Torrential rains have exposed terminal drainage vulnerabilities and power supply reliability concerns during peak operations." },
-      { domain: "D3 – Immediate Environs (0–10km)", likelihoods: 2, impact: 2, liColor: "4", severity: "MEDIUM", rationale: "Road infrastructure damage has created gridlock at key transit nodes; opportunistic robbery remains limited to specific high-risk corridors." },
-      { domain: "D4 – Civil Aviation Authority", likelihoods: 2, impact: 3, liColor: "6", severity: "MEDIUM", rationale: "KCAA oversight remains strong; all AOC statuses current with no pending regulatory notices." },
-      { domain: "D5 – Wider Airspace", likelihoods: 2, impact: 3, liColor: "6", severity: "MEDIUM", rationale: "Regional airspace remains secure; GNSS and comms infrastructure fully operational across the domestic network." }
-    ],
-    servicingAndCarriers: {
-      hubCarriers: "Kenya Airways (primary), KQ Cargo",
-      globalCarriers: "British Airways, KLM, Qatar Airways, Ethiopian Airlines, Turkish Airlines, Lufthansa, Air France",
-      regionalFeeders: "Jambojet, Kenya Airways Express, precision Air, RwandAir",
-      strategicUse: "Primary international hub, cargo consolidation, diplomatic and VIP operations"
-    },
-    groundsideSecurityRisks: {
-      airsideLandside: "Low to moderate pickpocketing risk in congested arrivals/baggage claim during peak hours.",
-      customsProcessing: "Occasional delays in customs clearance during adverse weather; standard processing norms otherwise maintained.",
-      groundTransport: "Elevated in-traffic robbery risk on Nairobi approach routes; use only airport-authorised transport."
-    },
-    otherRealities: {
-      departureTiming: "2.5–3 hour lead time recommended. Weather delays and IFR sequencing complexity can extend pre-departure.",
-      infrastructureReliability: "Backup power systems and secondary taxiways operational; minor weather-related delays common during peak rainfall.",
-      transitRisk: "Terminal security is robust. Ground-based transit remains the higher-risk segment during periods of political activity."
-    }
-  },
-  { 
-    name: "Moi International Airport", code: "HKMO", city: "Mombasa", type: "Major Airport", coords: [-4.0348, 39.5942], 
-    riskScore: 6, timezone: "GMT+3", category: "International / Domestic", elevation:"200 ft", runways:"03/21 (3350m) – Asphalt", 
-    airspace: "Class C", atc: "Controlled", nightoperations:"Yes", fuel: "Full services", 
-    image:"/images/moi.jpg",
-    riskLevel: "Moderate",
-    threatProfile: "Operations remain stable serving as the primary diversion point for JKIA. The risk profile is increasingly defined by the urban security landscape of Mombasa notably the resurgence of machete-wielding gangs (the Panga Boys) and infrastructure fragility during the 2026 rains rather than direct threats to the terminal. Travellers face specific exposure to opportunistic robberies in gridlocked traffic and petty theft in tourist-heavy zones, alongside a latent terrorism risk associated with regional border proximity.",
-    riskReport: "Moi International Airport absorbed significant traffic throughout March, operating efficiently despite the surge in diverted carriers. While the terminal interior is a secure and well-managed hard target, external access was hampered by torrential rains. Stakeholders are advised that while current conditions present only minor operational hurdles, flight planning should remain flexible to accommodate weather-driven diversions and potential industrial action. These patterns have caused record damage to coastal infrastructure, resulting in persistent gridlock on the Makupa Causeway and Airport Road, which elevates the risk of street crimes and in-traffic robberies.<br><br>The broader security landscape remains fluid. A significant concern is the resurgence of semi-organised criminal gangs, specifically machete-wielding youths in areas like Kisauni, Nyali, and Likoni. These groups have recently targeted both residents and tourists, leading to zero-tolerance directives from regional police commanders in early 2026. Furthermore, Mombasa's inclusion on international (No Lists) for 2026 highlights the strain of overtourism on infrastructure and social cohesion, which has exacerbated youth unemployment and opportunistic muggings.<br><br>While the terrorism threat remains latent, the airport's role as a regional hub necessitates vigilance due to its proximity to the Somali borderlands and the Boni Forest corridors, where militant activity persists. Travellers should maintain a low profile, avoid high-density or poorly lit peri-urban zones, and utilise only pre-verified, secure transport to mitigate these evolving coastal threats.",
-    extraInfo: `<h3>Operational Context</h3><p>Coastal airport handling commercial, training, and general aviation operations.</p><h3>Operational Profile</h3><table border="1" cellpadding="6"><tr><th>Factor</th><th>Assessment</th></tr><tr><td>Ops Mix</td><td>Mixed (commercial + GA)</td></tr><tr><td>Training Activity</td><td>Moderate</td></tr><tr><td>Rotary Presence</td><td>Moderate</td></tr><tr><td>UAV Activity</td><td>Low</td></tr><tr><td>Traffic Type</td><td>Mixed</td></tr></table><h3>Operational Risk Drivers</h3><table border="1" cellpadding="6"><tr><th>Factor</th><th>Level</th></tr><tr><td>IFR/VFR Mix</td><td>Moderate</td></tr><tr><td>Congestion</td><td>Medium</td></tr><tr><td>Approach/Departure Risk</td><td>Moderate</td></tr><tr><td>Runway Condition</td><td>Good</td></tr><tr><td>Wildlife Hazard</td><td>Low–Moderate</td></tr><tr><td>Ground Exposure</td><td>Medium</td></tr></table><h3>External & Environmental Factors</h3><table border="1" cellpadding="6"><tr><th>Factor</th><th>Level</th></tr><tr><td>Weather Risk</td><td>Moderate–High</td></tr><tr><td>Terrain / Obstacles</td><td>Low</td></tr><tr><td>Security Risk</td><td>Low</td></tr><tr><td>Emergency Response</td><td>Strong</td></tr><tr><td>Alternates Availability</td><td>Moderate</td></tr><tr><td>Operational Reliability</td><td>Medium–High</td></tr></table><h3>Risk Summary</h3><p><strong>Primary Risk Category:</strong> Weather</p><p><strong>Risk Type:</strong> Mixed</p><p><strong>Overall Risk Level:</strong> Moderate</p><h3>Top Risk Drivers:</h3><ul><li>Coastal weather (winds, storms)</li><li>Mixed traffic operations</li><li>Bird activity</li><li>IFR/VFR interaction</li></ul><h3>Operational Character</h3><p>Moderate-traffic airport where weather variability drives operational risk.</p><h3>Accidents / Incidents</h3><ul><li>No major accidents (last 2 years)</li><li>Weather-related diversions common</li></ul>`,
-    domains: {
-      D1: { name: "Airside Operations & Safety", score: 5 },
-      D2: { name: "Airport Infrastructure & Assets", score: 6 },
-      D3: { name: "Immediate Environs (0–10kms)", score: 3 },
-      D4: { name: "Civil Aviation Authority", score: 6 },
-      D5: { name: "Wider Airspace", score: 5 }
-    },
-    worstCredibleDomain: "D2 – Airport Infrastructure & Assets",
-    meanImpactSeverity: 0.24,
-    status: "NORMAL",
-    activeDisruptions: ["Coastal Weather Patterns", "Organized Gang Activity", "Gridlock on Causeway"],
-    lastUpdate: "15 July 2026",
-    domainImpactAssessment: [
-      { domain: "D1 – Airside Operations & Safety", likelihoods: 2, impact: 2, liColor: "4", severity: "MEDIUM", rationale: "Occasional training-related incidents and minor security gaps in arrivals processing." },
-      { domain: "D2 – Airport Infrastructure & Assets", likelihoods: 2, impact: 3, liColor: "6", severity: "HIGH", rationale: "Coastal weather exposure has degraded drainage infrastructure and elevated flooding risk during monsoon season." },
-      { domain: "D3 – Immediate Environs (0–10km)", likelihoods: 2, impact: 2, liColor: "4", severity: "MEDIUM", rationale: "Tourism-driven petty crime and gang activity in peri-urban zones; gridlock creates stationary-target vulnerability." },
-      { domain: "D4 – Civil Aviation Authority", likelihoods: 2, impact: 3, liColor: "6", severity: "MEDIUM", rationale: "KCAA oversight maintained; AOC status current with no regulatory concerns." },
-      { domain: "D5 – Wider Airspace", likelihoods: 2, impact: 2, liColor: "4", severity: "MEDIUM", rationale: "Regional airspace secure; minor bird activity during monsoon periods." }
-    ],
-    servicingAndCarriers: {
-      hubCarriers: "Kenya Airways, Coastal Aviation",
-      globalCarriers: "Emirates, Qatar Airways, KLM, Ethiopian Airlines, Turkish Airlines",
-      regionalFeeders: "Jambojet, Fly540, Precision Air, Northern Air",
-      strategicUse: "Secondary hub for diverted international traffic, regional passenger hub, charter operations"
-    },
-    groundsideSecurityRisks: {
-      airsideLandside: "Moderate pickpocketing and distraction theft in baggage claim, particularly targeting tourists.",
-      customsProcessing: "Standard procedures; minor delays during peak seasons due to tourism influx.",
-      groundTransport: "High robbery risk on Makupa Causeway approach during gridlock; use airport-verified transport."
-    },
-    otherRealities: {
-      departureTiming: "2.5 hour lead time recommended. Weather diversions can extend processing.",
-      infrastructureReliability: "Backup generators operational; occasional power fluctuations during weather events.",
-      transitRisk: "Terminal security strong. Ground-based transit to Mombasa city presents elevated exposure."
-    }
-  },
-  { 
-    name: "Wilson Airport", code: "HKNW", city: "Nairobi", type: "Minor Airport", coords: [-1.3217, 36.8148], 
-    riskScore: 8, timezone: "GMT+3", category: "Domestic (Regional)", elevation:"5535 ft", runways:"14/32 (1560m), 07/25 (1463m) – Asphalt", 
-    airspace: "Class D CTR", atc: "Tower-controlled", nightoperations:"Limited", fuel: "AVGAS & Jet A1", 
-    image:"/images/wilson.jpg",
-    riskLevel: "Moderate",
-    threatProfile: "Operations face cumulative pressure from deteriorating runway infrastructure and power unreliability, as flagged by the Senate in March 2026. While landing protocols mitigate immediate flight risks, the location is highly susceptible to operational friction caused by record rainfall and flash flooding at the adjacent interchange. The broader security landscape is defined by infrastructure fragility and unusually early 2027 electioneering, elevating the risk of carjackings, opportunistic robberies, and localised unrest during political crowd-puller events",
-    riskReport: "​In March 2026, the Senate flagged concerns regarding Wilson Airport's deteriorating runways and power unreliability. While the KCAA maintains that strict landing protocols mitigate immediate risks, operational friction is exacerbated by record rainfall causing flash floods at the T-Mall interchange.<br><br>Beyond the terminal, infrastructure fragility and unusually early 2027 electioneering define a shifting security landscape. Severe road damage has intensified gridlock at key transit nodes, significantly elevating the risk of carjackings and opportunistic robberies targeting stationary vehicles. Political crowd-puller events and sudden protest activity pose a recurring risk of localised unrest in sub-locations and nearby peri-urban areas. Despite police patrols intensifying, petty theft, burglaries, and white-collar crime remain prevalent. Travellers must maintain high situational awareness, avoid political gatherings, and utilise pre-verified transport. Despite these pressures, airport security remains intact with no reported perimeter breaches, though the last mile transit remains the most volatile segment of the journey.",
-    extraInfo: `<h3>Operational Context</h3><p>High-density general aviation hub supporting training, charter, and regional commercial operations within Nairobi.</p><h3>Operational Profile</h3><table border="1" cellpadding="6"><tr><th>Factor</th><th>Assessment</th></tr><tr><td>Ops Mix</td><td>GA-heavy + regional commercial</td></tr><tr><td>Training Activity</td><td>High</td></tr><tr><td>Rotary Presence</td><td>Moderate–High</td></tr><tr><td>UAV Activity</td><td>Moderate</td></tr><tr><td>Traffic Type</td><td>Mixed (high interaction)</td></tr></table><h3>Operational Risk Drivers</h3><table border="1" cellpadding="6"><tr><th>Factor</th><th>Level</th></tr><tr><td>IFR/VFR Mix</td><td>Very High</td></tr><tr><td>Congestion</td><td>Very High</td></tr><tr><td>Approach/Departure Risk</td><td>High</td></tr><tr><td>Runway Condition</td><td>Good (length constrained)</td></tr><tr><td>Wildlife Hazard</td><td>Low</td></tr><tr><td>Ground Exposure</td><td>Very High</td></tr></table><h3>External & Environmental Factors</h3><table border="1" cellpadding="6"><tr><th>Factor</th><th>Level</th></tr><tr><td>Weather Risk</td><td>Moderate</td></tr><tr><td>Terrain / Obstacles</td><td>High</td></tr><tr><td>Security Risk</td><td>Low</td></tr><tr><td>Emergency Response</td><td>Moderate</td></tr><tr><td>Alternates Availability</td><td>Good</td></tr><tr><td>Operational Reliability</td><td>Medium</td></tr></table><h3>Risk Summary</h3><p><strong>Primary Risk Category:</strong> Congestion</p><p><strong>Risk Type:</strong> Frequency-driven</p><p><strong>Overall Risk Level:</strong> High</p><h3>Top Risk Drivers:</h3><ul><li>Training traffic congestion</li><li>Mixed IFR/VFR operationsn</li><li>High circuit density</li><li>Urban ground exposure</li><li>Short runway constraints</li><li>Weather exposure (rotary ops)</li></ul><h3>Operational Character</h3><p>Highly congested mixed-traffic environment with elevated mid-air and departure risk.</p><h3>Accidents / Incidents</h3><ul><li><strong>Runway Excursion (2026):</strong> Dash 8 hard landing → excursion (no injuries)</li><li><strong>Helicopter Crash – Wilson bound (2026): </strong> AS350 (5Y-DSB), weather-related (6 fatalities)</li><li><strong>Mid-air Collision (2024):</strong> Training C172 + Dash 8 (2 fatalities)</li><li><strong>Departure Crash - (2025): </strong> Cessna Citation (6 fatalities)</li></ul>`,
-    domains: {
-      D1: { name: "Airside Operations & Safety", score: 7 },
-      D2: { name: "Airport Infrastructure & Assets", score: 6 },
-      D3: { name: "Immediate Environs (0–10kms)", score: 8 },
-      D4: { name: "Civil Aviation Authority", score: 7 },
-      D5: { name: "Wider Airspace", score: 8 }
-    },
-    worstCredibleDomain: "D3 – Immediate Environs (0–10kms)",
-    meanImpactSeverity: 0.32,
-    status: "ELEVATED",
-    activeDisruptions: ["Runway Infrastructure Degradation", "Power Unreliability", "Flash Flooding", "Political Mobilisation"],
-    lastUpdate: "19 July 2026",
-    domainImpactAssessment: [
-      { domain: "D1 – Airside Operations & Safety", likelihoods: 3, impact: 3, liColor: "9", severity: "HIGH", rationale: "High-density training operations with frequent near-miss incidents and occasional controller workload saturation." },
-      { domain: "D2 – Airport Infrastructure & Assets", likelihoods: 3, impact: 2, liColor: "6", severity: "MEDIUM", rationale: "Senate-flagged runway deterioration and intermittent power supply; backup systems partially functional." },
-      { domain: "D3 – Immediate Environs (0–10km)", likelihoods: 3, impact: 3, liColor: "9", severity: "HIGH", rationale: "Severe gridlock at T-Mall interchange during peak hours; flash flooding creates access constraints and robbery opportunities." },
-      { domain: "D4 – Civil Aviation Authority", likelihoods: 2, impact: 3, liColor: "6", severity: "MEDIUM", rationale: "KCAA oversight maintained; current AOC status; pending safety audit post-Senate concerns." },
-      { domain: "D5 – Wider Airspace", likelihoods: 3, impact: 3, liColor: "9", severity: "HIGH", rationale: "High-density circuit training creates procedural complexity; multiple conflicting traffic patterns simultaneously." }
-    ],
-    servicingAndCarriers: {
-      hubCarriers: "Precision Air, Northern Air, Safari Link",
-      globalCarriers: "Limited international ops; charter flights only",
-      regionalFeeders: "Multiple GA operators, training schools",
-      strategicUse: "Primary GA hub, flight training center, regional charter operations, helicopter base"
-    },
-    groundsideSecurityRisks: {
-      airsideLandside: "Low security concern; tight facility control and limited public access.",
-      customsProcessing: "Not applicable; domestic operations only.",
-      groundTransport: "High carjacking and robbery risk at T-Mall interchange; use secure transport to/from terminal."
-    },
-    otherRealities: {
-      departureTiming: "1.5–2 hour lead time for GA ops; training sorties subject to circuit congestion delays.",
-      infrastructureReliability: "Backup power limited; weather-related disruptions common during monsoon season.",
-      transitRisk: "Terminal security robust. Ground-based transit to Nairobi presents moderate-to-elevated exposure during peak traffic."
-    }
-  },
-  { 
-    name: "Lokichoggio Airport", code: "HKLK", city: "Turkana", type: "Minor Airport", coords: [4.20412, 34.348202], 
-    riskScore: 3, timezone: "GMT+3", category: "Humanitarian (Civil)", elevation:"~2116 ft", runways:"09/27 (1888m) – Asphalt", 
-    airspace: "Class G", atc: "Uncontrolled", nightoperations:"Limited", fuel: "Basic", 
-    image:"/images/lokichoggio.jpg",
-    riskLevel: "Low",
-    threatProfile: "Operations at Lokichoggio Airport remain stable, primarily supporting humanitarian and logistical flights into northern Kenya and South Sudan. However, the broader west region of Turkana County is currently under a state of heightened surveillance due to ongoing multi-agency security crackdowns (Operation Maliza Uhalifu) aimed at curbing banditry and the illegal possession of firearms, which remains a primary driver of regional insecurity. While local communities steadily voluntarily surrender weapons, the risk of armed crime in peri-urban zones remains a factor for ground transit",
-    riskReport: "Operations at Lokichoggio Airport remain stable, primarily supporting humanitarian and logistical flights into northern Kenya and South Sudan. However, the broader west region of Turkana County is currently under a state of heightened surveillance due to ongoing multi-agency security crackdowns aimed at curbing banditry. The facility's security environment is heavily influenced by its role as a strategic border node. Instability in South Sudan, marked by the collapse of power-sharing arrangements and recent clashes in Unity and Jonglei States, presents a latent risk of displaced populations or armed spillover. Furthermore, the airport is susceptible to harsh environmental disruptions, including extreme heat and seasonal dust storms, which impact flight reliability. While the facility itself is considered a secure operational base, transit to the final destination is constrained by limited emergency response and the logistical challenges of one of Kenya's most remote frontiers.",
-    extraInfo: `<h3>Operational Context</h3><p>Remote humanitarian logistics hub supporting NGO and relief operations.</p><h3>Operational Profile</h3><table border="1" cellpadding="6"><tr><th>Factor</th><th>Assessment</th></tr><tr><td>Ops Mix</td><td>Humanitarian/logistics</td></tr><tr><td>Training Activity</td><td>Low</td></tr><tr><td>Rotary Presence</td><td>Moderate</td></tr><tr><td>UAV Activity</td><td>Low–Moderate</td></tr><tr><td>Traffic Type</td><td>VFR-dominant</td></tr></table><h3>Operational Risk Drivers</h3><table border="1" cellpadding="6"><tr><th>Factor</th><th>Level</th></tr><tr><td>IFR/VFR Mix</td><td>VFR dominant</td></tr><tr><td>Congestion</td><td>Low–Medium</td></tr><tr><td>Approach/Departure Risk</td><td>Moderate–High</td></tr><tr><td>Runway Condition</td><td>Fair</td></tr><tr><td>Wildlife Hazard</td><td>Low–Moderate</td></tr><tr><td>Ground Exposure</td><td>Low</td></tr></table><h3>External & Environmental Factors</h3><table border="1" cellpadding="6"><tr><th>Factor</th><th>Level</th></tr><tr><td>Weather Risk</td><td>High</td></tr><tr><td>Terrain / Obstacles</td><td>Low</td></tr><tr><td>Security Risk</td><td>Moderate</td></tr><tr><td>Emergency Response</td><td>Limited</td></tr><tr><td>Alternates Availability</td><td>Limitede</td></tr><tr><td>Operational Reliability</td><td>Medium</td></tr></table><h3>Risk Summary</h3><p><strong>Primary Risk Category:</strong> Remoteness</p><p><strong>Risk Type:</strong> Logistics-driven</p><p><strong>Overall Risk Level:</strong> Moderate–High</p><h3>Top Risk Drivers:</h3><ul><li>Remote operations</li><li>Harsh environment</li><li>Limited support infrastructure</li><li>Mission-driven operations</li></ul><h3>Operational Character</h3><p>Low frequency but operationally complex environment requiring strong planning and self-sufficiency.</p><h3>Accidents / Incidents</h3><ul><li>No major accidents (last 2 years)</li><li>Historically complex humanitarian operations</li></ul>`,
-    domains: {
-      D1: { name: "Airside Operations & Safety", score: 2 },
-      D2: { name: "Airport Infrastructure & Assets", score: 3 },
-      D3: { name: "Immediate Environs (0–10kms)", score: 3 },
-      D4: { name: "Civil Aviation Authority", score: 2 },
-      D5: { name: "Wider Airspace", score: 2 }
-    },
-    worstCredibleDomain: "D2 – Airport Infrastructure & Assets",
-    meanImpactSeverity: 0.12,
-    status: "NORMAL",
-    activeDisruptions: ["Multi-Agency Security Operations", "South Sudan Instability", "Extreme Heat Events"],
-    lastUpdate: "10 July 2026",
-    domainImpactAssessment: [
-      { domain: "D1 – Airside Operations & Safety", likelihoods: 1, impact: 2, liColor: "2", severity: "MEDIUM", rationale: "Low-frequency operations with experienced crew; minimal ground incidents reported." },
-      { domain: "D2 – Airport Infrastructure & Assets", likelihoods: 2, impact: 2, liColor: "4", severity: "MEDIUM", rationale: "Basic infrastructure adequate for mission; dust storms occasionally impact runway maintenance." },
-      { domain: "D3 – Immediate Environs (0–10km)", likelihoods: 2, impact: 2, liColor: "4", severity: "MEDIUM", rationale: "Border proximity presents latent cross-border security risks; armed banditry suppressed by ongoing operations." },
-      { domain: "D4 – Civil Aviation Authority", likelihoods: 1, impact: 2, liColor: "2", severity: "LOW", rationale: "KCAA oversight maintained; minimal regulatory concerns for remote operations." },
-      { domain: "D5 – Wider Airspace", likelihoods: 1, impact: 2, liColor: "2", severity: "LOW", rationale: "Class G uncontrolled airspace; minimal regional traffic interaction." }
-    ],
-    servicingAndCarriers: {
-      hubCarriers: "International Humanitarian Operators",
-      globalCarriers: "UN agencies, MSF, ICRC charters",
-      regionalFeeders: "Northern Air, Aeromedical services, Mission Aviation Fellowship",
-      strategicUse: "Humanitarian relief, medical evacuation, UN logistics, border-region crisis response"
-    },
-    groundsideSecurityRisks: {
-      airsideLandside: "Low; remote facility with restricted access and known personnel only.",
-      customsProcessing: "Simplified; diplomatic and UN-cleared cargo prioritized.",
-      groundTransport: "Armed escort required for ground movement outside terminal; banditry suppressed but latent."
-    },
-    otherRealities: {
-      departureTiming: "Mission-dependent; typically 1–2 hour lead time for humanitarian ops.",
-      infrastructureReliability: "Generators and water systems fully operational; dust storm mitigation in place.",
-      transitRisk: "Terminal security strong. Ground-based transit requires coordination with local security authorities."
-    }
-  },
-  { 
-    name: "Ol Kiombo Airstrip", code: "HKOK", city: "Narok", type: "Airstrip", coords: [-1.408586, 35.110689], 
-    riskScore: 4, timezone: "GMT+3", category: "Civil Bush (High Traffic)", elevation:"5200 ft", runways:"09/27 (1200m) – Gravel", 
-    airspace: "None", atc: "Uncontrolled", nightoperations:"No", fuel: "Limited", 
-    image:"/images/mara.jpg",
-    riskLevel: "Low",
-    threatProfile: "Significant operational strain stems from its role as a primary alternative hub during the long rains leading to atypical aircraft congestion and accelerated runway wear. The combination of waterlogged unpaved surfaces and frequent wildlife incursions elevates the risk of ground incidents. While the security environment is stable and lacks urban crime, the facility's isolation and current over-capacity status present unique logistical risks and constrained emergency response capabilities.",
-    riskReport: "Operations at Ol Kiombo Airstrip remains active, with a marked increase in traffic as it serves as a preferred alternative within the Maasai Mara during flooding conditions affecting other regional strips. This shift has led to higher aircraft movements and potential congestion, particularly during peak charter windows. The airstrip remains highly exposed to seasonal flooding; waterlogged runway conditions during this period frequently result in short-notice delays or rerouting.<br><br>The broader security environment is tranquil, characterised by a lack of the mass crowd-puller events or opportunistic robberies seen in Nairobi. However, the shifting security landscape in border regions necessitates a baseline of situational awareness regarding cross-border movements and poaching activity. The primary risk is logistical: the increased traffic is straining the unpaved surface, and the region's geographical isolation means technical or medical support is hours away. Travellers are reliant on private conservancy security and the operational efficiency of local ground teams.",
-    extraInfo: `<h3>Operational Context</h3><p>Busiest Mara airstrip with frequent safari traffic movements.</p><h3>Operational Profile</h3><table border="1" cellpadding="6"><tr><th>Factor</th><th>Assessment</th></tr><tr><td>Ops Mix</td><td>Safari/commercial</td></tr><tr><td>Training Activity</td><td>None</td></tr><tr><td>Rotary Presence</td><td>High</td></tr><tr><td>UAV Activity</td><td>Low–Moderate</td></tr><tr><td>Traffic Type</td><td>VFR-dominant</td></tr></table><h3>Operational Risk Drivers</h3><table border="1" cellpadding="6"><tr><th>Factor</th><th>Level</th></tr><tr><td>IFR/VFR Mix</td><td>Low IFR</td></tr><tr><td>Congestion</td><td>High</td></tr><tr><td>Approach/Departure Risk</td><td>High</td></tr><tr><td>Runway Condition</td><td>Variable</td></tr><tr><td>Wildlife Hazard</td><td>Severe</td></tr><tr><td>Ground Exposure</td><td>Low</td></tr></table><h3>External & Environmental Factors</h3><table border="1" cellpadding="6"><tr><th>Factor</th><th>Moderate</th></tr><tr><td>Weather Risk</td><td>High</td></tr><tr><td>Terrain / Obstacles</td><td>Low</td></tr><tr><td>Security Risk</td><td>Low</td></tr><tr><td>Emergency Response</td><td>Limited</td></tr><tr><td>Alternates Availability</td><td>Limited</td></tr><tr><td>Operational Reliability</td><td>Medium</td></tr></table><h3>Risk Summary</h3><p><strong>Primary Risk Category:</strong> Congestion + Environmental</p><p><strong>Risk Type:</strong> Mixed</p><p><strong>Overall Risk Level:</strong> High</p><h3>Top Risk Drivers:</h3><ul><li>High traffic density</li><li>Wildlife incursions</li><li>Visual-only ops</li><li>Runway variability</li></ul><h3>Operational Character</h3><p>High-traffic uncontrolled strip combining congestion and environmental risks.</p><h3>Accidents / Incidents</h3><ul><li>No major accidents</li><li>Wildlife incursions common</li><li>Bush operation incidents frequent</li></ul>`,
-    domains: {
-      D1: { name: "Airside Operations & Safety", score: 6 },
-      D2: { name: "Airport Infrastructure & Assets", score: 3 },
-      D3: { name: "Immediate Environs (0–10kms)", score: 2 },
-      D4: { name: "Civil Aviation Authority", score: 1 },
-      D5: { name: "Wider Airspace", score: 2 }
-    },
-    worstCredibleDomain: "D1 – Airside Operations & Safety",
-    meanImpactSeverity: 0.16,
-    status: "NORMAL",
-    activeDisruptions: ["Seasonal Flooding", "Wildlife Incursions", "Runway Degradation"],
-    lastUpdate: "15 July 2026",
-    domainImpactAssessment: [
-      { domain: "D1 – Airside Operations & Safety", likelihoods: 3, impact: 2, liColor: "6", severity: "MEDIUM", rationale: "High-density safari operations with frequent wildlife on runway; mandatory pre-landing sweeps mitigate but do not eliminate risk." },
-      { domain: "D2 – Airport Infrastructure & Assets", likelihoods: 2, impact: 2, liColor: "4", severity: "MEDIUM", rationale: "Gravel runway deteriorates rapidly during long rains; limited maintenance capacity and no hard surfacing." },
-      { domain: "D3 – Immediate Environs (0–10km)", likelihoods: 2, impact: 1, liColor: "2", severity: "LOW", rationale: "Conservancy-managed environs; minimal human-wildlife conflict; no urban crime exposure." },
-      { domain: "D4 – Civil Aviation Authority", likelihoods: 1, impact: 1, liColor: "1", severity: "LOW", rationale: "Uncontrolled airstrip; KCAA oversight minimal; no regulatory actions pending." },
-      { domain: "D5 – Wider Airspace", likelihoods: 1, impact: 2, liColor: "2", severity: "LOW", rationale: "Class G uncontrolled; low traffic density; no airspace complexity." }
-    ],
-    servicingAndCarriers: {
-      hubCarriers: "None (charter only)",
-      globalCarriers: "None",
-      regionalFeeders: "Safarilink, AirKenya, Mombasa Air Safari, multiple charter operators",
-      strategicUse: "Primary Maasai Mara access during flooding of Keekorok/Ol Kiombo; high-season safari hub"
-    },
-    groundsideSecurityRisks: {
-      airsideLandside: "Very low; private conservancy access only; known clientele.",
-      customsProcessing: "Not applicable; domestic/charter operations only.",
-      groundTransport: "Low risk within conservancy; 4x4 transfer required; road conditions variable in rains."
-    },
-    otherRealities: {
-      departureTiming: "Flexible; charter operations depart on demand. Weather delays common during long rains (Apr–May).",
-      infrastructureReliability: "No ATC, no lighting, no fuel on-site (arrange uplift). Solar comms only. Limited shelter.",
-      transitRisk: "Airstrip secure. Ground transit to lodges (15–45 min) through wildlife areas; qualified driver-guide mandatory."
-    }
-  },
-  { 
-    name: "Mara Serena Airstrip", code: "HKMS", city: "Narok", type: "Airstrip", coords: [-1.406111, 35.008057], 
-    riskScore: 3, timezone: "GMT+3", category: "Civil Bush", elevation:"5200 ft", runways:"09/27 (1050m) – Gravel", 
-    airspace: "Class G", atc: "Uncontrolled", nightoperations:"No", fuel: "Limited", 
-    image:"/images/mara.jpg",
-    riskLevel: "Low",
-    threatProfile: "Risks are predominantly environmental and logistical, linked to the unpaved runway's exposure to the long rains. Frequent wildlife incursions and deteriorating surface conditions necessitate constant ground coordination. While the security environment is exceptionally stable compared to urban hubs, the facility's isolation presents a unique risk profile defined by constrained emergency response and the latent potential for cross-border movement or seasonal poaching activity within the wider ecosystem.",
-    riskReport: "Operations at Mara Serena Airstrip remain stable with no reported criminal activity or civil unrest. However, as a remote facility within the Maasai Mara ecosystem, it is currently highly exposed to the seasonal long rains, which can rapidly degrade the unpaved runway and impact visibility. The primary unique disrupter remains consistent wildlife presence on the runway, requiring mandatory pre-landing sweeps.<br><br>The broader security environment is characterised by its remoteness. Unlike Nairobi, there is no threat from political mobilisation or urban / peri-urban crime. However, the shifting security landscape and regional border proximity necessitate a baseline of situational awareness regarding cross-border movements. The region's isolation means that emergency medical or technical support remains significantly constrained.<br><br>While police and conservancy wardens maintain a presence, travellers are reliant on private lodge security and the operational efficiency of ground teams. All movements should be planned with flexibility to account for sudden weather shifts and environmental delays.",
-    extraInfo: `<h3>Operational Context</h3><p>Remote bush airstrip supporting safari and tourism operations.</p><h3>Operational Profile</h3><table border="1" cellpadding="6"><tr><th>Factor</th><th>Assessment</th></tr><tr><td>Ops Mix</td><td>Safari / charter</td></tr><tr><td>Training Activity</td><td>None</td></tr><tr><td>Rotary Presence</td><td>High</td></tr><tr><td>UAV Activity</td><td>Low–Moderate</td></tr><tr><td>Traffic Type</td><td>VFR-only</td></tr></table><h3>Operational Risk Drivers</h3><table border="1" cellpadding="6"><tr><th>Factor</th><th>Level</th></tr><tr><td>IFR/VFR Mix</td><td>VFR-only</td></tr><tr><td>Congestion</td><td>Medium</td></tr><tr><td>Approach/Departure Risk</td><td>High</td></tr><tr><td>Runway Condition</td><td>Variable</td></tr><tr><td>Wildlife Hazard</td><td>Severe</td></tr><tr><td>Ground Exposure</td><td>Low</td></tr></table><h3>External & Environmental Factors</h3><table border="1" cellpadding="6"><tr><th>Factor</th><th>Moderate</th></tr><tr><td>Weather Risk</td><td>High</td></tr><tr><td>Terrain / Obstacles</td><td>Moderate</td></tr><tr><td>Security Risk</td><td>Low</td></tr><tr><td>Emergency Response</td><td>Limited</td></tr><tr><td>Alternates Availability</td><td>Limited</td></tr><tr><td>Operational Reliability</td><td>Low–Medium</td></tr></table><h3>Risk Summary</h3><p><strong>Primary Risk Category:</strong> Environmental</p><p><strong>Risk Type:</strong> Environment-driven</p><p><strong>Overall Risk Level:</strong> High</p><h3>Top Risk Drivers:</h3><ul><li>Wildlife incursions</li><li>Short unpaved runway</li><li>Weather variability</li><li>Visual-only operations</li></ul><h3>Operational Character</h3><p>Environment-driven bush operations relying heavily on pilot judgment.</p><h3>Accidents / Incidents</h3><ul><li>No major accidents (last 2 years)</li><li>Frequent minor bush operation incidents</li></ul>`,
-    domains: {
-      D1: { name: "Airside Operations & Safety", score: 2 },
-      D2: { name: "Airport Infrastructure & Assets", score: 2 },
-      D3: { name: "Immediate Environs (0–10kms)", score: 1 },
-      D4: { name: "Civil Aviation Authority", score: 1 },
-      D5: { name: "Wider Airspace", score: 1 }
-    },
-    worstCredibleDomain: "D1 – Airside Operations & Safety",
-    meanImpactSeverity: 0.12,
-    status: "NORMAL",
-    activeDisruptions: ["Seasonal Weather", "Wildlife Activity", "Runway Surface Variability"],
-    lastUpdate: "12 July 2026",
-    domainImpactAssessment: [
-      { domain: "D1 – Airside Operations & Safety", likelihoods: 3, impact: 2, liColor: "6", severity: "MEDIUM", rationale: "VFR-only operations on short gravel strip; wildlife incursions frequent; pilot judgment critical." },
-      { domain: "D2 – Airport Infrastructure & Assets", likelihoods: 2, impact: 2, liColor: "4", severity: "MEDIUM", rationale: "Unpaved runway degrades rapidly in rains; no lighting; limited maintenance equipment on-site." },
-      { domain: "D3 – Immediate Environs (0–10km)", likelihoods: 1, impact: 1, liColor: "1", severity: "LOW", rationale: "Located within Mara Serena conservancy; secure, managed environment; no community friction." },
-      { domain: "D4 – Civil Aviation Authority", likelihoods: 1, impact: 1, liColor: "1", severity: "LOW", rationale: "Uncontrolled airstrip; minimal regulatory oversight; no pending actions." },
-      { domain: "D5 – Wider Airspace", likelihoods: 1, impact: 1, liColor: "1", severity: "LOW", rationale: "Class G airspace; very low traffic density; no controlled airspace interaction." }
-    ],
-    servicingAndCarriers: {
-      hubCarriers: "None (charter only)",
-      globalCarriers: "None",
-      regionalFeeders: "Safarilink, AirKenya, Mombasa Air Safari, Governors' Aviation",
-      strategicUse: "Exclusive access for Mara Serena Safari Lodge guests; secondary Mara entry point"
-    },
-    groundsideSecurityRisks: {
-      airsideLandside: "Negligible; private lodge access; no public terminal.",
-      customsProcessing: "Not applicable; domestic/charter only.",
-      groundTransport: "Very low; short transfers to lodge within conservancy; escorted by lodge staff."
-    },
-    otherRealities: {
-      departureTiming: "Flexible; lodge-coordinated charters. Weather holds may delay 30–60 min during storms.",
-      infrastructureReliability: "No ATC, no fuel, no lighting. Wind sock only. Comms via lodge radio/handheld.",
-      transitRisk: "Airstrip secure. Lodge transfer (5–15 min) through wildlife zone; armed ranger escort standard."
-    }
-  },
-  { 
-    name: "Laikipia Air Base", code: "HKNY", city: "Nanyuki", type: "Air Base", coords: [0.032933, 37.026901], 
-    riskScore: 2, timezone: "GMT+3", category: "Military", elevation:"~6119 ft", runways:"02/20 (4000m) – Concrete", 
-    airspace: "Class C/D when active (with restricted access)", atc: "Military-controlled", nightoperations:"Yes", 
-    fuel: "Military only", image:"/images/laikipia.jpg",
-    riskLevel: "Low",
-    threatProfile: "The operating environment is characterised by strict military control and high-readiness protocols. While the facility remains a secure hard target, the regional profile is influenced by the March–April 2026 gazettement of surrounding areas (including Mukogodo Forest) as 'security-disturbed and dangerous'. Although the risk of a direct breach remains rare due to reinforced fencing and prioritised military surveillance, the intensified anti-banditry operations in the wider county necessitate high situational awareness during ground transit to and from the base.",
-    riskReport: "Operations at Laikipia Air Base (Nanyuki) are stable, with the facility currently serving as a strategic hub for regional security. In March, the Commander of the Kenya Air Force (KAF) commissioned critical infrastructure, including a new game-proof electric perimeter fence, specifically designed to enhance security and mitigate human-wildlife conflict. While the base itself remains unaffected by civilian unrest, the surrounding security environment has shifted significantly. Following an escalation in cattle rustling and banditry, parts of northern and eastern Laikipia were declared 'security-disturbed' for 30 days effective 26 March.<br><br>Ongoing multi-agency operations involving the KDF and National Police Service (NPS) have focused on flushing out armed groups from hotspots like Mukogodo Forest. While these kinetic operations have successfully recovered hundreds of stolen livestock as of mid-April, they contribute to a volatile regional atmosphere. Travellers and personnel should note that while flight training and routine military operations continue uninterrupted, ground movement in the wider Nanyuki environs may be subject to intensified checkpoints and military-led traffic control.",
-    extraInfo: `<h3>Operational Context</h3><p>Military air base supporting fast jet operations and training.</p><h3>Operational Profile</h3><table border="1" cellpadding="6"><tr><th>Factor</th><th>Assessment</th></tr><tr><td>Ops Mix</td><td>Military</td></tr><tr><td>Training Activity</td><td>Moderate</td></tr><tr><td>Rotary Presence</td><td>Moderate</td></tr><tr><td>UAV Activity</td><td>Low</td></tr><tr><td>Traffic Type</td><td>Military-controlled</td></tr></table><h3>Operational Risk Drivers</h3><table border="1" cellpadding="6"><tr><th>Factor</th><th>Level</th></tr><tr><td>IFR/VFR Mix</td><td>Controlled</td></tr><tr><td>Congestion</td><td>Medium–High</td></tr><tr><td>Approach/Departure Risk</td><td>High</td></tr><tr><td>Runway Condition</td><td>Good</td></tr><tr><td>Wildlife Hazard</td><td>Low</td></tr><tr><td>Ground Exposure</td><td>Low</td></tr></table><h3>External & Environmental Factors</h3><table border="1" cellpadding="6"><tr><th>Factor</th><th>Moderate</th></tr><tr><td>Weather Risk</td><td>Low</td></tr><tr><td>Terrain / Obstacles</td><td>Low</td></tr><tr><td>Security Risk</td><td>High (restricted)</td></tr><tr><td>Emergency Response</td><td>Strong</td></tr><tr><td>Alternates Availability</td><td>Limited</td></tr><tr><td>Operational Reliability</td><td>High</td></tr></table><h3>Risk Summary</h3><p><strong>Primary Risk Category:</strong> Military</p><p><strong>Risk Type:</strong> Interaction-driven</p><p><strong>Overall Risk Level:</strong> High</p><h3>Top Risk Drivers:</h3><ul><li>Fast jet operations</li><li>Restricted airspace</li><li>Military training activity</li><li>High-speed traffic interaction</li></ul><h3>Operational Character</h3><p>Controlled military environment where interaction with high-performance aircraft is the primary risk.</p><h3>Accidents / Incidents</h3><ul><li>No major accidents (last 2 years)</li><li>Risk driven by operational environment rather than events</li></ul>`,
-    domains: {
-      D1: { name: "Airside Operations & Safety", score: 2 },
-      D2: { name: "Airport Infrastructure & Assets", score: 1 },
-      D3: { name: "Immediate Environs (0–10kms)", score: 1 },
-      D4: { name: "Civil Aviation Authority", score: 1 },
-      D5: { name: "Wider Airspace", score: 2 }
-    },
-    worstCredibleDomain: "D1 – Airside Operations & Safety",
-    meanImpactSeverity: 0.08,
-    status: "NORMAL",
-    activeDisruptions: ["Regional Security Operations", "Restricted Airspace Activity"],
-    lastUpdate: "10 July 2026",
-    domainImpactAssessment: [
-      { domain: "D1 – Airside Operations & Safety", likelihoods: 2, impact: 3, liColor: "6", severity: "MEDIUM", rationale: "Fast jet and training operations create high-speed interaction risk; strict military ATC mitigates but complexity remains." },
-      { domain: "D2 – Airport Infrastructure & Assets", likelihoods: 1, impact: 1, liColor: "1", severity: "LOW", rationale: "New game-proof electric fence commissioned Mar 2026; 4000m concrete runway in excellent condition; dedicated military maintenance." },
-      { domain: "D3 – Immediate Environs (0–10km)", likelihoods: 2, impact: 2, liColor: "4", severity: "MEDIUM", rationale: "Parts of Laikipia County gazetted as 'security-disturbed' (Mar–Apr 2026); banditry/cattle rustling in Mukogodo Forest; ground transit requires situational awareness." },
-      { domain: "D4 – Civil Aviation Authority", likelihoods: 1, impact: 1, liColor: "1", severity: "LOW", rationale: "Military-controlled facility; KCAA oversight not applicable; internal KAF safety management applies." },
-      { domain: "D5 – Wider Airspace", likelihoods: 1, impact: 2, liColor: "2", severity: "LOW", rationale: "Class C/D when active; restricted access limits civilian interaction; GNSS/comms infrastructure robust." }
-    ],
-    servicingAndCarriers: {
-      hubCarriers: "Kenya Air Force (F-5, Hawk, Tucano)",
-      globalCarriers: "None (military only)",
-      regionalFeeders: "KAF training squadrons; occasional VIP/diplomatic rotary",
-      strategicUse: "Fast jet base, advanced training, regional security operations hub, VIP transport"
-    },
-    groundsideSecurityRisks: {
-      airsideLandside: "Negligible; military perimeter; no civilian access.",
-      customsProcessing: "Not applicable; military facility.",
-      groundTransport: "Moderate risk on Nanyuki–Laikipia roads due to ongoing security operations; use military escort or verified transport."
-    },
-    otherRealities: {
-      departureTiming: "Mission-dependent; training sorties subject to airspace booking and range availability.",
-      infrastructureReliability: "High; dedicated military power, comms, maintenance; 4000m runway all-weather capable.",
-      transitRisk: "Base perimeter secure. Ground transit to Nanyuki (20 km) passes through areas with active security operations; coordinate with base ops."
-    }
-  },
-  { 
-    name: "Wajir Airport", code: "HKWJ", city: "Wajir", type: "Minor Airport", coords: [1.73324, 40.091599], 
-    riskScore: 14, timezone: "GMT+3", category: "Domestic (Regional)", elevation:"~757 ft", runways:"15/33 (2800m) – Asphalt", 
-    airspace: "Class D", atc: "Controlled", nightoperations:"Yes", fuel: "Limited", 
-    image:"/images/wajir.jpg",
-    riskLevel: "High",
-    threatProfile: "Wajir Airport serves as a critical dual-use military and civilian hub within a high-sensitivity security zone. While the facility itself is a fortified green zone under heavy KDF and multi-agency protection, the surrounding environment is defined by ongoing anti-banditry operations and a persistent threat of Al-Shabaab incursions from the nearby Somali border. Operations are stable but subject to military priority, with transit beyond the perimeter considered the most high-risk segment due to IED threats, ambushes and illegal checkpoints.",
-    riskReport: "Wajir Airport remains the only secure gateway to the Northern Frontier, as land transit via the Mandera-Wajir or Isiolo-Wajir corridors is currently deemed high-risk. While the airport is a hard target with no recent direct breaches, the broader county is under a state of heightened alert. In March, the government expanded the list of security-disturbed zones in neighbouring counties, and a new multi-agency security camp was launched in Eldas to disrupt human and drug trafficking networks along the Basir corridor.<br><br>The primary security concern remains the latent threat of cross-border terrorism-related activity and the use of improvised explosive devices (IEDs) on regional access roads. While the police and KDF have intensified highway surveillance, illegal checkpoints by armed groups remain a verified threat in peri-urban zones and remote stretches. Travellers are reliant on a high-visibility security presence but should be aware that civilian operations may be temporarily deprioritised to accommodate rapid-response military deployments or casualty evacuations from regional flashpoints.",
-    extraInfo: `<h3>Operational Context</h3><p>Strategic northern Kenya airport supporting cargo, passenger, and military operations.</p><h3>Operational Profile</h3><table border="1" cellpadding="6"><tr><th>Factor</th><th>Assessment</th></tr><tr><td>Ops Mix</td><td>Mixed (cargo + pax + military)</td></tr><tr><td>Training Activity</td><td>Low</td></tr><tr><td>Rotary Presence</td><td>Moderate–High</td></tr><tr><td>UAV Activity</td><td>Low</td></tr><tr><td>Traffic Type</td><td>Mixed</td></tr></table><h3>Operational Risk Drivers</h3><table border="1" cellpadding="6"><tr><th>Factor</th><th>Level</th></tr><tr><td>IFR/VFR Mix</td><td>Moderate</td></tr><tr><td>Congestion</td><td>Medium</td></tr><tr><td>Approach/Departure Risk</td><td>Moderate</td></tr><tr><td>Runway Condition</td><td>Good</td></tr><tr><td>Wildlife Hazard</td><td>Low</td></tr><tr><td>Ground Exposure</td><td>Medium</td></tr></table><h3>External & Environmental Factors</h3><table border="1" cellpadding="6"><tr><th>Factor</th><th>Level</th></tr><tr><td>Weather Risk</td><td>High</td></tr><tr><td>Terrain / Obstacles</td><td>Low</td></tr><tr><td>Security Risk</td><td>High</td></tr><tr><td>Emergency Response</td><td>Moderate</td></tr><tr><td>Alternates Availability</td><td>Limited</td></tr><tr><td>Operational Reliability</td><td>Medium</td></tr></table><h3>Risk Summary</h3><p><strong>Primary Risk Category:</strong> Security / Environmental</p><p><strong>Risk Type:</strong> External-driven</p><p><strong>Overall Risk Level:</strong> High</p><h3>Top Risk Drivers:</h3><ul><li>Security-sensitive region</li><li>Harsh weather (heat, haze)</li><li>Limited infrastructure</li><li>Mixed operations</li></ul><h3>Operational Character</h3><p>Operational risk influenced strongly by external security and environmental conditions.</p><h3>Accidents / Incidents</h3><ul><li>No major accidents (last 2 years)</li></ul>`,
-    domains: {
-      D1: { name: "Airside Operations & Safety", score: 6 },
-      D2: { name: "Airport Infrastructure & Assets", score: 14 },
-      D3: { name: "Immediate Environs (0–10kms)", score: 7 },
-      D4: { name: "Civil Aviation Authority", score: 14 },
-      D5: { name: "Wider Airspace", score: 7 }
-    },
-    worstCredibleDomain: "D2 – Airport Infrastructure & Assets",
-    meanImpactSeverity: 0.875,
-    status: "ELEVATED",
-    activeDisruptions: ["Entry & Exit Mobility", "Solicitation", "Strike", "Infrastructure Fragility", "Low-Level Criminality"],
-    lastUpdate: "20 May 2026",
-    domainImpactAssessment: [
-      { domain: "D1 – Airside Operations & Safety", likelihoods: 2, impact: 3, liColor: "6", severity: "MEDIUM", rationale: "Residual labour grievances and low-level solicitation near arrivals present minor guarding lapses." },
-      { domain: "D2 – Airport Infrastructure & Assets", likelihoods: 3, impact: 5, liColor: "14", severity: "HIGH", rationale: "Seasonal rains have induced infrastructure fragility, leading to terminal power fluctuations and intermittent BHS/FIDS reliability." },
-      { domain: "D3 – Immediate Environs (0–10km)", likelihoods: 2, impact: 3, liColor: "7", severity: "MEDIUM", rationale: "Severe road degradation at entry and exit points has created static targets. Opportunistic criminality likely at congestion chokepoints." },
-      { domain: "D4 – Civil Aviation Authority", likelihoods: 3, impact: 5, liColor: "14", severity: "HIGH", rationale: "Kenya Civil Aviation Authority (KCAA) oversight robust. All AOC statuses current with no pending ICAO 'Notice of Concern'." },
-      { domain: "D5 – Wider Airspace", likelihoods: 2, impact: 3, liColor: "7", severity: "MEDIUM", rationale: "FIR remains secure. GNSS integrity is high with no reported targeted electronic interference within the domestic corridor." }
-    ],
-    servicingAndCarriers: {
-      hubCarriers: "Kenya Airways / Jambojet",
-      globalCarriers: "Emirates, Qatar Airways, Lufthansa, KLM, Ethiopian Airlines, Turkish Airlines, Air France, British Airways",
-      regionalFeeders: "Jambojet, Fly540, Precision Air, RwandAir, Uganda Airlines",
-      strategicUse: "Passenger hub, cargo, diplomatic and humanitarian operations"
-    },
-    groundsideSecurityRisks: {
-      airsideLandside: "Elevated risk of unauthorised solicitation, profiling and distraction theft in the arrivals zone.",
-      customsProcessing: "Ongoing exposure to low-level corruption and informal payment requests; engage only with uniformed officials.",
-      groundTransport: "Significant risk of in-traffic robbery and carjacking at road access chokepoints; use pre-verified, secure transport only."
-    },
-    otherRealities: {
-      departureTiming: "3+ hour lead time strongly recommended. Terminal congestion, weather delays and security processing can extend pre-departure to 4 hours.",
-      infrastructureReliability: "Frequent power fluctuations and intermittent BHS/FIDS reliability; backup systems partially operational.",
-      transitRisk: "Ground-based transit to the final destination is currently the most volatile segment of the journey."
-    }
-  },
-];
+import { loadAirfields, type Airfield } from "@/lib/airfields-loader";
 
 const AIRPORT_COORDS: Record<string, { lat: number; lng: number }> = {
   HKJK: { lat: -1.319, lng: 36.927 },
@@ -602,6 +239,127 @@ export function DashboardPage({ role }: { role: Role }) {
   const [dtfOpen, setDtfOpen] = useState(false);
   const [dtfActiveTab, setDtfActiveTab] = useState<string | null>(null);
 
+  // Airfields from CSV
+  const [airfields, setAirfields] = useState<Airfield[]>([]);
+  const [loadingAirfields, setLoadingAirfields] = useState(true);
+
+  // Search dropdown state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false);
+  const [searchResults, setSearchResults] = useState<Airfield[]>([]);
+  const [selectedSearchIndex, setSelectedSearchIndex] = useState(-1);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Filter airfields based on search query
+  const filterAirfields = useCallback((query: string) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
+    const lowerQuery = query.toLowerCase();
+    const results = airfields.filter(f =>
+      f.name.toLowerCase().includes(lowerQuery) ||
+      f.code.toLowerCase().includes(lowerQuery)
+    ).slice(0, 10); // Limit to 10 results
+    setSearchResults(results);
+    setSelectedSearchIndex(-1);
+  }, [airfields]);
+
+  // Handle search input change
+  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    filterAirfields(value);
+    setShowSearchDropdown(true);
+  };
+
+  // Handle search input focus
+  const handleSearchFocus = () => {
+    if (searchQuery.trim()) {
+      setShowSearchDropdown(true);
+    }
+  };
+
+  // Handle search input blur (with delay to allow click on dropdown)
+  const handleSearchBlur = () => {
+    setTimeout(() => setShowSearchDropdown(false), 150);
+  };
+
+  // Handle keyboard navigation in dropdown
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!showSearchDropdown || searchResults.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedSearchIndex(prev => Math.min(prev + 1, searchResults.length - 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedSearchIndex(prev => Math.max(prev - 1, -1));
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (selectedSearchIndex >= 0 && searchResults[selectedSearchIndex]) {
+        selectAirfield(searchResults[selectedSearchIndex]);
+      } else if (searchResults[0]) {
+        selectAirfield(searchResults[0]);
+      }
+    } else if (e.key === 'Escape') {
+      setShowSearchDropdown(false);
+      setSelectedSearchIndex(-1);
+    }
+  };
+
+  // Select an airfield from dropdown
+  const selectAirfield = (airfield: Airfield) => {
+    setSearchQuery(`${airfield.name} (${airfield.code})`);
+    setShowSearchDropdown(false);
+    setSelectedSearchIndex(-1);
+    if (mapRef.current) {
+      mapRef.current.setCenter({ lat: airfield.coords[0], lng: airfield.coords[1] });
+      mapRef.current.setZoom(10);
+    }
+    setSelectedAirfield(airfield);
+    setSelectedFlight(null);
+    if (focusMode) {
+      applyFocus(airfield);
+    }
+  };
+
+  const applyFocus = (field: Airfield) => {
+    if (!mapRef.current) return;
+    mapRef.current.setCenter({ lat: field.coords[0], lng: field.coords[1] });
+    mapRef.current.setZoom(10);
+  };
+
+  const toggleFocusMode = () => {
+    const newFocusMode = !focusMode;
+    setFocusMode(newFocusMode);
+    if (!newFocusMode && selectedAirfield) {
+      applyFocus(selectedAirfield);
+    }
+  };
+
+  // Load airfields from CSV
+  useEffect(() => {
+    loadAirfields()
+      .then(data => {
+        setAirfields(data);
+        setLoadingAirfields(false);
+      })
+      .catch(err => {
+        console.error('Failed to load airfields:', err);
+        setLoadingAirfields(false);
+      });
+  }, []);
+
+  // Fit map bounds when airfields finish loading
+  useEffect(() => {
+    if (!loadingAirfields && airfields.length > 0 && mapRef.current) {
+      const bounds = new google.maps.LatLngBounds();
+      airfields.forEach(field => bounds.extend({ lat: field.coords[0], lng: field.coords[1] }));
+      mapRef.current.fitBounds(bounds);
+    }
+  }, [loadingAirfields, airfields]);
+
   // Layer visibility states
   const [layerVisibility, setLayerVisibility] = useState({
     majorAirports: true,
@@ -659,13 +417,13 @@ export function DashboardPage({ role }: { role: Role }) {
     aviationSafety: false,
     securityHist: false,
     flightZones: false,
-  });
+});
 
-  // Flight path state
+// Flight path state
   const [drawnPaths, setDrawnPaths] = useState<Record<string, google.maps.Polyline[]>>({});
   const pathPolylinesRef = useRef<Record<string, google.maps.Polyline[]>>({});
 
-  // Great circle calculation - generates points along the great circle route
+// Great circle calculation - generates points along the great circle route
   const greatCirclePoints = useCallback((from: { lat: number; lng: number }, to: { lat: number; lng: number }, n = 80) => {
     const toRad = Math.PI / 180;
     const toDeg = 180 / Math.PI;
@@ -769,7 +527,7 @@ export function DashboardPage({ role }: { role: Role }) {
 
   const onLoad = (map: google.maps.Map): void => {
     const bounds = new google.maps.LatLngBounds();
-    AIRFIELDS.forEach(field => bounds.extend({ lat: field.coords[0], lng: field.coords[1] }));
+    // Airfields will be loaded asynchronously; fit bounds after they load
     setSelectedAirfield(null);
     setSelectedFlight(null);
     SIM_FLIGHTS_DATA.forEach(flight => bounds.extend(flight.from));
@@ -904,18 +662,27 @@ export function DashboardPage({ role }: { role: Role }) {
     const map = mapRef.current;
 
     const isVisible = layerVisibility.asn;
-    const existingItems = asnLayersRef.current || [];
-    
-    if (isVisible && existingItems.length === 0) {
-      // Create markers
-      const items = ASN_INCIDENTS.map(item => createASNMarker(map, item));
-      asnLayersRef.current = items;
-    } else if (!isVisible && existingItems.length > 0) {
-      // Remove markers
-      existingItems.forEach(({ marker }) => marker.setMap(null));
-      asnLayersRef.current = [];
+const existingItems = asnLayersRef.current || [];
+     
+     if (isVisible && existingItems.length === 0) {
+       // Create markers
+       const items = ASN_INCIDENTS.map(item => createASNMarker(map, item));
+       asnLayersRef.current = items;
+     } else if (!isVisible && existingItems.length > 0) {
+       // Remove markers
+       existingItems.forEach(({ marker }) => marker.setMap(null));
+       asnLayersRef.current = [];
+     }
+   }, [layerVisibility.asn, createASNMarker]);
+
+  // Fit map bounds when airfields finish loading
+  useEffect(() => {
+    if (!loadingAirfields && airfields.length > 0 && mapRef.current) {
+      const bounds = new google.maps.LatLngBounds();
+      airfields.forEach(field => bounds.extend({ lat: field.coords[0], lng: field.coords[1] }));
+      mapRef.current.fitBounds(bounds);
     }
-  }, [layerVisibility.asn, createASNMarker]);
+  }, [loadingAirfields, airfields]);
 
   // ACLED marker creation - creates markers with colored circles based on event type/severity
   const createACLEDMarker = useCallback((map: google.maps.Map, item: any) => {
@@ -1147,53 +914,12 @@ export function DashboardPage({ role }: { role: Role }) {
     setShowRiskPanel(true);
   };
 
-  // Search handler
-  const handleSearch = () => {
-    const query = document.getElementById('mapSearchInput') as HTMLInputElement;
-    if (!query?.value) return;
-    
-    const found = AIRFIELDS.find(f => 
-      f.name.toLowerCase().includes(query.value.toLowerCase()) ||
-      f.code.toLowerCase() === query.value.toLowerCase()
-    );
-    
-    if (found && mapRef.current) {
-      mapRef.current.setCenter({ lat: found.coords[0], lng: found.coords[1] });
-      mapRef.current.setZoom(10);
-      setSelectedAirfield(found);
-      setSelectedFlight(null);
-      if (focusMode) {
-        // Apply focus if enabled
-        applyFocus(found);
-      }
-    }
-  };
-
-  const applyFocus = (field: any) => {
-    if (!mapRef.current) return;
-    // In a real implementation, this would hide other markers
-    // For now just center on the field
-    mapRef.current.setCenter({ lat: field.coords[0], lng: field.coords[1] });
-    mapRef.current.setZoom(10);
-  };
-
-  // Focus mode toggle
-  const toggleFocusMode = () => {
-    const newFocusMode = !focusMode;
-    setFocusMode(newFocusMode);
-    if (!newFocusMode && selectedAirfield) {
-      // Restore all markers
-      applyFocus(selectedAirfield);
-    }
-  };
-
-  // Search airport
+  // Search airport (fallback when clicking Search button without dropdown selection)
   const searchAirport = () => {
-    const input = document.querySelector('input[placeholder="Search airport or ICAO"]') as HTMLInputElement;
-    if (!input) return;
-    const query = input.value.toLowerCase();
-    const found = AIRFIELDS.find(f => 
-      f.name.toLowerCase().includes(query) || f.code.toLowerCase() === query
+    if (!searchQuery.trim()) return;
+    const lowerQuery = searchQuery.toLowerCase();
+    const found = airfields.find(f => 
+      f.name.toLowerCase().includes(lowerQuery) || f.code.toLowerCase() === lowerQuery
     );
     if (found && mapRef.current) {
       mapRef.current.setCenter({ lat: found.coords[0], lng: found.coords[1] });
@@ -1201,6 +927,9 @@ export function DashboardPage({ role }: { role: Role }) {
       setSelectedAirfield(found);
       setSelectedFlight(null);
       setSelectedLiveUpdate(null);
+      if (focusMode) {
+        applyFocus(found);
+      }
     }
   };
 
@@ -1248,12 +977,17 @@ export function DashboardPage({ role }: { role: Role }) {
   return (
     <div className="relative h-full w-full isolate" ref={mapContainerRef}>
         {isLoaded ? (
-          <GoogleMap
-            mapContainerClassName="h-full w-full"
-            onLoad={onLoad}
-            onUnmount={onUnmount}
-          >
-            {AIRFIELDS.map(field => {
+          loadingAirfields ? (
+            <div className="flex h-full w-full items-center justify-center bg-bg-2 text-text-2">
+              Loading airfield data...
+            </div>
+          ) : (
+            <GoogleMap
+              mapContainerClassName="h-full w-full"
+              onLoad={onLoad}
+              onUnmount={onUnmount}
+            >
+              {airfields.map(field => {
               if (
                 (field.type === "Major Airport" && !layerVisibility.majorAirports) ||
                 (field.type === "Minor Airport" && !layerVisibility.minorAirports) ||
@@ -1378,10 +1112,10 @@ export function DashboardPage({ role }: { role: Role }) {
                       {/* Right: Risk Assessment & Domain Scores */}
                       <div style={{ flex: '1', minWidth: 0 }}>
                         <div style={{ fontSize: '11px', color: 'var(--text)', marginBottom: '6px' }}>
-                          Mean Impact Severity: <strong>{selectedAirfield.riskScore}/25</strong>&nbsp;
+                          Mean Impact Severity: <strong>{(selectedAirfield.meanImpactSeverity !== undefined ? selectedAirfield.meanImpactSeverity : selectedAirfield.riskScore)}/25</strong>&nbsp;
                           <span 
                             style={{
-                              background: selectedAirfield.riskScore >= 21 ? '#dc2626' : selectedAirfield.riskScore >= 12 ? '#ea580c' : selectedAirfield.riskScore >= 6 ? '#d97706' : '#16a34a',
+                              background: (selectedAirfield.meanImpactSeverity || selectedAirfield.riskScore) >= 21 ? '#dc2626' : (selectedAirfield.meanImpactSeverity || selectedAirfield.riskScore) >= 12 ? '#ea580c' : (selectedAirfield.meanImpactSeverity || selectedAirfield.riskScore) >= 6 ? '#d97706' : '#16a34a',
                               color: '#fff',
                               fontSize: '10px',
                               fontWeight: '700',
@@ -1390,7 +1124,7 @@ export function DashboardPage({ role }: { role: Role }) {
                               display: 'inline-block'
                             }}
                           >
-                            {selectedAirfield.riskScore >= 21 ? 'EXTREME' : selectedAirfield.riskScore >= 12 ? 'HIGH' : selectedAirfield.riskScore >= 6 ? 'MEDIUM' : 'LOW'}
+                            {(selectedAirfield.meanImpactSeverity || selectedAirfield.riskScore) >= 21 ? 'EXTREME' : (selectedAirfield.meanImpactSeverity || selectedAirfield.riskScore) >= 12 ? 'HIGH' : (selectedAirfield.meanImpactSeverity || selectedAirfield.riskScore) >= 6 ? 'MEDIUM' : 'LOW'}
                           </span>
                         </div>
 
@@ -1983,6 +1717,7 @@ export function DashboardPage({ role }: { role: Role }) {
               </div>
             )}
           </GoogleMap>
+          )
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-bg-2 text-text-2">
             Loading Map...
@@ -2009,28 +1744,74 @@ export function DashboardPage({ role }: { role: Role }) {
 
         {/* Search Box - Top Left (exact POC design) */}
         <div className="search-box" style={{ top: '15px', left: '50px', zIndex: 40, display: 'flex', gap: '8px', background: 'var(--bg-2)', border: '1px solid var(--border)', padding: '10px', borderRadius: '8px' }}>
-          <input
-            type="text"
-            id="searchInput"
-            placeholder="Search airport or ICAO"
-            style={{ padding: '6px 10px', borderRadius: '5px', border: '1px solid var(--border-2)', background: 'var(--bg-3)', color: 'var(--text)', width: '220px', fontSize: '12px' }}
-            onKeyDown={(e) => e.key === 'Enter' && searchAirport()}
-          />
+          <div style={{ position: 'relative', width: '220px' }}>
+            <input
+              ref={searchInputRef}
+              type="text"
+              id="searchInput"
+              placeholder="Search airport or ICAO"
+              value={searchQuery}
+              onChange={handleSearchInputChange}
+              onFocus={handleSearchFocus}
+              onBlur={handleSearchBlur}
+              onKeyDown={handleSearchKeyDown}
+              style={{ padding: '6px 10px', borderRadius: '5px', border: '1px solid var(--border-2)', background: 'var(--bg-3)', color: 'var(--text)', width: '100%', fontSize: '12px', boxSizing: 'border-box' }}
+            />
+            {showSearchDropdown && searchResults.length > 0 && (
+              <div style={{
+                position: 'absolute',
+                top: '100%',
+                left: 0,
+                right: 0,
+                marginTop: '4px',
+                background: 'var(--bg-2)',
+                border: '1px solid var(--border)',
+                borderRadius: '6px',
+                boxShadow: 'var(--shadow)',
+                zIndex: 50,
+                maxHeight: '280px',
+                overflowY: 'auto'
+              }}>
+                {searchResults.map((airfield, idx) => (
+                  <div
+                    key={airfield.code}
+                    onClick={() => selectAirfield(airfield)}
+                    onMouseDown={(e) => e.preventDefault()}
+                    onMouseEnter={() => setSelectedSearchIndex(idx)}
+                    style={{
+                      padding: '8px 12px',
+                      cursor: 'pointer',
+                      fontSize: '12px',
+                      color: idx === selectedSearchIndex ? 'var(--accent)' : 'var(--text)',
+                      background: idx === selectedSearchIndex ? 'var(--bg-3)' : 'transparent',
+                      borderBottom: idx < searchResults.length - 1 ? '1px solid var(--border)' : 'none'
+                    }}
+                  >
+                    <div style={{ fontWeight: '600' }}>{airfield.name}</div>
+                    <div style={{ fontSize: '10px', color: 'var(--text-2)' }}>{airfield.code} · {airfield.city} · {airfield.type}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
           <button
-            onClick={searchAirport}
-            style={{ padding: '6px 10px', border: 'none', borderRadius: '5px', background: 'var(--accent)', color: 'white', cursor: 'pointer', fontSize: '12px', fontWeight: '600', fontFamily: 'var(--font-body)' }}
+            onClick={() => {
+              if (searchResults[0]) selectAirfield(searchResults[0]);
+              else searchAirport();
+            }}
+            style={{ padding: '6px 10px', border: 'none', borderRadius: '5px', background: 'var(--accent)', color: 'white', cursor: 'pointer', fontSize: '12px', fontWeight: '600', fontFamily: 'var(--font-body)', height: 'fit-content' }}
           >
             Search
           </button>
         </div>
 
-        {/* Focus Toggle - Below Search (exact POC design) */}
+        {/* Focus Toggle - Below Search (exact POC design)
         <div className="toggle-box" style={{ top: '70px', left: '50px', zIndex: 40, background: 'var(--bg-2)', border: '1px solid var(--border)', padding: '10px', borderRadius: '8px', color: 'var(--text)', fontSize: '12px' }}>
           <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
             <input type="checkbox" id="focusMode" onChange={toggleFocusMode} style={{ accentColor: 'var(--accent)', width: '16px', height: '16px' }} />
             <span>Focus</span>
           </label>
-        </div>
+        </div> */}
 
         {/* Date & Time Filter - Top Center (exact POC design) */}
         <div id="dtf-widget" style={{ position: 'absolute', top: '15px', left: '50%', transform: 'translateX(-50%)', zIndex: 40, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', fontFamily: 'var(--font-body)' }}>
@@ -2342,11 +2123,11 @@ export function DashboardPage({ role }: { role: Role }) {
                       <td style={{ color: 'var(--text)', fontWeight: '600', padding: '5px 0', verticalAlign: 'top' }}>{riskPanelAirfield.worstCredibleDomain || 'D2 – Airport Infrastructure & Assets'}</td>
                     </tr>
                     <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                      <td style={{ color: 'var(--text-2)', fontSize: '11px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '.04em', padding: '5px 12px 5px 0', verticalAlign: 'top', whiteSpace: 'nowrap', width: '38%' }}>Mass Impact Severity</td>
+                      <td style={{ color: 'var(--text-2)', fontSize: '11px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '.04em', padding: '5px 12px 5px 0', verticalAlign: 'top', whiteSpace: 'nowrap', width: '38%' }}>Mean Impact Severity</td>
                       <td style={{ color: 'var(--text)', fontWeight: '600', padding: '5px 0', verticalAlign: 'top' }}>
-                        {(riskPanelAirfield.meanImpactSeverity !== undefined ? riskPanelAirfield.meanImpactSeverity.toFixed(3) : (riskPanelAirfield.riskScore / 16).toFixed(3))} &nbsp;
+                        <strong>{riskPanelAirfield.meanImpactSeverity !== undefined ? riskPanelAirfield.meanImpactSeverity : riskPanelAirfield.riskScore}/25</strong>&nbsp;
                         <span style={{ 
-                          background: riskPanelAirfield.riskScore >= 21 ? '#dc2626' : riskPanelAirfield.riskScore >= 12 ? '#ea580c' : riskPanelAirfield.riskScore >= 6 ? '#d97706' : '#16a34a', 
+                          background: (riskPanelAirfield.meanImpactSeverity !== undefined ? riskPanelAirfield.meanImpactSeverity : riskPanelAirfield.riskScore) >= 21 ? '#dc2626' : (riskPanelAirfield.meanImpactSeverity !== undefined ? riskPanelAirfield.meanImpactSeverity : riskPanelAirfield.riskScore) >= 12 ? '#ea580c' : (riskPanelAirfield.meanImpactSeverity !== undefined ? riskPanelAirfield.meanImpactSeverity : riskPanelAirfield.riskScore) >= 6 ? '#d97706' : '#16a34a', 
                           color: '#fff', 
                           padding: '1px 7px', 
                           borderRadius: '3px', 
@@ -2355,15 +2136,25 @@ export function DashboardPage({ role }: { role: Role }) {
                           display: 'inline-block', 
                           marginLeft: '8px' 
                         }}>
-                          {riskPanelAirfield.riskScore >= 21 ? 'EXTREME' : riskPanelAirfield.riskScore >= 12 ? 'HIGH' : riskPanelAirfield.riskScore >= 6 ? 'MEDIUM' : 'LOW'}
+                          {(riskPanelAirfield.meanImpactSeverity !== undefined ? riskPanelAirfield.meanImpactSeverity : riskPanelAirfield.riskScore) >= 21 ? 'EXTREME' : (riskPanelAirfield.meanImpactSeverity !== undefined ? riskPanelAirfield.meanImpactSeverity : riskPanelAirfield.riskScore) >= 12 ? 'HIGH' : (riskPanelAirfield.meanImpactSeverity !== undefined ? riskPanelAirfield.meanImpactSeverity : riskPanelAirfield.riskScore) >= 6 ? 'MEDIUM' : 'LOW'}
                         </span>
                       </td>
                     </tr>
                     <tr style={{ borderBottom: '1px solid var(--border)' }}>
                       <td style={{ color: 'var(--text-2)', fontSize: '11px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '.04em', padding: '5px 12px 5px 0', verticalAlign: 'top', whiteSpace: 'nowrap', width: '38%' }}>Status</td>
                       <td style={{ padding: '5px 0', verticalAlign: 'top' }}>
-                        <div style={{ background: riskPanelAirfield.riskScore >= 21 ? '#dc2626' : riskPanelAirfield.riskScore >= 12 ? '#ea580c' : '#16a34a', color: '#fff', padding: '4px 10px', borderRadius: '4px', fontWeight: '700', fontSize: '11.5px', letterSpacing: '.06em', textAlign: 'center', display: 'block' }}>
-                          {riskPanelAirfield.riskScore >= 21 ? 'DISRUPTED' : riskPanelAirfield.riskScore >= 12 ? 'ELEVATED' : 'OPERATIONAL'}
+                        <div style={{ 
+                          background: riskPanelAirfield.status === 'DISRUPTED' ? '#dc2626' : riskPanelAirfield.status === 'ELEVATED' ? '#ea580c' : '#16a34a', 
+                          color: '#fff', 
+                          padding: '4px 10px', 
+                          borderRadius: '4px', 
+                          fontWeight: '700', 
+                          fontSize: '11.5px', 
+                          letterSpacing: '.06em', 
+                          textAlign: 'center', 
+                          display: 'block' 
+                        }}>
+                          {riskPanelAirfield.status === 'DISRUPTED' ? 'DISRUPTED' : riskPanelAirfield.status === 'ELEVATED' ? 'ELEVATED' : 'OPERATIONAL'}
                         </div>
                       </td>
                     </tr>
@@ -2384,7 +2175,7 @@ export function DashboardPage({ role }: { role: Role }) {
               {/* Threat Profile / Narrative */}
               <div style={{ padding: '12px 18px', borderBottom: '1px solid var(--border)' }}>
                 <div style={{ fontSize: '11.5px', fontWeight: '700', color: 'var(--text)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: '8px', paddingBottom: '4px', borderBottom: '1px solid var(--border)' }}>Operational Summary</div>
-                <p style={{ fontSize: '12.5px', lineHeight: 1.7, color: 'var(--text)', margin: 0 }}>{riskPanelAirfield.threatProfile}</p>
+                <p style={{ fontSize: '12.5px', lineHeight: 1.7, color: 'var(--text)', margin: 0 }}>{riskPanelAirfield.riskReport}</p>
               </div>
 
               {/* Domain-Based Impact Assessment */}
@@ -2441,15 +2232,15 @@ export function DashboardPage({ role }: { role: Role }) {
                       <td style={{ padding: '6px 8px', color: 'var(--text)' }}>{riskPanelAirfield.servicingAndCarriers?.hubCarriers || 'See airport website'}</td>
                     </tr>
                     <tr style={{ borderBottom: '1px solid var(--border)', background: 'var(--bg-2)' }}>
-                      <td style={{ padding: '6px 8px', fontWeight: '600', whiteSpace: 'nowrap', width: '35%', color: 'var(--text-2)', fontSize: '11px' }}>Global Carriers</td>
+                      <td style={{ padding: '6px 8px', fontWeight: '600', whiteSpace: 'nowrap', width: '35%', color: 'var(--text-2)', fontSize: '11px' }}>International Airlines</td>
                       <td style={{ padding: '6px 8px', color: 'var(--text)' }}>{riskPanelAirfield.servicingAndCarriers?.globalCarriers || 'Limited international access'}</td>
                     </tr>
                     <tr style={{ borderBottom: '1px solid var(--border)', background: 'var(--bg-3)' }}>
-                      <td style={{ padding: '6px 8px', fontWeight: '600', whiteSpace: 'nowrap', width: '35%', color: 'var(--text-2)', fontSize: '11px' }}>Regional Feeders</td>
+                      <td style={{ padding: '6px 8px', fontWeight: '600', whiteSpace: 'nowrap', width: '35%', color: 'var(--text-2)', fontSize: '11px' }}>Regional & Domestic Airlines</td>
                       <td style={{ padding: '6px 8px', color: 'var(--text)' }}>{riskPanelAirfield.servicingAndCarriers?.regionalFeeders || 'Regional operators — confirm with airport authority'}</td>
                     </tr>
                     <tr style={{ background: 'var(--bg-2)' }}>
-                      <td style={{ padding: '6px 8px', fontWeight: '600', whiteSpace: 'nowrap', width: '35%', color: 'var(--text-2)', fontSize: '11px' }}>Strategic Use</td>
+                      <td style={{ padding: '6px 8px', fontWeight: '600', whiteSpace: 'nowrap', width: '35%', color: 'var(--text-2)', fontSize: '11px' }}>Primary Use</td>
                       <td style={{ padding: '6px 8px', color: 'var(--text)' }}>{riskPanelAirfield.servicingAndCarriers?.strategicUse || 'Passenger hub, cargo, diplomatic and humanitarian operations'}</td>
                     </tr>
                   </tbody>
@@ -2483,9 +2274,9 @@ export function DashboardPage({ role }: { role: Role }) {
                 </table>
               </div>
 
-              {/* Other Realities */}
+              {/* Operational Considerations */}
               <div style={{ padding: '12px 18px' }}>
-                <div style={{ fontSize: '11.5px', fontWeight: '700', color: 'var(--text)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: '8px', paddingBottom: '4px', borderBottom: '1px solid var(--border)' }}>Other Realities</div>
+                <div style={{ fontSize: '11.5px', fontWeight: '700', color: 'var(--text)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: '8px', paddingBottom: '4px', borderBottom: '1px solid var(--border)' }}>Operational Considerations</div>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
                   <thead>
                     <tr style={{ background: 'var(--bg-3)' }}>
