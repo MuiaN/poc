@@ -533,7 +533,11 @@ export function DashboardPage({ role }: { role: Role }) {
     SIM_FLIGHTS_DATA.forEach(flight => bounds.extend(flight.from));
     map.fitBounds(bounds);
     // Disable POI clickable icons to prevent Google's default white InfoWindow
-    map.setOptions({ clickableIcons: false });
+    // Disable default UI controls
+    map.setOptions({
+      clickableIcons: false,
+      disableDefaultUI: true,
+    });
     mapRef.current = map;
   };
 

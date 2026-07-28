@@ -161,7 +161,13 @@ export function StoneAfrica({ role }: { role: "admin" | "underwriter" | "operato
   const [showBooking, setShowBooking] = useState(false);
   const [cardVisibility, setCardVisibility] = useState<Record<string, boolean>>({});
   const [statVisibility, setStatVisibility] = useState<Record<string, boolean>>({});
+  const [showLoader, setShowLoader] = useState(true);
   const observerRef = useRef<IntersectionObserver | null>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowLoader(false), 2200);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Initialize observer for scroll animations
   useEffect(() => {
@@ -227,8 +233,88 @@ export function StoneAfrica({ role }: { role: "admin" | "underwriter" | "operato
   }, [handleKeyDown]);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex-1 flex flex-col relative">
+      {/* Page content loads in background */}
+      <div className="flex flex-col gap-6" style={{ opacity: showLoader ? 0 : 1, pointerEvents: showLoader ? 'none' : 'auto', transition: 'opacity 0.3s ease' }}>
+        <StoneAfricaContent
+          openBooking={openBooking}
+          showLightbox={showLightbox}
+          lightboxSrc={lightboxSrc}
+          openLightbox={openLightbox}
+          closeLightbox={closeLightbox}
+          showBooking={showBooking}
+          closeBooking={closeBooking}
+        />
+      </div>
 
+      {/* Splash Screen Loader - fixed overlay */}
+      {showLoader && (
+        <div className="sa-loader-splash">
+          <div className="sa-loader-bg" />
+          <div className="sa-loader-vignette" />
+          <div className="sa-loader-content">
+            <img className="sa-loader-logo" src="/images/logo.png" alt="Stone Africa" />
+            <div className="sa-loader-tag">Stone Africa</div>
+            <div className="sa-loader-bar" />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function StoneAfricaContent({
+  openBooking,
+  showLightbox,
+  lightboxSrc,
+  openLightbox,
+  closeLightbox,
+  showBooking,
+  closeBooking,
+}: {
+  openBooking: () => void;
+  showLightbox: boolean;
+  lightboxSrc: string;
+  openLightbox: (src: string) => void;
+  closeLightbox: () => void;
+  showBooking: boolean;
+  closeBooking: () => void;
+}) {
+  const [cardVisibility, setCardVisibility] = useState<Record<string, boolean>>({});
+  const [statVisibility, setStatVisibility] = useState<Record<string, boolean>>({});
+  const observerRef = useRef<IntersectionObserver | null>(null);
+
+  useEffect(() => {
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const id = entry.target.id;
+            if (id.startsWith("card-")) {
+              setCardVisibility((prev) => ({ ...prev, [id]: true }));
+            } else if (id.startsWith("stat-")) {
+              setStatVisibility((prev) => ({ ...prev, [id]: true }));
+            } else if (entry.target.classList.contains("sa-fade-up")) {
+              entry.target.classList.add("visible");
+            }
+            observerRef.current?.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.12, rootMargin: "0px 0px -40px 0px" }
+    );
+
+    document.querySelectorAll(".sa-card").forEach((c, i) => {
+      (c as HTMLElement).style.transitionDelay = `${i * 0.07}s`;
+      observerRef.current?.observe(c);
+    });
+    document.querySelectorAll(".sa-stat-dashboard, .sa-fade-up").forEach((el) => observerRef.current?.observe(el));
+
+    return () => observerRef.current?.disconnect();
+  }, []);
+
+  return (
+    <div>
       {/* Hero Banner */}
       <section className="sa-hero sa-fade-up">
         <div className="sa-hero-img">
@@ -259,7 +345,7 @@ export function StoneAfrica({ role }: { role: "admin" | "underwriter" | "operato
             <button className="sa-btn sa-btn-primary" onClick={openBooking}>
               Contact Our Team
             </button>
-            <a href="https://stone-africa.co" target="_blank" rel="noopener" className="sa-btn sa-btn-primary">
+            <a href="https://stone-africa.co" target="_blank" rel="noopener" className="sa-btn sa-btn-secondary">
               Visit Stone Africa ↗
             </a>
           </div>
@@ -272,7 +358,7 @@ export function StoneAfrica({ role }: { role: "admin" | "underwriter" | "operato
           <div
             key={stat.label}
             id={`stat-${stat.label}`}
-            className="sa-stat-dashboard"
+            className={cn("sa-stat-dashboard", statVisibility[`stat-${stat.label}`] && "visible")}
             style={{ transitionDelay: `${stat.delay}ms` }}
           >
             <div className="sa-stat-val">{stat.value}</div>

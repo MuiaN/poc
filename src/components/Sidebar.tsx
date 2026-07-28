@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { getNav, ROLE_LABEL, ROLE_BASE } from "@/lib/nav";
 import { cn } from "@/components/ui";
 import type { Role, SessionUser } from "@/lib/types";
@@ -17,6 +17,7 @@ export function Sidebar({ role, user }: { role: Role; user: SessionUser }) {
     .map((n) => n[0])
     .join("");
   const [countryProfilesOpen, setCountryProfilesOpen] = useState(false);
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
   const COUNTRY_REGIONS = [
     {
@@ -43,12 +44,14 @@ export function Sidebar({ role, user }: { role: Role; user: SessionUser }) {
     },
   ];
 
-  async function logout() {
-    if (!confirm("Sign out of FRED BLACK?")) return;
+  const handleLogout = useCallback(async () => {
     await fetch("/api/logout", { method: "POST" });
     router.push("/login");
     router.refresh();
-  }
+  }, [router]);
+
+  const openLogoutDialog = () => setShowLogoutDialog(true);
+  const closeLogoutDialog = () => setShowLogoutDialog(false);
 
   return (
     <aside className="sidebar hidden md:flex">
@@ -96,7 +99,10 @@ export function Sidebar({ role, user }: { role: Role; user: SessionUser }) {
                             <Link
                               key={c.code}
                               href={`${ROLE_BASE[role]}/countries/${c.code}`}
-                              className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-text-2 hover:bg-accent-dim hover:text-accent transition-colors rounded-[6px] mb-1"
+                              className={cn(
+                                "flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-text-2 hover:bg-accent-dim hover:text-accent transition-colors rounded-[6px] mb-1",
+                                pathname === `${ROLE_BASE[role]}/countries/${c.code}` && "bg-accent-dim text-accent"
+                              )}
                             >
                               <img
                                 src={`https://flagcdn.com/w20/${c.code}.png`}
@@ -152,11 +158,40 @@ export function Sidebar({ role, user }: { role: Role; user: SessionUser }) {
           >
             {role === "admin" ? "Admin" : role === "operator" ? "Operator" : "Insurer"}
           </div>
-          <button onClick={logout} title="Sign out" className="flex h-[26px] w-[26px] items-center justify-center rounded-md border border-border bg-transparent text-text-3 transition-colors hover:border-danger hover:text-danger">
+          <button onClick={openLogoutDialog} title="Sign out" className="flex h-[26px] w-[26px] items-center justify-center rounded-md border border-border bg-transparent text-text-3 transition-colors hover:border-danger hover:text-danger">
             <LogoutIcon className="h-3 w-3" />
           </button>
         </div>
       </div>
+
+      {/* Logout Confirmation Dialog */}
+      {showLogoutDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={closeLogoutDialog}>
+          <div className="bg-bg-2 border border-border rounded-lg p-6 min-w-[320px] max-w-md" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-10 h-10 rounded-full bg-danger/10 flex items-center justify-center">
+                <LogoutIcon className="h-5 w-5 text-danger" />
+              </div>
+              <h3 className="text-lg font-semibold text-text">Sign Out</h3>
+            </div>
+            <p className="text-text-2 mb-6">Are you sure you want to sign out of FRED BLACK?</p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={closeLogoutDialog}
+                className="px-4 py-2 rounded-md border border-border text-text-2 hover:bg-bg-3 hover:text-text transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 rounded-md bg-danger text-white hover:bg-danger/90 transition-colors"
+              >
+                Sign Out
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </aside>
   );
 }

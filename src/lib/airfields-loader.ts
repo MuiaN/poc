@@ -98,9 +98,9 @@ function parseAirfieldRow(row: any): Airfield {
     domainImpactAssessment: dia,
     servicingAndCarriers: {
       hubCarriers: row.servicing_hubCarriers || '',
-      globalCarriers: row.servicing_globalCarriers || '',
-      regionalFeeders: row.servicing_regionalFeeders || '',
-      strategicUse: row.servicing_strategicUse || '',
+      globalCarriers: row.servicing_internationalAirlines || '',
+      regionalFeeders: row.servicing_regionalDomesticAirlines || '',
+      strategicUse: row.servicing_primaryUse || '',
     },
     groundsideSecurityRisks: {
       airsideLandside: row.groundside_airsideLandside || '',
@@ -108,9 +108,9 @@ function parseAirfieldRow(row: any): Airfield {
       groundTransport: row.groundside_groundTransport || '',
     },
     otherRealities: {
-      departureTiming: row.other_departureTiming || '',
-      infrastructureReliability: row.other_infrastructureReliability || '',
-      transitRisk: row.other_transitRisk || '',
+      departureTiming: row.operational_departureTiming || '',
+      infrastructureReliability: row.operational_infrastructureReliability || '',
+      transitRisk: row.operational_transitRisk || '',
     },
   };
 }
