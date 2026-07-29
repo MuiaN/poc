@@ -239,6 +239,14 @@ export function DashboardPage({ role }: { role: Role }) {
   const [dtfOpen, setDtfOpen] = useState(false);
   const [dtfActiveTab, setDtfActiveTab] = useState<string | null>(null);
 
+  // ACLED date filter state
+  const [acledFromDate, setAcledFromDate] = useState<string>('');
+  const [acledToDate, setAcledToDate] = useState<string>('');
+
+  // ASN date filter state
+  const [asnFromDate, setAsnFromDate] = useState<string>('');
+  const [asnToDate, setAsnToDate] = useState<string>('');
+
   // Airfields from CSV
   const [airfields, setAirfields] = useState<Airfield[]>([]);
   const [loadingAirfields, setLoadingAirfields] = useState(true);
@@ -397,6 +405,7 @@ export function DashboardPage({ role }: { role: Role }) {
 
   // ACLED security events layer refs
   const acledLayersRef = useRef<{ marker: google.maps.Marker }[]>([]);
+  const acledDataRef = useRef<any[]>([]);
 
   // Flight Zones (airspace) layer refs
   const flightZonesLayersRef = useRef<Record<string, google.maps.Data | null>>({
@@ -736,8 +745,8 @@ const existingItems = asnLayersRef.current || [];
     const isVisible = layerVisibility.acled;
     const existingItems = acledLayersRef.current || [];
     
-    if (isVisible && existingItems.length === 0) {
-      // Load ACLED data from CSV and create markers
+    if (isVisible && existingItems.length === 0 && acledDataRef.current.length === 0) {
+      // Load ACLED data from CSV once
       fetch('/data/acled.csv')
         .then(response => response.text())
         .then(csvText => {
@@ -760,7 +769,12 @@ const existingItems = asnLayersRef.current || [];
                   country: row.country,
                 }));
               
-              const items = data.map(item => createACLEDMarker(map, item));
+              // Store full data in ref
+              acledDataRef.current = data;
+              
+              // Create markers from filtered data
+              const filteredData = filterACLEDData(data);
+              const items = filteredData.map(item => createACLEDMarker(map, item));
               acledLayersRef.current = items;
             },
             error: (err: any) => console.error('Failed to parse ACLED data:', err)
@@ -773,6 +787,42 @@ const existingItems = asnLayersRef.current || [];
       acledLayersRef.current = [];
     }
   }, [layerVisibility.acled]);
+
+  // Filter ACLED markers when date range changes
+  useEffect(() => {
+    if (!mapRef.current) return;
+    const map = mapRef.current;
+    
+    if (!layerVisibility.acled) return;
+    if (acledDataRef.current.length === 0) return;
+
+    // Remove existing markers
+    acledLayersRef.current.forEach(({ marker }) => marker.setMap(null));
+    
+    // Create new filtered markers
+    const filteredData = filterACLEDData(acledDataRef.current);
+    const items = filteredData.map(item => createACLEDMarker(map, item));
+    acledLayersRef.current = items;
+  }, [layerVisibility.acled, acledFromDate, acledToDate]);
+
+  // Helper to filter ACLED data by date range
+  const filterACLEDData = (data: any[]) => {
+    if (!acledFromDate && !acledToDate) return data;
+    
+    // Parse date inputs as local dates (YYYY-MM-DD from date input)
+    const fromDate = acledFromDate ? new Date(acledFromDate + 'T00:00:00') : null;
+    const toDate = acledToDate ? new Date(acledToDate + 'T23:59:59.999') : null;
+    
+    return data.filter((item: any) => {
+      // Parse CSV date (MM/DD/YYYY) as local date
+      const [month, day, year] = item.event_date.split('/').map(Number);
+      const eventDate = new Date(year, month - 1, day);
+      
+      if (fromDate && eventDate < fromDate) return false;
+      if (toDate && eventDate > toDate) return false;
+      return true;
+    });
+  };
 
   // Flight Zones (Airspace) implementation
   const createFlightZoneLayer = useCallback((map: google.maps.Map, zoneType: string, color: string, weight: number, fillOpacity: number) => {
@@ -963,19 +1013,19 @@ const existingItems = asnLayersRef.current || [];
     setDtfActiveTab(dtfActiveTab === panel ? null : panel);
   };
   const applyACLEDDateFilter = () => {
-    // Implement date filtering for ACLED
-    console.log('Apply ACLED date filter');
     setDtfOpen(false);
   };
   const resetACLEDFilter = () => {
-    console.log('Reset ACLED filter');
+    setAcledFromDate('');
+    setAcledToDate('');
   };
   const applyASNDateFilter = () => {
     console.log('Apply ASN date filter');
     setDtfOpen(false);
   };
   const resetASNFilter = () => {
-    console.log('Reset ASN filter');
+    setAsnFromDate('');
+    setAsnToDate('');
   };
 
   return (
@@ -1849,11 +1899,11 @@ const existingItems = asnLayersRef.current || [];
               <div className="dtf-panel-title">ACLED Security Events</div>
               <div className="dtf-row">
                 <span className="dtf-label">From</span>
-                <input type="date" id="acledFrom" className="flex-1 px-2 py-1 bg-bg-2 border border-border-2 rounded text-text text-xs outline-none focus:border-accent" />
+                <input type="date" id="acledFrom" className="flex-1 px-2 py-1 bg-bg-2 border border-border-2 rounded text-text text-xs outline-none focus:border-accent" value={acledFromDate} onChange={e => setAcledFromDate(e.target.value)} />
               </div>
               <div className="dtf-row">
                 <span className="dtf-label">To</span>
-                <input type="date" id="acledTo" className="flex-1 px-2 py-1 bg-bg-2 border border-border-2 rounded text-text text-xs outline-none focus:border-accent" />
+                <input type="date" id="acledTo" className="flex-1 px-2 py-1 bg-bg-2 border border-border-2 rounded text-text text-xs outline-none focus:border-accent" value={acledToDate} onChange={e => setAcledToDate(e.target.value)} />
               </div>
               <div className="dtf-actions">
                 <button onClick={applyACLEDDateFilter} className="dtf-btn dtf-btn-apply">Apply</button>
@@ -1869,11 +1919,11 @@ const existingItems = asnLayersRef.current || [];
               <div className="dtf-panel-title">ASN Aviation Incidents</div>
               <div className="dtf-row">
                 <span className="dtf-label">From</span>
-                <input type="date" id="asnFrom" className="flex-1 px-2 py-1 bg-bg-2 border border-border-2 rounded text-text text-xs outline-none focus:border-accent" />
+                <input type="date" id="asnFrom" className="flex-1 px-2 py-1 bg-bg-2 border border-border-2 rounded text-text text-xs outline-none focus:border-accent" value={asnFromDate} onChange={e => setAsnFromDate(e.target.value)} />
               </div>
               <div className="dtf-row">
                 <span className="dtf-label">To</span>
-                <input type="date" id="asnTo" className="flex-1 px-2 py-1 bg-bg-2 border border-border-2 rounded text-text text-xs outline-none focus:border-accent" />
+                <input type="date" id="asnTo" className="flex-1 px-2 py-1 bg-bg-2 border border-border-2 rounded text-text text-xs outline-none focus:border-accent" value={asnToDate} onChange={e => setAsnToDate(e.target.value)} />
               </div>
               <div className="dtf-actions">
                 <button onClick={applyASNDateFilter} className="dtf-btn dtf-btn-apply">Apply</button>

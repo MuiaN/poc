@@ -43,8 +43,8 @@ export function IntelligencePanel() {
         <button
           onClick={() => setTab("intelligence")}
           className={cn(
-            "mb-[-1px] border-b-2 bg-transparent px-4 py-2 text-xs font-semibold",
-            tab === "intelligence" ? "border-accent text-accent" : "border-transparent text-text-2",
+            "mb-[-1px] !border-b-2 !border-solid bg-transparent px-4 py-2 text-xs font-semibold",
+            tab === "intelligence" ? "!border-accent text-accent" : "!border-transparent text-text-2",
           )}
         >
           Intelligence
@@ -52,8 +52,8 @@ export function IntelligencePanel() {
         <button
           onClick={() => setTab("safety")}
           className={cn(
-            "mb-[-1px] flex items-center gap-1.5 border-b-2 bg-transparent px-4 py-2 text-xs font-semibold",
-            tab === "safety" ? "border-accent text-accent" : "border-transparent text-text-2",
+            "mb-[-1px] flex items-center gap-1.5 !border-b-2 !border-solid bg-transparent px-4 py-2 text-xs font-semibold",
+            tab === "safety" ? "!border-accent text-accent" : "!border-transparent text-text-2",
           )}
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="13" height="13">
@@ -74,19 +74,20 @@ export function IntelligencePanel() {
               <div className="h-1.5 w-1.5 rounded-full bg-accent" />
               <span className="font-display text-[13px] font-bold tracking-wide text-text">Today's Risk Intelligence</span>
             </div>
-            <div className="flex w-full flex-wrap items-center justify-between gap-y-2">
-              <div className="flex items-center gap-1.5">
-                {(["ALL", "WEATHER", "SECURITY", "REGULATION", "INFRASTRUCTURE"] as NewsFilter[]).map((f) => (
-                  <button key={f} onClick={() => setNewsFilter(f)} className={cn(
-                    "rounded-sm border border-border-2 bg-bg-3 px-2.5 py-0.5 text-[11px] font-semibold text-text-2 transition-colors hover:border-accent hover:text-accent",
-                    newsFilter === f && "active border-accent bg-accent text-white"
-                  )}>{f === "INFRASTRUCTURE" ? "Infra" : f}</button>
-                ))}
-              </div>
+            <div className="flex items-center gap-2 flex-wrap">
+              {(["ALL", "WEATHER", "SECURITY", "REGULATION", "INFRASTRUCTURE"] as NewsFilter[]).map((f) => (
+                <button
+                  key={f}
+                  onClick={() => setNewsFilter(f)}
+                  className={`intel-filter-btn ${newsFilter === f ? "active" : ""}`}
+                >
+                  {f === "INFRASTRUCTURE" ? "Infra" : f}
+                </button>
+              ))}
               <Button variant="ghost" className="text-[11px] font-semibold !text-accent">Full Feed →</Button>
             </div>
           </div>
-          <div>
+          <div className="p-3">
             {filteredNews.map((item, i) => (
               <div key={i} className={cn("cursor-pointer border-b border-border p-4 transition-colors last:border-none hover:bg-bg-hover", i % 2 === 0 ? "bg-bg-2" : "bg-bg-3")}>
                 <div className="mb-1 flex items-center justify-between">
@@ -136,13 +137,31 @@ export function IntelligencePanel() {
           </div>
           <div>
             {INSURER_COUNTRIES.map((c, i) => (
-              <div key={i} className={cn("flex cursor-pointer items-center gap-2.5 border-b border-border p-2.5 transition-colors last:border-none hover:bg-bg-hover", i % 2 === 0 ? "bg-bg-2" : "bg-bg-3")}>
-                <img src={`https://flagcdn.com/w40/${c.iso}.png`} width="28" height="20" className="shrink-0 rounded-sm object-cover shadow-md" alt={`${c.name} flag`} />
+              <div
+                key={i}
+                className={cn(
+                  "flex cursor-pointer items-center gap-2.5 border-b border-border transition-colors last:border-none hover:bg-bg-hover",
+                  i % 2 === 0 ? "bg-bg-2" : "bg-bg-3",
+                )}
+                style={{ padding: "10px 14px" }}
+              >
+                <img
+                  src={`https://flagcdn.com/w40/${c.iso}.png`}
+                  width="28"
+                  height="20"
+                  className="shrink-0 rounded-sm object-cover"
+                  style={{ boxShadow: "0 1px 3px rgba(0,0,0,.15)" }}
+                  alt={`${c.name} flag`}
+                />
                 <div className="min-w-0 flex-1">
-                  <div className="truncate text-xs font-bold text-text">{c.name}</div>
-                  <div className="mt-px text-[10px] font-bold" style={{ color: c.riskColor }}>{c.risk} Risk</div>
+                  <div className="truncate text-[12.5px] font-bold text-text">{c.name}</div>
+                  <div className="mt-px text-[10px] font-bold" style={{ color: c.riskColor }}>
+                    {c.risk} Risk
+                  </div>
                 </div>
-                <svg viewBox="0 0 24 24" className="h-3 w-3 shrink-0 stroke-text-3 stroke-2" fill="none"><polyline points="9 18 15 12 9 6" /></svg>
+                <svg viewBox="0 0 24 24" className="h-3 w-3 shrink-0" fill="none" stroke="var(--text-3)" strokeWidth="2">
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
               </div>
             ))}
           </div>
@@ -157,8 +176,8 @@ export function IntelligencePanel() {
             <span className="text-xs text-text-3">Aviation Safety Network — East Africa & Horn of Africa</span>
           </div>
           <div className="flex gap-1 rounded-md bg-bg p-0.5">
-            <button onClick={() => setAsnTab("recent")} className={cn("rounded px-3 py-1 text-[11px] font-semibold", asnTab === "recent" ? "bg-accent text-white" : "bg-transparent text-text-2")}>Recent</button>
-            <button onClick={() => setAsnTab("historic")} className={cn("rounded px-3 py-1 text-[11px] font-semibold", asnTab === "historic" ? "bg-accent text-white" : "bg-transparent text-text-2")}>Historic</button>
+            <button onClick={() => setAsnTab("recent")} className={`asn-tab-btn ${asnTab === "recent" ? "active" : ""}`}>Recent</button>
+            <button onClick={() => setAsnTab("historic")} className={`asn-tab-btn ${asnTab === "historic" ? "active" : ""}`}>Historic</button>
           </div>
         </div>
         {/* Recent Incidents */}

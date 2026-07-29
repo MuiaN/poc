@@ -23,7 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} h-full`} suppressHydrationWarning>
       <body className="flex h-full flex-col font-body">
-        <Providers attribute="class" defaultTheme="dark" enableSystem>
+        <Providers attribute="data-theme" defaultTheme="dark" enableSystem>
           {children}
         </Providers>
       </body>

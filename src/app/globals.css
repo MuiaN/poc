@@ -810,7 +810,51 @@ body {
 }
 .cnf-btn.active {
   border-color: var(--accent);
-  color: #fff;
+  color: var(--accent);
+}
+
+/* Intelligence Panel Filter Buttons */
+.intel-filter-btn {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 3px;
+  border: 1px solid var(--border-2);
+  color: var(--text-2);
+  background: var(--bg-3);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  font-family: "Inter", sans-serif;
+}
+.intel-filter-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.intel-filter-btn.active {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--bg);
+}
+
+/* ASN Tab Buttons */
+.asn-tab-btn {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 12px;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.asn-tab-btn:hover {
+  background: var(--bg-hover);
+  color: var(--accent);
+}
+.asn-tab-btn.active {
+  background: var(--accent);
+  color: var(--bg);
 }
 
 /* ── Fleet by Type table ─────────────────────────────── */
@@ -1364,7 +1408,7 @@ body {
 .sa-btn:hover { border-color: var(--accent); color: var(--accent); }
 .sa-btn-primary { border-color: var(--accent); color: #fff; background: var(--accent); font-weight: 700; }
 .sa-btn-primary:hover { background: var(--accent-h); border-color: var(--accent-h); color: #fff; }
-.sa-btn-secondary { border-color: var(--accent); color: #fff; background: transparent; font-weight: 700; }
+.sa-btn-secondary { border-color: var(--accent); color: var(--text); background: transparent; font-weight: 700; }
 .sa-btn-secondary:hover { background: var(--accent-dim); color: var(--accent); border-color: var(--accent); }
 
 /* Stats Strip */

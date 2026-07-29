@@ -339,7 +339,7 @@ export function Contacts() {
             {groupOrder.map(g => (
               <button
                 key={g}
-                onClick={() => setGroup(g)}
+                onClick={() => setGroup(group === g ? defaultGroup : g)}
                 className={`group-btn ${group === g ? "active" : ""}`}
               >
                 {getGroupLabels(activeTab)[g]}

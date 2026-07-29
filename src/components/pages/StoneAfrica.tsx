@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import { useTheme } from "next-themes";
 import { cn } from "@/components/ui";
 import { PageHeader, Button, Card, Badge } from "@/components/ui";
 
@@ -156,6 +157,8 @@ const STATS = [
 ];
 
 export function StoneAfrica({ role }: { role: "admin" | "underwriter" | "operator" }) {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const [showLightbox, setShowLightbox] = useState(false);
   const [lightboxSrc, setLightboxSrc] = useState("");
   const [showBooking, setShowBooking] = useState(false);
@@ -237,6 +240,7 @@ export function StoneAfrica({ role }: { role: "admin" | "underwriter" | "operato
       {/* Page content loads in background */}
       <div className="flex flex-col gap-6" style={{ opacity: showLoader ? 0 : 1, pointerEvents: showLoader ? 'none' : 'auto', transition: 'opacity 0.3s ease' }}>
         <StoneAfricaContent
+          isDark={isDark}
           openBooking={openBooking}
           showLightbox={showLightbox}
           lightboxSrc={lightboxSrc}
@@ -264,6 +268,7 @@ export function StoneAfrica({ role }: { role: "admin" | "underwriter" | "operato
 }
 
 function StoneAfricaContent({
+  isDark,
   openBooking,
   showLightbox,
   lightboxSrc,
@@ -272,6 +277,7 @@ function StoneAfricaContent({
   showBooking,
   closeBooking,
 }: {
+  isDark: boolean;
   openBooking: () => void;
   showLightbox: boolean;
   lightboxSrc: string;
@@ -334,7 +340,7 @@ function StoneAfricaContent({
           </div>
         </div>
         <aside className="sa-hero-side">
-          <img className="sa-hero-side-logo" src="/images/logo.png" alt="Stone Africa" />
+          <img className="sa-hero-side-logo" src={isDark ? "/images/logo.png" : "/images/logo_dark.png"} alt="Stone Africa" />
           <div className="sa-h-rule" />
           <div className="sa-side-group">
             <span className="sa-side-group-label">Part of the</span>
