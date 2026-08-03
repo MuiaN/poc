@@ -1,13 +1,14 @@
-import { Overview } from "@/components/pages/Overview";
-import { getCurrentUser } from "@/lib/current-user";
+"use client";
 
-export default async function Page() {
-  const user = await getCurrentUser();
-  if (!user) {
-    // This should not happen in practice, as middleware protects the route
+import { useStore } from "@/lib/store";
+import { Overview } from "@/components/pages/Overview";
+
+export default function OperatorsOverviewPage() {
+  const { currentUser, isAuthenticated } = useStore();
+  
+  if (!isAuthenticated || !currentUser) {
     return null;
   }
 
-  return <Overview user={user} role="operator" />;
+  return <Overview user={currentUser} role="operator" />;
 }
-    

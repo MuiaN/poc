@@ -1,16 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useState, useCallback } from "react";
 import { getNav, ROLE_LABEL, ROLE_BASE } from "@/lib/nav";
 import { cn } from "@/components/ui";
 import type { Role, SessionUser } from "@/lib/types";
 import { Icon, PlaneIcon, ChatIcon, LogoutIcon, ChevronDownIcon } from "./icons";
+import { useStore } from "@/lib/store";
 
 export function Sidebar({ role, user }: { role: Role; user: SessionUser }) {
-  const router = useRouter();
   const pathname = usePathname();
+  const { logout } = useStore();
   const allItems = getNav(role);
   const initials = user.name
     .split(" ")
@@ -45,10 +46,12 @@ export function Sidebar({ role, user }: { role: Role; user: SessionUser }) {
   ];
 
   const handleLogout = useCallback(async () => {
-    await fetch("/api/logout", { method: "POST" });
-    router.push("/login");
-    router.refresh();
-  }, [router]);
+    // Close dialog first
+    setShowLogoutDialog(false);
+    // Call store logout (which calls API + clears localStorage)
+    await logout();
+    // RoleLayout will handle redirect to login
+  }, []);
 
   const openLogoutDialog = () => setShowLogoutDialog(true);
   const closeLogoutDialog = () => setShowLogoutDialog(false);
@@ -152,8 +155,8 @@ export function Sidebar({ role, user }: { role: Role; user: SessionUser }) {
               role === "underwriter"
                 ? "border-accent/20 bg-accent-dim text-accent"
                 : role === "admin"
-                  ? "border-purple-500/20 bg-purple-500/10 text-purple-500"
-                  : "border-warn/20 bg-warn-dim text-warn",
+                ? "border-purple-500/20 bg-purple-500/10 text-purple-500"
+                : "border-warn/20 bg-warn-dim text-warn",
             )}
           >
             {role === "admin" ? "Admin" : role === "operator" ? "Operator" : "Insurer"}

@@ -5,10 +5,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Icon, UserIcon } from "@/components/icons";
 import { Spinner } from "@/components/ui";
 import { DEMO_LOGINS, MockUser } from "@/data/mock-users";
+import { useStore } from "@/lib/store";
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { login, loading } = useStore();
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -16,21 +18,20 @@ function LoginForm() {
   const [siEmail, setSiEmail] = useState("");
   const [siPassword, setSiPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
 
   // Demo login from URL param
   useEffect(() => {
     const demoRole = searchParams.get("demo");
-    if (demoRole === "insurer" || demoRole === "operator") {
-      const email =
-        demoRole === "insurer" ? "demo.insurer@fredblack.demo" : "demo.operator@fredblack.demo";
-      const password = "FredBlack-Demo-2026!";
-      setSiEmail(email);
-      setSiPassword(password);
-      // Automatically submit after a short delay
-      setTimeout(() => {
-        handleSignIn(null, email, password);
-      }, 100);
+    if (demoRole === "admin" || demoRole === "underwriter" || demoRole === "operator") {
+      const user = DEMO_LOGINS.find((u) => u.role === demoRole);
+      if (user) {
+        setSiEmail(user.email);
+        setSiPassword(user.password);
+        // Automatically submit after a short delay
+        setTimeout(() => {
+          handleSignIn(null, user.email, user.password);
+        }, 100);
+      }
     }
   }, [searchParams]);
 
@@ -41,28 +42,17 @@ function LoginForm() {
       setError("Please enter your email and password.");
       return;
     }
-    setLoading(true);
     try {
-      const res = await fetch("/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error ?? "Sign in failed. Please try again.");
-        return;
-      }
-      // Redirect to the dashboard specified by the API response
-      router.push(data.redirect);
+      const { user, redirect } = await login(email, password);
+      router.push(redirect);
       router.refresh();
-    } catch {
-      setError("Couldn't reach the server. Please try again.");
-    } finally {
-      setLoading(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Couldn't reach the server. Please try again.");
     }
     return false; // prevent form submission
   }
+
+  const isLoading = loading.auth;
 
   return (
     <main className="relative flex flex-1 flex-col items-center justify-center bg-bg p-6 lg:p-8">
@@ -136,10 +126,10 @@ function LoginForm() {
                 </div>
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={isLoading}
                   className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-[9px] bg-accent text-sm font-semibold text-white transition hover:bg-accent-h active:scale-[.99] disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {loading ? (
+                  {isLoading ? (
                     <>
                       <Spinner />
                       <span>Signing In...</span>

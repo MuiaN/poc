@@ -8,15 +8,17 @@ import { ROLE_LABEL } from "@/lib/nav";
 import type { SessionUser } from "@/lib/types";
 import { cn } from "@/components/ui";
 import { BellIcon, MoonIcon, SearchIcon, SunIcon, ChevronDownIcon, LogoutIcon, UserIcon } from "./icons";
+import { useStore } from "@/lib/store";
 
 export function Topbar({ title, user, className, ...props }: { title: string; user: SessionUser } & HTMLAttributes<HTMLElement>) {
   const router = useRouter();
   const { theme, setTheme } = useTheme();
+  const { logout } = useStore();
   const initials = user.name
     .split(" ")
     .map((n) => n[0])
     .join("");
-  
+
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -32,9 +34,11 @@ export function Topbar({ title, user, className, ...props }: { title: string; us
   }, []);
 
   const handleLogout = async () => {
-    await fetch("/api/logout", { method: "POST" });
-    router.push("/login");
-    router.refresh();
+    // Close dialog first
+    setShowLogoutDialog(false);
+    // Call store logout (which calls API + clears localStorage)
+    await logout();
+    // RoleLayout will handle redirect to login
   };
 
   const openLogoutDialog = () => {
@@ -47,7 +51,7 @@ export function Topbar({ title, user, className, ...props }: { title: string; us
   return (
     <header className={cn("topbar", className)} {...props}>
       <div className="spacer" />
-      <div className="tb-badge">{user.role === "operator" ? user.company : `${ROLE_LABEL[user.role]} View`}</div>
+      <div className="tb-badge">{user.role === "operator" ? user.company.name : `${ROLE_LABEL[user.role]} View`}</div>
 
       <button className="tb-icon" title="Search">
         <SearchIcon />

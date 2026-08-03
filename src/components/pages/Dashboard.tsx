@@ -1149,8 +1149,8 @@ const existingItems = asnLayersRef.current || [];
                             <td style={{ color: 'var(--text)', fontWeight: '600', padding: '2px 0', fontSize: '10.5px' }}>{selectedAirfield.runways}</td>
                           </tr>
                           <tr>
-                            <td style={{ color: 'var(--text-2)', padding: '2px 8px 2px 0', whiteSpace: 'nowrap' }}>ATC / Airspace</td>
-                            <td style={{ color: 'var(--text)', fontWeight: '600', padding: '2px 0', fontSize: '10.5px' }}>{selectedAirfield.atc}</td>
+                            <td style={{ color: 'var(--text-2)', padding: '2px 8px 2px 0', whiteSpace: 'nowrap' }}>Airspace</td>
+                            <td style={{ color: 'var(--text)', fontWeight: '600', padding: '2px 0', fontSize: '10.5px' }}>{selectedAirfield.airspace}</td>
                           </tr>
                           <tr>
                             <td style={{ color: 'var(--text-2)', padding: '2px 8px 2px 0', whiteSpace: 'nowrap' }}>Night Operations</td>

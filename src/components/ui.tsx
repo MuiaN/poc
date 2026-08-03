@@ -108,8 +108,10 @@ export function Button({
   variant = "default",
   className,
   children,
+  type = "button",
+  disabled,
   ...props
-}: HTMLAttributes<HTMLButtonElement> & { variant?: "default" | "primary" | "ghost" }) {
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "default" | "primary" | "ghost" }) {
   const base =
     "inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border px-3.5 py-1.5 text-[11px] font-semibold transition-colors cursor-pointer";
   const styles = {
@@ -144,21 +146,26 @@ export function DataTable({
   columns,
   children,
 }: {
-  columns: string[];
+  columns: (string | { key: string; label: string; align?: "left" | "center" | "right"; headerClassName?: string; cellClassName?: string })[];
   children: ReactNode;
 }) {
   return (
     <table className="w-full border-collapse text-[12.5px]">
       <thead>
         <tr>
-          {columns.map((c) => (
-            <th
-              key={c}
-              className="whitespace-nowrap border-b border-border bg-bg-3 px-3.5 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-text-2"
-            >
-              {c}
-            </th>
-          ))}
+          {columns.map((c) => {
+            const col = typeof c === "string" ? { key: c, label: c, align: "left" as const } : c;
+            const alignClass = col.align === "right" ? "text-right" : col.align === "center" ? "text-center" : "text-left";
+            const headerClassName = typeof c === "object" ? c.headerClassName : undefined;
+            return (
+              <th
+                key={col.key}
+                className={`whitespace-nowrap border-b border-border bg-bg-3 px-3.5 py-2.5 ${alignClass} text-[10px] font-bold uppercase tracking-wider text-text-2 ${headerClassName || ""}`}
+              >
+                {col.label}
+              </th>
+            );
+          })}
         </tr>
       </thead>
       <tbody>{children}</tbody>
@@ -184,5 +191,30 @@ export function Spinner({ className, ...props }: HTMLAttributes<HTMLDivElement>)
       )}
       {...props}
     />
+  );
+}
+
+export interface DialogProps {
+  open: boolean;
+  onClose: () => void;
+  title: string;
+  description?: string;
+  children: ReactNode;
+  action?: ReactNode;
+}
+
+export function Dialog({ open, onClose, title, description, children, action }: DialogProps) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={onClose}>
+      <div className="bg-bg-2 border border-border rounded-lg p-6 min-w-[400px] max-w-md w-full mx-4" onClick={(e) => e.stopPropagation()}>
+        <div className="mb-4">
+          <div className="text-lg font-semibold text-text">{title}</div>
+          {description && <div className="mt-1 text-text-2 text-sm">{description}</div>}
+        </div>
+        <div className="mb-4">{children}</div>
+        {action && <div className="flex justify-end gap-2">{action}</div>}
+      </div>
+    </div>
   );
 }
