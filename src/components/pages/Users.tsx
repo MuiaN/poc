@@ -2,14 +2,16 @@
 
 import { useState, useEffect } from "react";
 import { Card, PageHeader, Badge, PanelHeader, Button, DataTable, Dialog } from "@/components/ui";
-import { useStore } from "@/lib/store";
+import { useStore, clientApi } from "@/lib/store";
 import type { User, Company } from "@/lib/api";
+import { SendIcon } from "@/components/icons";
+import { useToast } from "@/components/ui/Toast";
 
 interface InviteUserForm {
   name: string;
   email: string;
   password: string;
-  role: User["role"];
+  role: User["role"] | "";
   companyId?: string;
 }
 
@@ -24,7 +26,8 @@ function tone(status: User["status"]) {
 }
 
 export function Users() {
-  const { users, companies, loading, fetchUsers, fetchCompanies, createUser, updateUser, deleteUser, changeUserPassword, currentUser } = useStore();
+  const { users, companies, loading, fetchUsers, fetchCompanies, createUser, updateUser, deleteUser, changeUserPassword, currentUser, resendInvitation } = useStore();
+  const { addToast } = useToast();
   const [error, setError] = useState<string | null>(null);
   
   // Invite dialog state
@@ -34,7 +37,7 @@ export function Users() {
     name: "",
     email: "",
     password: "",
-    role: "admin" as User["role"],
+    role: "",
     companyId: "",
   });
 
@@ -53,6 +56,11 @@ export function Users() {
     newPassword: "",
   });
 
+  // Resend invitation dialog state
+  const [resendOpen, setResendOpen] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendUserId, setResendUserId] = useState<string | null>(null);
+
   useEffect(() => {
     fetchUsers();
     fetchCompanies();
@@ -67,7 +75,7 @@ export function Users() {
 
   // Reset invite form when opening dialog
   const openInviteDialog = () => {
-    setInviteForm({ name: "", email: "", password: "", role: "admin", companyId: companies[0]?.id || "" });
+    setInviteForm({ name: "", email: "", password: "", role: "", companyId: "" });
     setInviteOpen(true);
   };
 
@@ -76,15 +84,22 @@ export function Users() {
     setInviteLoading(true);
     setError(null);
     try {
-      const inviteData = { ...inviteForm };
+      const inviteData = { 
+        ...inviteForm, 
+        role: inviteForm.role as User["role"]
+      };
       // Only include companyId if it's a valid UUID
       if (!inviteData.companyId) {
         delete inviteData.companyId;
       }
       await createUser(inviteData);
+      // Refresh users list from server to ensure data consistency
+      await fetchUsers();
       setInviteOpen(false);
+      addToast("Invitation sent successfully", "success");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create user");
+      addToast(err instanceof Error ? err.message : "Failed to create user", "error");
     } finally {
       setInviteLoading(false);
     }
@@ -148,6 +163,28 @@ export function Users() {
     }
   };
 
+  const handleResendInvitation = (userId: string) => {
+    setResendUserId(userId);
+    setResendOpen(true);
+  };
+
+  const handleResendConfirm = async () => {
+    if (!resendUserId) return;
+    setResendLoading(true);
+    setError(null);
+    try {
+      await resendInvitation(resendUserId);
+      addToast("Invitation resent successfully", "success");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to resend invitation");
+      addToast(err instanceof Error ? err.message : "Failed to resend invitation", "error");
+    } finally {
+      setResendLoading(false);
+      setResendOpen(false);
+      setResendUserId(null);
+    }
+  };
+
   const openPasswordDialog = (userId: string) => {
     setPasswordUserId(userId);
     setPasswordForm({ currentPassword: "", newPassword: "" });
@@ -202,6 +239,7 @@ export function Users() {
                 placeholder="Full name"
                 className="w-full rounded-md border border-border-2 bg-bg-3 px-3 py-2 text-[12.5px] text-text outline-none focus:border-accent"
                 required
+                autoComplete="off"
               />
             </div>
             <div>
@@ -213,6 +251,7 @@ export function Users() {
                 placeholder="Email address"
                 className="w-full rounded-md border border-border-2 bg-bg-3 px-3 py-2 text-[12.5px] text-text outline-none focus:border-accent"
                 required
+                autoComplete="off"
               />
             </div>
             <div>
@@ -222,7 +261,9 @@ export function Users() {
                 onChange={(e) => setInviteForm({ ...inviteForm, role: e.target.value as User["role"] })}
                 className="w-full rounded-md border border-border-2 bg-bg-3 px-3 py-2 text-[12.5px] text-text outline-none focus:border-accent"
                 required
+                autoComplete="off"
               >
+                <option value="">Select role</option>
                 <option value="admin">Admin</option>
                 <option value="underwriter">Underwriter</option>
                 <option value="operator">Operator</option>
@@ -235,6 +276,7 @@ export function Users() {
                 onChange={(e) => setInviteForm({ ...inviteForm, companyId: e.target.value || undefined })}
                 className="w-full rounded-md border border-border-2 bg-bg-3 px-3 py-2 text-[12.5px] text-text outline-none focus:border-accent"
                 required
+                autoComplete="off"
               >
                 <option value="">Select company</option>
                 {companies.map((c) => (
@@ -252,6 +294,7 @@ export function Users() {
               placeholder="Password"
               className="w-full rounded-md border border-border-2 bg-bg-3 px-3 py-2 text-[12.5px] text-text outline-none focus:border-accent"
               required
+              autoComplete="new-password"
             />
           </div>
           <div className="flex justify-end gap-2 mt-4">
@@ -280,6 +323,7 @@ export function Users() {
                 placeholder="Full name"
                 className="w-full rounded-md border border-border-2 bg-bg-3 px-3 py-2 text-[12.5px] text-text outline-none focus:border-accent"
                 required
+                autoComplete="off"
               />
             </div>
             <div>
@@ -291,6 +335,7 @@ export function Users() {
                 placeholder="Email address"
                 className="w-full rounded-md border border-border-2 bg-bg-3 px-3 py-2 text-[12.5px] text-text outline-none focus:border-accent"
                 required
+                autoComplete="off"
               />
             </div>
             <div>
@@ -301,6 +346,7 @@ export function Users() {
                 className="w-full rounded-md border border-border-2 bg-bg-3 px-3 py-2 text-[12.5px] text-text outline-none focus:border-accent"
                 required
                 disabled={!!(editingUser && currentUser?.id && editingUser.id === currentUser.id)}
+                autoComplete="off"
               >
                 <option value="admin">Admin</option>
                 <option value="underwriter">Underwriter</option>
@@ -314,6 +360,7 @@ export function Users() {
                 onChange={(e) => setEditForm({ ...editForm, companyId: e.target.value || undefined })}
                 className="w-full rounded-md border border-border-2 bg-bg-3 px-3 py-2 text-[12.5px] text-text outline-none focus:border-accent"
                 required
+                autoComplete="off"
               >
                 <option value="">Select company</option>
                 {companies.map((c) => (
@@ -328,10 +375,18 @@ export function Users() {
                 onChange={(e) => setEditForm({ ...editForm, status: e.target.value as User["status"] })}
                 className="w-full rounded-md border border-border-2 bg-bg-3 px-3 py-2 text-[12.5px] text-text outline-none focus:border-accent"
                 required
+                autoComplete="off"
               >
-                <option value="active">Active</option>
-                <option value="invited">Invited</option>
-                <option value="suspended">Suspended</option>
+                {editingUser?.status === "invited" ? (
+                  <>
+                    <option value="invited">Invited</option>
+                  </>
+                ) : (
+                  <>
+                    <option value="active">Active</option>
+                    <option value="suspended">Suspended</option>
+                  </>
+                )}
               </select>
             </div>
           </div>
@@ -361,6 +416,7 @@ export function Users() {
               placeholder="Current password"
               className="w-full rounded-md border border-border-2 bg-bg-3 px-3 py-2 text-[12.5px] text-text outline-none focus:border-accent"
               required
+              autoComplete="current-password"
             />
           </div>
           <div>
@@ -372,6 +428,7 @@ export function Users() {
               placeholder="New password"
               className="w-full rounded-md border border-border-2 bg-bg-3 px-3 py-2 text-[12.5px] text-text outline-none focus:border-accent"
               required
+              autoComplete="new-password"
             />
           </div>
           <div className="flex justify-end gap-2 mt-4">
@@ -381,6 +438,21 @@ export function Users() {
             </Button>
           </div>
         </form>
+      </Dialog>
+
+      {/* Resend Invitation Dialog */}
+      <Dialog
+        open={resendOpen}
+        onClose={() => { setResendOpen(false); setResendUserId(null); }}
+        title="Resend Invitation"
+        description="Are you sure you want to resend the invitation email to this user?"
+      >
+        <div className="flex justify-end gap-2 mt-4">
+          <Button variant="ghost" onClick={() => { setResendOpen(false); setResendUserId(null); }}>Cancel</Button>
+          <Button variant="primary" onClick={handleResendConfirm} disabled={resendLoading}>
+            {resendLoading ? "Sending..." : "Resend Invitation"}
+          </Button>
+        </div>
       </Dialog>
 
       <Card>
@@ -424,6 +496,11 @@ export function Users() {
                           <path strokeLinecap="round" strokeLinejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                         </svg>
                       </Button>
+                      {u.status === "invited" && currentUser?.role === "admin" && (
+                        <Button variant="ghost" className="text-info hover:bg-info-dim hover:text-info p-1.5" title="Resend invitation" onClick={() => handleResendInvitation(u.id)}>
+                          <SendIcon className="h-4 w-4" />
+                        </Button>
+                      )}
                     </div>
                   </td>
                 </tr>

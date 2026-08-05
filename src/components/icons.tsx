@@ -88,3 +88,11 @@ export function ChevronDownIcon(props: SVGProps<SVGSVGElement>) {
     <svg fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24" {...props}><polyline points="6 9 12 15 18 9" /></svg>
   );
 }
+
+export function SendIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+      <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+    </svg>
+  );
+}

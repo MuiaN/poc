@@ -837,18 +837,18 @@ const existingItems = asnLayersRef.current || [];
     });
 
     // Load GeoJSON data for this zone type
-    fetch('/data/africa_airspace.geojson')
+    fetch('/data/EA_Horn Flight Zones.geojson')
       .then(res => res.json())
-.then(geojson => {
+      .then(geojson => {
         // Filter features by type
         const filteredFeatures = geojson.features.filter((feature: any) => {
           const props = feature.properties;
-          // The type is in properties.type based on the POC reference:
-          // 1: Restricted, 2: Danger, 3: Prohibited, 4: CTR, 10: FIR, 13: AFIS
+          // The type is in properties.type based on the new EA_Horn Flight Zones data:
+          // 1: Restricted, 2: Danger, 3: Prohibited, 4: CTR, 7: TMA, 10: FIR, 13: AFIS
           const typeNum = props.type;
           switch (zoneType) {
             case 'ctr': return typeNum === 4; // CTR
-            case 'tma': return typeNum === 10; // TMA (same as FIR in this data)
+            case 'tma': return typeNum === 7; // TMA
             case 'fir': return typeNum === 10; // FIR
             case 'prohibited': return typeNum === 3; // Prohibited
             case 'danger': return typeNum === 2; // Danger

@@ -180,6 +180,16 @@ export const api = {
     me: async () => {
       return apiRequest<User>("/api/auth/me");
     },
+
+    resendInvitation: async (userId: string) => {
+      return apiRequest<{ message: string }>(`/api/auth/resend-invitation/${userId}`, {
+        method: "POST",
+      });
+    },
+
+    acceptInvitation: async (token: string) => {
+      return apiRequest<{ message: string }>(`/api/auth/accept-invitation?token=${encodeURIComponent(token)}`);
+    },
   },
 
   // Countries
@@ -299,10 +309,11 @@ export const api = {
       role: "admin" | "underwriter" | "operator";
       companyId?: string;
     }) => {
-      return apiRequest<User>("/api/users", {
+      const response = await apiRequest<{ user: User }>("/api/auth/register", {
         method: "POST",
         body: JSON.stringify(userData),
       });
+      return response.user;
     },
 
     // Update user

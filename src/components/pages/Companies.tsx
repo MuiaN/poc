@@ -131,6 +131,7 @@ export function Companies() {
               placeholder="e.g., Kenya Airways"
               className="w-full rounded-md border border-border-2 bg-bg-3 px-3 py-2 text-[12.5px] text-text outline-none focus:border-accent"
               required
+              autoComplete="off"
             />
           </div>
           <div>
@@ -140,7 +141,9 @@ export function Companies() {
               onChange={(e) => setCreateForm({ ...createForm, type: e.target.value as "INSURER_OPS" | "OPERATOR" })}
               className="w-full rounded-md border border-border-2 bg-bg-3 px-3 py-2 text-[12.5px] text-text outline-none focus:border-accent"
               required
+              autoComplete="off"
             >
+              <option value="">Select type</option>
               <option value="INSURER_OPS">Insurer Ops</option>
               <option value="OPERATOR">Operator</option>
             </select>
@@ -152,6 +155,7 @@ export function Companies() {
               onChange={(e) => setCreateForm({ ...createForm, country: e.target.value })}
               className="w-full rounded-md border border-border-2 bg-bg-3 px-3 py-2 text-[12.5px] text-text outline-none focus:border-accent"
               required
+              autoComplete="off"
             >
               <option value="">Select country</option>
               {useStore.getState().countries.map((c) => (
@@ -184,6 +188,7 @@ export function Companies() {
               placeholder="Company name"
               className="w-full rounded-md border border-border-2 bg-bg-3 px-3 py-2 text-[12.5px] text-text outline-none focus:border-accent"
               required
+              autoComplete="off"
             />
           </div>
           <div>
@@ -193,6 +198,7 @@ export function Companies() {
               onChange={(e) => setEditForm({ ...editForm, type: e.target.value as "INSURER_OPS" | "OPERATOR" })}
               className="w-full rounded-md border border-border-2 bg-bg-3 px-3 py-2 text-[12.5px] text-text outline-none focus:border-accent"
               required
+              autoComplete="off"
             >
               <option value="INSURER_OPS">Insurer Ops</option>
               <option value="OPERATOR">Operator</option>
@@ -205,6 +211,7 @@ export function Companies() {
               onChange={(e) => setEditForm({ ...editForm, country: e.target.value })}
               className="w-full rounded-md border border-border-2 bg-bg-3 px-3 py-2 text-[12.5px] text-text outline-none focus:border-accent"
               required
+              autoComplete="off"
             >
               <option value="">Select country</option>
               {useStore.getState().countries.map((c) => (
@@ -228,7 +235,7 @@ export function Companies() {
           <div className="p-8 text-center text-text-2">Loading companies...</div>
         ) : (
           <div className="overflow-x-auto">
-            <DataTable columns={["Company", "Type", "Country", "Linked Users", "Aircraft", "Status", "Actions"]}>
+            <DataTable columns={["Company", "Type", "Country", "Linked Users", "Aircraft", "Status", { key: "Actions", label: "Actions", align: "left" }]}>
               {companies.map((c) => (
                 <tr key={c.id} className="border-b border-border last:border-none hover:bg-bg-hover">
                   <td className="px-3.5 py-2.5 font-semibold text-text">{c.name}</td>
@@ -241,17 +248,19 @@ export function Companies() {
                   <td className="px-3.5 py-2.5">
                     <Badge tone="success">active</Badge>
                   </td>
-                  <td className="px-3.5 py-2.5 text-right">
-                    <Button variant="ghost" className="text-accent hover:bg-accent-dim hover:text-accent p-1.5" title="Manage company" onClick={() => handleEdit(c)}>
-                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
-                    </Button>
-                    <Button variant="ghost" className="text-danger hover:bg-danger-dim hover:text-danger p-1.5" title="Delete company" onClick={() => handleDelete(c.id)}>
-                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </Button>
+                  <td className="px-3.5 py-2.5 max-w-[160px] whitespace-nowrap">
+                    <div className="flex items-center justify-start gap-1.5">
+                      <Button variant="ghost" className="text-accent hover:bg-accent-dim hover:text-accent p-1.5" title="Manage company" onClick={() => handleEdit(c)}>
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      </Button>
+                      <Button variant="ghost" className="text-danger hover:bg-danger-dim hover:text-danger p-1.5" title="Delete company" onClick={() => handleDelete(c.id)}>
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               ))}

@@ -15,6 +15,7 @@ function statusTone(status: string): "success" | "warn" | "danger" | "info" {
 
 export function Fleet({ role }: { role: Role }) {
   const { aircraft, loading, fetchAircraft, createAircraft, updateAircraft, deleteAircraft } = useStore();
+  const { fetchCompanies } = useStore();
   const [error, setError] = useState<string | null>(null);
   const [filteredAircraft, setFilteredAircraft] = useState<Aircraft[]>([]);
   
@@ -27,7 +28,7 @@ export function Fleet({ role }: { role: Role }) {
     model: "",
     serialNumber: "",
     year: "",
-    status: "active",
+    status: "",
     companyId: "",
   });
   
@@ -49,7 +50,8 @@ export function Fleet({ role }: { role: Role }) {
 
   useEffect(() => {
     fetchAircraft();
-  }, [fetchAircraft]);
+    fetchCompanies();
+  }, [fetchAircraft, fetchCompanies]);
 
   useEffect(() => {
     if (role === "operator") {
@@ -166,6 +168,7 @@ export function Fleet({ role }: { role: Role }) {
                 placeholder="e.g., 5Y-KQA"
                 className="w-full rounded-md border border-border-2 bg-bg-3 px-3 py-2 text-[12.5px] text-text outline-none focus:border-accent"
                 required
+                autoComplete="off"
               />
             </div>
             <div>
@@ -176,6 +179,7 @@ export function Fleet({ role }: { role: Role }) {
                 placeholder="e.g., Boeing"
                 className="w-full rounded-md border border-border-2 bg-bg-3 px-3 py-2 text-[12.5px] text-text outline-none focus:border-accent"
                 required
+                autoComplete="off"
               />
             </div>
             <div>
@@ -186,6 +190,7 @@ export function Fleet({ role }: { role: Role }) {
                 placeholder="e.g., 737-800"
                 className="w-full rounded-md border border-border-2 bg-bg-3 px-3 py-2 text-[12.5px] text-text outline-none focus:border-accent"
                 required
+                autoComplete="off"
               />
             </div>
             <div>
@@ -195,6 +200,7 @@ export function Fleet({ role }: { role: Role }) {
                 onChange={(e) => setCreateForm({ ...createForm, serialNumber: e.target.value })}
                 placeholder="Optional"
                 className="w-full rounded-md border border-border-2 bg-bg-3 px-3 py-2 text-[12.5px] text-text outline-none focus:border-accent"
+                autoComplete="off"
               />
             </div>
             <div>
@@ -207,6 +213,7 @@ export function Fleet({ role }: { role: Role }) {
                 className="w-full rounded-md border border-border-2 bg-bg-3 px-3 py-2 text-[12.5px] text-text outline-none focus:border-accent"
                 min="1900"
                 max={new Date().getFullYear() + 1}
+                autoComplete="off"
               />
             </div>
             <div>
@@ -216,7 +223,9 @@ export function Fleet({ role }: { role: Role }) {
                 onChange={(e) => setCreateForm({ ...createForm, status: e.target.value })}
                 className="w-full rounded-md border border-border-2 bg-bg-3 px-3 py-2 text-[12.5px] text-text outline-none focus:border-accent"
                 required
+                autoComplete="off"
               >
+                <option value="">Select status</option>
                 <option value="active">Active</option>
                 <option value="maintenance">Maintenance</option>
                 <option value="retired">Retired</option>
@@ -229,7 +238,9 @@ export function Fleet({ role }: { role: Role }) {
                 onChange={(e) => setCreateForm({ ...createForm, companyId: e.target.value })}
                 className="w-full rounded-md border border-border-2 bg-bg-3 px-3 py-2 text-[12.5px] text-text outline-none focus:border-accent"
                 required
+                autoComplete="off"
               >
+                <option value="">Select company</option>
                 {companies.map((c) => (
                   <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
@@ -262,6 +273,7 @@ export function Fleet({ role }: { role: Role }) {
                 placeholder="e.g., 5Y-KQA"
                 className="w-full rounded-md border border-border-2 bg-bg-3 px-3 py-2 text-[12.5px] text-text outline-none focus:border-accent"
                 required
+                autoComplete="off"
               />
             </div>
             <div>
@@ -272,6 +284,7 @@ export function Fleet({ role }: { role: Role }) {
                 placeholder="e.g., Boeing"
                 className="w-full rounded-md border border-border-2 bg-bg-3 px-3 py-2 text-[12.5px] text-text outline-none focus:border-accent"
                 required
+                autoComplete="off"
               />
             </div>
             <div>
@@ -282,6 +295,7 @@ export function Fleet({ role }: { role: Role }) {
                 placeholder="e.g., 737-800"
                 className="w-full rounded-md border border-border-2 bg-bg-3 px-3 py-2 text-[12.5px] text-text outline-none focus:border-accent"
                 required
+                autoComplete="off"
               />
             </div>
             <div>
@@ -291,6 +305,7 @@ export function Fleet({ role }: { role: Role }) {
                 onChange={(e) => setEditForm({ ...editForm, serialNumber: e.target.value })}
                 placeholder="Optional"
                 className="w-full rounded-md border border-border-2 bg-bg-3 px-3 py-2 text-[12.5px] text-text outline-none focus:border-accent"
+                autoComplete="off"
               />
             </div>
             <div>
@@ -303,6 +318,7 @@ export function Fleet({ role }: { role: Role }) {
                 className="w-full rounded-md border border-border-2 bg-bg-3 px-3 py-2 text-[12.5px] text-text outline-none focus:border-accent"
                 min="1900"
                 max={new Date().getFullYear() + 1}
+                autoComplete="off"
               />
             </div>
             <div>
@@ -312,6 +328,7 @@ export function Fleet({ role }: { role: Role }) {
                 onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
                 className="w-full rounded-md border border-border-2 bg-bg-3 px-3 py-2 text-[12.5px] text-text outline-none focus:border-accent"
                 required
+                autoComplete="off"
               >
                 <option value="active">Active</option>
                 <option value="maintenance">Maintenance</option>
@@ -336,7 +353,7 @@ export function Fleet({ role }: { role: Role }) {
         ) : (
           <div className="overflow-x-auto">
             <DataTable
-              columns={["Registration", "Manufacturer", "Model", "Serial", "Year", "Company", "Status", "Actions"]}
+              columns={["Registration", "Manufacturer", "Model", "Serial", "Year", "Company", "Status", { key: "Actions", label: "Actions", align: "left" }]}
             >
               {filteredAircraft.map((a) => (
                 <tr key={a.id} className="border-b border-border last:border-none hover:bg-bg-hover">
@@ -349,17 +366,19 @@ export function Fleet({ role }: { role: Role }) {
                   <td className="px-3.5 py-2.5">
                     <Badge tone={statusTone(a.status)}>{a.status}</Badge>
                   </td>
-                  <td className="px-3.5 py-2.5 text-right">
-                    <Button variant="ghost" className="text-accent hover:bg-accent-dim hover:text-accent p-1.5" title="Edit aircraft" onClick={() => handleEdit(a)}>
-                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
-                    </Button>
-                    <Button variant="ghost" className="text-danger hover:bg-danger-dim hover:text-danger p-1.5" title="Delete aircraft" onClick={() => handleDelete(a.id)}>
-                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </Button>
+<td className="px-3.5 py-2.5 max-w-[160px] whitespace-nowrap">
+                    <div className="flex items-center justify-start gap-1.5">
+                      <Button variant="ghost" className="text-accent hover:bg-accent-dim hover:text-accent p-1.5" title="Edit aircraft" onClick={() => handleEdit(a)}>
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      </Button>
+                      <Button variant="ghost" className="text-danger hover:bg-danger-dim hover:text-danger p-1.5" title="Delete aircraft" onClick={() => handleDelete(a.id)}>
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               ))}

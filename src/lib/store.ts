@@ -81,6 +81,7 @@ interface AppState {
   updateUser: (userId: string, updates: Partial<User>) => Promise<User>;
   changeUserPassword: (userId: string, currentPassword: string, newPassword: string) => Promise<void>;
   deleteUser: (userId: string) => Promise<void>;
+  resendInvitation: (userId: string) => Promise<void>;
 
   // Helpers
   getRedirectPath: (role: UserRole) => string;
@@ -359,8 +360,10 @@ export const useStore = create<AppState>()(
         set(state => ({ loading: { ...state.loading, userCreate: true } }));
         try {
           const newUser = await api.users.create(userData);
-          set(state => ({ users: [newUser, ...state.users] }));
-          return newUser;
+          // Fetch the full user with company relation
+          const fullUser = await api.users.get(newUser.id);
+          set(state => ({ users: [fullUser, ...state.users] }));
+          return fullUser;
         } catch (error) {
           console.error("Failed to create user:", error);
           throw error;
@@ -415,6 +418,18 @@ export const useStore = create<AppState>()(
           throw error;
         } finally {
           set(state => ({ loading: { ...state.loading, userDelete: false } }));
+        }
+      },
+
+      resendInvitation: async (userId: string) => {
+        set(state => ({ loading: { ...state.loading, userUpdate: true } }));
+        try {
+          await api.auth.resendInvitation(userId);
+        } catch (error) {
+          console.error("Failed to resend invitation:", error);
+          throw error;
+        } finally {
+          set(state => ({ loading: { ...state.loading, userUpdate: false } }));
         }
       },
 

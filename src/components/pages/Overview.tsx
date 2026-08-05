@@ -8,6 +8,7 @@ import { WelcomeCard } from "@/data/WelcomeCard";
 import { FleetByType } from "@/data/FleetByType";
 import { LiveFlights } from "@/data/LiveFlights";
 import { IntelligencePanel } from "@/data/IntelligencePanel";
+import { AviationSafetyPanel } from "@/data/AviationSafetyPanel";
 
 export function Overview({ user, role }: { user: SessionUser; role: Role }) {
   const isOp = role === "operator";
@@ -52,6 +53,7 @@ export function Overview({ user, role }: { user: SessionUser; role: Role }) {
           <FleetByType role={role} />
           <LiveFlights role={role} />
           {!isOp && <IntelligencePanel />}
+          <AviationSafetyPanel />
         </div>
       </div>
     </>
