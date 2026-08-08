@@ -2,7 +2,7 @@ name: Deploy Front‑end to Server
 
 on:
   push:
-    branches: [ master ]          # we work on master, not main
+    branches: [ master ]
 
 permissions:
   contents: read
@@ -11,66 +11,68 @@ permissions:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, frontend]   # runner labelled "frontend"
     env:
-      SERVER_HOST:       ${{ secrets.SERVER_HOST }}
       SERVER_USER:       ${{ secrets.SERVER_USERNAME }}
-      SERVER_PORT:       ${{ secrets.SERVER_PORT }}
-      SSH_KEY:           ${{ secrets.SSH_PRIVATE_KEY }}
-      SSH_PASSPHRASE:    ${{ secrets.SSH_PASSPHRASE }}
       GIT_PAT:           ${{ secrets.GIT_PAT }}
       NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+      NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: ${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}
+      SESSION_SECRET:    ${{ secrets.SESSION_SECRET }}
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # --------------------------------------------------------------
-      # 1️⃣  Copy the whole repo to the server (so we can `git pull` there)
-      # --------------------------------------------------------------
-      - name: Upload repository to server
-        uses: appleboy/scp-action@v0.1.4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          host:            ${{ secrets.SERVER_HOST }}
-          username:        ${{ secrets.SERVER_USERNAME }}
-          port:            ${{ secrets.SERVER_PORT }}
-          key:             ${{ secrets.SSH_PRIVATE_KEY }}
-          passphrase:      ${{ secrets.SSH_PASSPHRASE }}
-          source:          "."
-          target:          "/home/${{ secrets.SERVER_USERNAME }}/SA-Aviation-Intelligence-Platform/frontend"
+          node-version: '24'
+          cache: 'npm'
 
       # --------------------------------------------------------------
-      # 2️⃣  SSH → pull latest, write .env, build image, start container
+      # 1️⃣  Pull latest code on the server (already cloned)
       # --------------------------------------------------------------
-      - name: SSH & Deploy Front‑end
-        uses: appleboy/ssh-action@v0.1.10
-        with:
-          host:            ${{ secrets.SERVER_HOST }}
-          username:        ${{ secrets.SERVER_USERNAME }}
-          port:            ${{ secrets.SERVER_PORT }}
-          key:             ${{ secrets.SSH_PRIVATE_KEY }}
-          passphrase:      ${{ secrets.SSH_PASSPHRASE }}
-          script: |
-            set -euo pipefail
-            cd /home/${{ secrets.SERVER_USERNAME }}/SA-Aviation-Intelligence-Platform/frontend
+      - name: Pull latest code
+        run: |
+          cd /home/${{ secrets.SERVER_USERNAME }}/SA-Aviation-Intelligence-Platform/frontend
+          git fetch origin
+          git reset --hard origin/master
 
-            echo "🔄 Pulling latest code..."
-            git fetch origin
-            git reset --hard origin/master
+      - name: Write .env for build
+        run: |
+          cd /home/${{ secrets.SERVER_USERNAME }}/SA-Aviation-Intelligence-Platform/frontend
+          cat > .env <<EOF
+          NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
+          NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}
+          SESSION_SECRET=${{ secrets.SESSION_SECRET }}
+          EOF
 
-            echo "🔐 Writing .env for build (NEXT_PUBLIC_API_URL)..."
-            cat > .env <<'EOF'
-NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
-EOF
+      # --------------------------------------------------------------
+      # 2️⃣ Build front‑end image (Next.js standalone)
+      # --------------------------------------------------------------
+      - name: Build front‑end image
+        run: |
+          cd /home/${{ secrets.SERVER_USERNAME }}/SA-Aviation-Intelligence-Platform/frontend
+          echo "🐳 Building front‑end image (Next.js standalone) ..."
+          docker compose -f docker-compose.prod.yml build \
+            --build-arg NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }} \
+            --build-arg NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }} \
+            --build-arg SESSION_SECRET=${{ secrets.SESSION_SECRET }} \
+            frontend
 
-            echo "🐳 Building front‑end image (Next.js standalone) ..."
-            docker compose -f docker-compose.prod.yml build \
-              --build-arg NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }} \
-              frontend
+      # --------------------------------------------------------------
+      # 3️⃣ Start front‑end container
+      # --------------------------------------------------------------
+      - name: Start front‑end container
+        run: |
+          cd /home/${{ secrets.SERVER_USERNAME }}/SA-Aviation-Intelligence-Platform/frontend
+          echo "🚀 Starting front‑end container..."
+          docker compose -f docker-compose.prod.yml up -d --no-deps frontend
 
-            echo "🚀 Starting front‑end container..."
-            docker compose -f docker-compose.prod.yml up -d --no-deps frontend
-
-            echo "🧹 Pruning unused images..."
-            docker image prune -af
-
-            echo "✅ Front‑end deployment finished!"
+      # --------------------------------------------------------------
+      # 4️⃣ Prune unused images
+      # --------------------------------------------------------------
+      - name: Prune unused images
+        run: |
+          docker image prune -af
+          echo "✅ Front‑end deployment finished!"
